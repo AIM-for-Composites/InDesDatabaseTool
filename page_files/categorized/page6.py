@@ -21,7 +21,7 @@ with open("images/Materials_bg_InDeS.png", "rb") as f:
 
 image_url = f"data:image/png;base64,{encoded}"
 
-API_KEY = "AIzaSyAuI-qwSCRpdAcGTvNNaS70NkxlLMSrWF0"
+API_KEY = ""
 API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key={API_KEY}"
 
 SCHEMA = {
