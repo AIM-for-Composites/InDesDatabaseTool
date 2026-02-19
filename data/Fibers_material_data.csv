@@ -1,0 +1,396 @@
+material_name,material_abbreviation,section,property_name,value,unit,english,test_condition,comments,source_file
+Nylon 6 Fiber,PA6,Physical Properties,Density,1.13 - 1.14,g/cc,0.0408 - 0.0412 lb/in³,,Average value: 1.14 g/cc Grade Count:10,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Mechanical Properties,"Tensile Strength, Ultimate",558 - 607,MPa,81000 - 88000 psi,,Average value: 578 MPa Grade Count:5,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Mechanical Properties,Elongation at Break,15.0 - 300,%,15.0 - 300 %,,Average value: 42.3 % Grade Count:31,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Mechanical Properties,Elongation at Yield,3.50 - 12.0,%,3.50 - 12.0 %,,Average value: 7.81 % Grade Count:8,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Mechanical Properties,Tenacity,0.265 - 2.56,N/tex,3.00 - 29.0 g/denier,,Average value: 0.723 N/tex Grade Count:25,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Electrical Properties,Electrical Resistivity,4000 - 300000,ohm-cm,4000 - 300000 ohm-cm,,Average value: 176000 ohm-cm Grade Count:8,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Thermal Properties,Melting Point,110 - 220,°C,230 - 428 °F,,Average value: 214 °C Grade Count:19,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Physical Properties,Density,1.13 - 1.14,g/cc,0.0408 - 0.0412 lb/in³,,Average value: 1.14 g/cc Grade Count:10,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Mechanical Properties,"Tensile Strength, Ultimate",558 - 607,MPa,81000 - 88000 psi,,Average value: 578 MPa Grade Count:5,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Mechanical Properties,Elongation at Break,15.0 - 300,%,15.0 - 300 %,,Average value: 42.3 % Grade Count:31,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Mechanical Properties,Elongation at Yield,3.50 - 12.0,%,3.50 - 12.0 %,,Average value: 7.81 % Grade Count:8,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Mechanical Properties,Tenacity,0.265 - 2.56,N/tex,3.00 - 29.0 g/denier,,Average value: 0.723 N/tex Grade Count:25,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Electrical Properties,Electrical Resistivity,4000 - 300000,ohm-cm,4000 - 300000 ohm-cm,,Average value: 176000 ohm-cm Grade Count:8,Fibers_material_data.csv
+Nylon 6 Fiber,PA6,Thermal Properties,Melting Point,110 - 220,°C,230 - 428 °F,,Average value: 214 °C Grade Count:19,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Physical Properties,Density,0.886 - 1.14,g/cc,0.0320 - 0.0412 lb/in³,,Average value: 0.905 g/cc Grade Count:117,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Physical Properties,Water Absorption,0.01,%,0.01%,,Average value: 0.0100 % Grade Count:3,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Physical Properties,Environmental Stress Crack Resistance,>= 500,hour,>= 500 hour,,Average value: 500 hour Grade Count:2,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Physical Properties,Linear Mold Shrinkage,0.0100 - 0.0250,cm/cm,0.0100 - 0.0250 in/in,@Temperature 50.0 - 50.0 °C,Average value: 0.0175 cm/cm Grade Count:4,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Physical Properties,Melt Flow,0.300 - 1800,g/10 min,0.300 - 1800 g/10 min,,Average value: 97.2 g/10 min Grade Count:138,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Hardness, Rockwell R",65.0 - 112,,65.0 - 112,,Average value: 98.3 Grade Count:61,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Hardness, Shore D",70.0 - 76.0,,70.0 - 76.0,,Average value: 73.4 Grade Count:20,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Tensile Strength, Ultimate",17.8 - 317,MPa,2580 - 46000 psi,,Average value: 113 MPa Grade Count:23,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Tensile Strength, Yield",21.0 - 97.0,MPa,3050 - 14100 psi,,Average value: 35.0 MPa Grade Count:103,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Elongation at Break,15.0 - 720,%,15.0 - 720 %,,Average value: 278 % Grade Count:38,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Elongation at Yield,6.00 - 203,%,6.00 - 203 %,,Average value: 17.1 % Grade Count:84,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Modulus of Elasticity,0.650 - 1.99,GPa,94.3 - 289 ksi,,Average value: 1.46 GPa Grade Count:23,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Tenacity,0.168 - 0.441,N/tex,1.90 - 5.00 g/denier,,Average value: 0.266 N/tex Grade Count:16,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Flexural Yield Strength,22.0 - 135,MPa,3190 - 19600 psi,,Average value: 53.0 MPa Grade Count:5,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Flexural Modulus,0.827 - 7.40,GPa,120 - 1070 ksi,,Average value: 1.54 GPa Grade Count:112,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Izod Impact, Notched",0.140 - 0.490,J/cm,0.262 - 0.919 ft-lb/in,,Average value: 0.288 J/cm Grade Count:74,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Izod Impact, Notched",0.166713 - 0.274586,J/cm,0.312322 - 0.514412 ft-lb/in,@Temperature -20.0 - 0.000 °C,Average value: 0.216 J/cm Grade Count:2,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Izod Impact, Unnotched",0.186 - NB,J/cm,0.349 ft-lb/in - NB,,Average value: 3.08 J/cm Grade Count:13,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Izod Impact, Notched (ISO)",2.00 - 10.0,kJ/m²,0.952 - 4.76 ft-lb/in²,,Average value: 4.15 kJ/m² Grade Count:20,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Izod Impact, Notched (ISO)",8.00 - 8.00,kJ/m²,3.81 - 3.81 ft-lb/in²,@Temperature -30.0 - 30.0 °C,Average value: 8.00 kJ/m² Grade Count:1,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Charpy Impact, Notched",0.400 - 0.850,J/cm²,1.90 - 4.05 ft-lb/in²,,Average value: 0.543 J/cm² Grade Count:7,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Thermal Properties,Melting Point,146 - 165 °C,°C,295 - 329 °F,,Average value: 162 °C Grade Count:30,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Thermal Properties,Deflection Temperature,60.0 - 129 °C,°C,140 - 264 °F,at 0.46 MPa (66 psi),Average value: 101 °C Grade Count:82,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Thermal Properties,Deflection Temperature,52.0 - 150 °C,°C,126 - 302 °F,at 1.8 MPa (264 psi),Average value: 69.3 °C Grade Count:19,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Thermal Properties,Vicat Softening Point,78.0 - 155 °C,°C,172 - 311 °F,,Average value: 146 °C Grade Count:39,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Thermal Properties,Heat Distortion Temperature,95.0 - 119 °C,°C,203 - 246 °F,,Average value: 108 °C Grade Count:6,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Optical Properties,Haze,50.0 - 79.7,%,50.0 - 79.7 %,,Average value: 63.0 % Grade Count:6,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Optical Properties,Gloss,65.0 - 95.0,%,65.0 - 95.0 %,,Average value: 86.2 % Grade Count:6,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Processing Properties,Processing Temperature,190 - 274 °C,°C,374 - 525 °F,,Average value: 234 °C Grade Count:8,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Processing Properties,Melt Temperature,204 - 288 °C,°C,399 - 550 °F,,Average value: 232 °C Grade Count:10,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Physical Properties,Bulk Density,2.48,g/cc,0.0896 lb/in³,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Physical Properties,Density,2.46,g/cc,0.0889 lb/in³,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Physical Properties,Water Absorption,0,%,0.00%,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Physical Properties,Loss On Ignition,0.10 - 1.4,%,0.10 - 1.4%,,Varies according to size type,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Physical Properties,Filament Diameter,5.0 - 25,µm,5.0 - 25 µm,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Mechanical Properties,"Tensile Strength, Ultimate",4445,MPa,644700 psi,@Temperature 371 °C,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Mechanical Properties,"Tensile Strength, Ultimate",4890,MPa,709000 psi,@Temperature 23.0 °C,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Mechanical Properties,Elongation at Break,5.7,%,5.70%,,in 50 mm,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Mechanical Properties,Modulus of Elasticity,86.9,GPa,12600 ksi,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Mechanical Properties,Poissons Ratio,0.22,,0.22,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Electrical Properties,Electrical Resistivity,9.05e+12,ohm-cm,9.05e+12 ohm-cm,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Electrical Properties,Dielectric Constant,5.2,,5.2,@Frequency 1e+10 Hz,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Electrical Properties,Dielectric Constant,5.3,,5.3,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Electrical Properties,Dielectric Strength,18,kV/mm,457 kV/in,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Electrical Properties,Dissipation Factor,0.002,,0.002,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,"CTE, linear",1.6,µm/m-°C,0.889 µin/in-°F,@Temperature -30.0 - 250 °C,"average, isotropic",Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Specific Heat Capacity,0.737,J/g-°C,0.176 BTU/lb-°F,@Temperature 23.0 °C,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Specific Heat Capacity,0.935,J/g-°C,0.223 BTU/lb-°F,@Temperature 200 °C,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Thermal Conductivity,1.10 - 1.40,W/m-K,7.63 - 9.72 BTU-in/hr-ft²-°F,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Melting Point,1466,°C,2671 °F,,Liquidus,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Liquidus,1466,°C,2671 °F,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,"Maximum Service Temperature, Air",875,°C,1610 °F,,"Well above Tg, due to reversible phase separation",Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,"Maximum Service Temperature, Inert",875,°C,1610 °F,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,"Transformation Temperature, Tg",845,°C,1550 °F,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Softening Point,1056,°C,1933 °F,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Optical Properties,Refractive Index,1.521,,1.521,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Descriptive Properties,Color,Clear,,,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Physical Properties,Density,2.44,g/cc,0.0882 lb/in³,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Mechanical Properties,"Tensile Strength, Ultimate",3310,MPa,480000 psi,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Mechanical Properties,Elongation at Break,4.8,%,4.80%,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Mechanical Properties,Modulus of Elasticity,68.9,GPa,9990 ksi,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Mechanical Properties,Poissons Ratio,0.183,,0.183,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Mechanical Properties,Shear Modulus,29.1,GPa,4220 ksi,,Calculated,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Electrical Properties,Electrical Resistivity,100000000,ohm-cm,1.00e+8 ohm-cm,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Electrical Properties,Dielectric Constant,6.2,,6.2,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Thermal Properties,"CTE, linear",9,µm/m-°C,5.00 µin/in-°F,@Temperature 20.0 °C,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Thermal Properties,Specific Heat Capacity,0.796,J/g-°C,0.190 BTU/b-°F,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Thermal Properties,Softening Point,727,°C,1340 °F,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Optical Properties,Refractive Index,1.538,,1.538,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Physical Properties,Density,2.54 - 2.60,g/cc,0.0918 - 0.0939 lb/in³,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,"Tensile Strength, Ultimate",521,MPa,75500 psi,@Temperature -190 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,"Tensile Strength, Ultimate",1725,MPa,250200 psi,@Temperature 540 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,"Tensile Strength, Ultimate",2620,MPa,380000 psi,@Temperature 370 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,"Tensile Strength, Ultimate",3450-3790,MPa,500000 - 550000 psi,@Temperature 22.0 °C,Virgin strength,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,Elongation at Break,4.8,%,4.80%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,Modulus of Elasticity,72.4,GPa,10500 ksi,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,Modulus of Elasticity,72.3,GPa,10500 ksi,@Temperature 540 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,Poissons Ratio,0.2,,0.2,,Calculated,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,Shear Modulus,30,GPa,4350 ksi,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Electrical Resistivity,4.02e+12,ohm-cm,4.02e+12 ohm-cm,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Dielectric Constant,5.9 - 6.4,,5.9 - 6.4,@Frequency 60 Hz,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Dielectric Constant,6.3 - 6.6,,6.3 - 6.6,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Dielectric Strength,10.3,kV/mm,262 kV/in,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Dissipation Factor,0.0025,,0.0025,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Dissipation Factor,0.0034,,0.0034,@Frequency 60 Hz,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,"CTE, linear",5,µm/m-°C,2.78 µin/in-°F,@Temperature 20.0 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,"CTE, linear",5.4,µm/m-°C,3.00 µin/in-°F,@Temperature -30.0 - 250 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,Specific Heat Capacity,0.81,J/g-°C,0.194 BTU/lb-°F,@Temperature 23.0 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,Specific Heat Capacity,1.03,J/g-°C,0.246 BTU/lb-°F,@Temperature 200 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,Thermal Conductivity,1.3,W/m-K,9.02 BTU-in/hr-ft²-°F,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,Melting Point,<= 1725,°C,<= 3137 °F,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,Softening Point,840.6,°C,1545 °F,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Optical Properties,Refractive Index,1.558,,1.558,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Optical Properties,Refractive Index,1.562,,1.562,,bulk annealed,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,A1203,15.2,%,15.20%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,BaO,8,%,8.00%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,CaO,17.2,%,17.20%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,MgO,4.7,%,4.70%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,NaO2,0.6,%,0.60%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,SiO2,54.3,%,54.30%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Descriptive Properties,Velocity of sound,5330,m/s,,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Physical Properties,Density,2.11,g/cc,0.0762 lb/in³,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Mechanical Properties,"Tensile Strength, Ultimate",2415,MPa,350300 psi,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Mechanical Properties,Elongation at Break,4.6,%,4.60%,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Mechanical Properties,Modulus of Elasticity,51.7,GPa,7500 ksi,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Electrical Properties,Dielectric Constant,3.8,,3.8,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Thermal Properties,"CTE, linear",2.5,µm/m-°C,1.39 µin/in-°F,@Temperature 20.0 °C,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Thermal Properties,Specific Heat Capacity,0.733,J/g-°C,0.175 BTU/lb-°F,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Optical Properties,Refractive Index,1.465,,1.465,,,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Physical Properties,Density,1.13 - 1.14,g/cc,0.0408 - 0.0412 lb/in³,,Average value: 1.14 g/cc Grade Count:10,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Mechanical Properties,"Tensile Strength, Ultimate",558 - 607,MPa,81000 - 88000 psi,,Average value: 578 MPa Grade Count:5,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Mechanical Properties,Elongation at Break,15.0 - 300,%,15.0 - 300 %,,Average value: 42.3 % Grade Count:31,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Mechanical Properties,Elongation at Yield,3.50 - 12.0,%,3.50 - 12.0 %,,Average value: 7.81 % Grade Count:8,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Mechanical Properties,Tenacity,0.265 - 2.56,N/tex,3.00 - 29.0 g/denier,,Average value: 0.723 N/tex Grade Count:25,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Electrical Properties,Electrical Resistivity,4000 - 300000,ohm-cm,4000 - 300000 ohm-cm,,Average value: 176000 ohm-cm Grade Count:8,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Thermal Properties,Melting Point,110 - 220,°C,230 - 428 °F,,Average value: 214 °C Grade Count:19,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Physical Properties,Density,1.13 - 1.14,g/cc,0.0408 - 0.0412 lb/in³,,Average value: 1.14 g/cc Grade Count:10,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Mechanical Properties,"Tensile Strength, Ultimate",558 - 607,MPa,81000 - 88000 psi,,Average value: 578 MPa Grade Count:5,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Mechanical Properties,Elongation at Break,15.0 - 300,%,15.0 - 300 %,,Average value: 42.3 % Grade Count:31,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Mechanical Properties,Elongation at Yield,3.50 - 12.0,%,3.50 - 12.0 %,,Average value: 7.81 % Grade Count:8,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Mechanical Properties,Tenacity,0.265 - 2.56,N/tex,3.00 - 29.0 g/denier,,Average value: 0.723 N/tex Grade Count:25,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Electrical Properties,Electrical Resistivity,4000 - 300000,ohm-cm,4000 - 300000 ohm-cm,,Average value: 176000 ohm-cm Grade Count:8,Fibers_material_data.csv
+Nylon 6 Fiber,PA6-F,Thermal Properties,Melting Point,110 - 220,°C,230 - 428 °F,,Average value: 214 °C Grade Count:19,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Physical Properties,Density,0.886 - 1.14,g/cc,0.0320 - 0.0412 lb/in³,,Average value: 0.905 g/cc Grade Count:117,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Physical Properties,Water Absorption,0.01,%,0.01%,,Average value: 0.0100 % Grade Count:3,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Physical Properties,Environmental Stress Crack Resistance,>= 500,hour,>= 500 hour,,Average value: 500 hour Grade Count:2,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Physical Properties,Linear Mold Shrinkage,0.0100 - 0.0250,cm/cm,0.0100 - 0.0250 in/in,@Temperature 50.0 - 50.0 °C,Average value: 0.0175 cm/cm Grade Count:4,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Physical Properties,Melt Flow,0.300 - 1800,g/10 min,0.300 - 1800 g/10 min,,Average value: 97.2 g/10 min Grade Count:138,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Hardness, Rockwell R",65.0 - 112,,65.0 - 112,,Average value: 98.3 Grade Count:61,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Hardness, Shore D",70.0 - 76.0,,70.0 - 76.0,,Average value: 73.4 Grade Count:20,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Tensile Strength, Ultimate",17.8 - 317,MPa,2580 - 46000 psi,,Average value: 113 MPa Grade Count:23,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Tensile Strength, Yield",21.0 - 97.0,MPa,3050 - 14100 psi,,Average value: 35.0 MPa Grade Count:103,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Elongation at Break,15.0 - 720,%,15.0 - 720 %,,Average value: 278 % Grade Count:38,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Elongation at Yield,6.00 - 203,%,6.00 - 203 %,,Average value: 17.1 % Grade Count:84,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Modulus of Elasticity,0.650 - 1.99,GPa,94.3 - 289 ksi,,Average value: 1.46 GPa Grade Count:23,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Tenacity,0.168 - 0.441,N/tex,1.90 - 5.00 g/denier,,Average value: 0.266 N/tex Grade Count:16,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Flexural Yield Strength,22.0 - 135,MPa,3190 - 19600 psi,,Average value: 53.0 MPa Grade Count:5,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,Flexural Modulus,0.827 - 7.40,GPa,120 - 1070 ksi,,Average value: 1.54 GPa Grade Count:112,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Izod Impact, Notched",0.140 - 0.490,J/cm,0.262 - 0.919 ft-lb/in,,Average value: 0.288 J/cm Grade Count:74,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Izod Impact, Notched",0.166713 - 0.274586,J/cm,0.312322 - 0.514412 ft-lb/in,@Temperature -20.0 - 0.000 °C,Average value: 0.216 J/cm Grade Count:2,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Izod Impact, Unnotched",0.186 - NB,J/cm,0.349 ft-lb/in - NB,,Average value: 3.08 J/cm Grade Count:13,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Izod Impact, Notched (ISO)",2.00 - 10.0,kJ/m²,0.952 - 4.76 ft-lb/in²,,Average value: 4.15 kJ/m² Grade Count:20,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Izod Impact, Notched (ISO)",8.00 - 8.00,kJ/m²,3.81 - 3.81 ft-lb/in²,@Temperature -30.0 - 30.0 °C,Average value: 8.00 kJ/m² Grade Count:1,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Mechanical Properties,"Charpy Impact, Notched",0.400 - 0.850,J/cm²,1.90 - 4.05 ft-lb/in²,,Average value: 0.543 J/cm² Grade Count:7,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Thermal Properties,Melting Point,146 - 165 °C,°C,295 - 329 °F,,Average value: 162 °C Grade Count:30,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Thermal Properties,Deflection Temperature,60.0 - 129 °C,°C,140 - 264 °F,at 0.46 MPa (66 psi),Average value: 101 °C Grade Count:82,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Thermal Properties,Deflection Temperature,52.0 - 150 °C,°C,126 - 302 °F,at 1.8 MPa (264 psi),Average value: 69.3 °C Grade Count:19,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Thermal Properties,Vicat Softening Point,78.0 - 155 °C,°C,172 - 311 °F,,Average value: 146 °C Grade Count:39,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Thermal Properties,Heat Distortion Temperature,95.0 - 119 °C,°C,203 - 246 °F,,Average value: 108 °C Grade Count:6,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Optical Properties,Haze,50.0 - 79.7,%,50.0 - 79.7 %,,Average value: 63.0 % Grade Count:6,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Optical Properties,Gloss,65.0 - 95.0,%,65.0 - 95.0 %,,Average value: 86.2 % Grade Count:6,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Processing Properties,Processing Temperature,190 - 274 °C,°C,374 - 525 °F,,Average value: 234 °C Grade Count:8,Fibers_material_data.csv
+"Polypropylene, Fiber Grade",PP-F,Processing Properties,Melt Temperature,204 - 288 °C,°C,399 - 550 °F,,Average value: 232 °C Grade Count:10,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Physical Properties,Bulk Density,2.48,g/cc,0.0896 lb/in³,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Physical Properties,Density,2.46,g/cc,0.0889 lb/in³,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Physical Properties,Water Absorption,0,%,0.00%,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Physical Properties,Loss On Ignition,0.10 - 1.4,%,0.10 - 1.4%,,Varies according to size type,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Physical Properties,Filament Diameter,5.0 - 25,µm,5.0 - 25 µm,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Mechanical Properties,"Tensile Strength, Ultimate",4445,MPa,644700 psi,@Temperature 371 °C,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Mechanical Properties,"Tensile Strength, Ultimate",4890,MPa,709000 psi,@Temperature 23.0 °C,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Mechanical Properties,Elongation at Break,5.7,%,5.70%,,in 50 mm,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Mechanical Properties,Modulus of Elasticity,86.9,GPa,12600 ksi,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Mechanical Properties,Poissons Ratio,0.22,,0.22,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Electrical Properties,Electrical Resistivity,9.05E+12,ohm-cm,9.05e+12 ohm-cm,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Electrical Properties,Dielectric Constant,5.2,,5.2,@Frequency 1e+10 Hz,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Electrical Properties,Dielectric Constant,5.3,,5.3,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Electrical Properties,Dielectric Strength,18,kV/mm,457 kV/in,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Electrical Properties,Dissipation Factor,0.002,,0.002,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,"CTE, linear",1.6,µm/m-°C,0.889 µin/in-°F,@Temperature -30.0 - 250 °C,"average, isotropic",Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Specific Heat Capacity,0.737,J/g-°C,0.176 BTU/lb-°F,@Temperature 23.0 °C,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Specific Heat Capacity,0.935,J/g-°C,0.223 BTU/lb-°F,@Temperature 200 °C,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Thermal Conductivity,1.10 - 1.40,W/m-K,7.63 - 9.72 BTU-in/hr-ft²-°F,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Melting Point,1466,°C,2671 °F,,Liquidus,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Liquidus,1466,°C,2671 °F,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,"Maximum Service Temperature, Air",875,°C,1610 °F,,"Well above Tg, due to reversible phase separation",Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,"Maximum Service Temperature, Inert",875,°C,1610 °F,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,"Transformation Temperature, Tg",845,°C,1550 °F,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Thermal Properties,Softening Point,1056,°C,1933 °F,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Optical Properties,Refractive Index,1.521,,1.521,,,Fibers_material_data.csv
+AGY ZenTron® S-2 Generic S-Glass Fiber,S2GF-AGY,Descriptive Properties,Color,Clear,,,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Physical Properties,Density,2.44,g/cc,0.0882 lb/in³,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Mechanical Properties,"Tensile Strength, Ultimate",3310,MPa,480000 psi,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Mechanical Properties,Elongation at Break,4.8,%,4.80%,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Mechanical Properties,Modulus of Elasticity,68.9,GPa,9990 ksi,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Mechanical Properties,Poissons Ratio,0.183,,0.183,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Mechanical Properties,Shear Modulus,29.1,GPa,4220 ksi,,Calculated,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Electrical Properties,Electrical Resistivity,100000000,ohm-cm,1.00e+8 ohm-cm,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Electrical Properties,Dielectric Constant,6.2,,6.2,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Thermal Properties,"CTE, linear",9,µm/m-°C,5.00 µin/in-°F,@Temperature 20.0 °C,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Thermal Properties,Specific Heat Capacity,0.796,J/g-°C,0.190 BTU/b-°F,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Thermal Properties,Softening Point,727,°C,1340 °F,,,Fibers_material_data.csv
+"A-Glass Fiber, Generic",AGF,Optical Properties,Refractive Index,1.538,,1.538,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Physical Properties,Density,2.54 - 2.60,g/cc,0.0918 - 0.0939 lb/in³,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,"Tensile Strength, Ultimate",521,MPa,75500 psi,@Temperature -190 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,"Tensile Strength, Ultimate",1725,MPa,250200 psi,@Temperature 540 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,"Tensile Strength, Ultimate",2620,MPa,380000 psi,@Temperature 370 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,"Tensile Strength, Ultimate",3450-3790,MPa,500000 - 550000 psi,@Temperature 22.0 °C,Virgin strength,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,Elongation at Break,4.8,%,4.80%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,Modulus of Elasticity,72.4,GPa,10500 ksi,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,Modulus of Elasticity,72.3,GPa,10500 ksi,@Temperature 540 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,Poissons Ratio,0.2,,0.2,,Calculated,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Mechanical Properties,Shear Modulus,30,GPa,4350 ksi,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Electrical Resistivity,4.02E+12,ohm-cm,4.02e+12 ohm-cm,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Dielectric Constant,5.9 - 6.4,,5.9 - 6.4,@Frequency 60 Hz,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Dielectric Constant,6.3 - 6.6,,6.3 - 6.6,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Dielectric Strength,10.3,kV/mm,262 kV/in,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Dissipation Factor,0.0025,,0.0025,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Electrical Properties,Dissipation Factor,0.0034,,0.0034,@Frequency 60 Hz,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,"CTE, linear",5,µm/m-°C,2.78 µin/in-°F,@Temperature 20.0 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,"CTE, linear",5.4,µm/m-°C,3.00 µin/in-°F,@Temperature -30.0 - 250 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,Specific Heat Capacity,0.81,J/g-°C,0.194 BTU/lb-°F,@Temperature 23.0 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,Specific Heat Capacity,1.03,J/g-°C,0.246 BTU/lb-°F,@Temperature 200 °C,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,Thermal Conductivity,1.3,W/m-K,9.02 BTU-in/hr-ft²-°F,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,Melting Point,<= 1725,°C,<= 3137 °F,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Thermal Properties,Softening Point,840.6,°C,1545 °F,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Optical Properties,Refractive Index,1.558,,1.558,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Optical Properties,Refractive Index,1.562,,1.562,,bulk annealed,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,A1203,15.2,%,15.20%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,BaO,8,%,8.00%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,CaO,17.2,%,17.20%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,MgO,4.7,%,4.70%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,NaO2,0.6,%,0.60%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Component Elements Properties,SiO2,54.3,%,54.30%,,,Fibers_material_data.csv
+"E-Glass Fiber, Generic",EGF,Descriptive Properties,Velocity of sound,5330,m/s,,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Physical Properties,Density,2.11,g/cc,0.0762 lb/in³,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Mechanical Properties,"Tensile Strength, Ultimate",2415,MPa,350300 psi,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Mechanical Properties,Elongation at Break,4.6,%,4.60%,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Mechanical Properties,Modulus of Elasticity,51.7,GPa,7500 ksi,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Electrical Properties,Dielectric Constant,3.8,,3.8,@Frequency 1e+6 Hz,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Thermal Properties,"CTE, linear",2.5,µm/m-°C,1.39 µin/in-°F,@Temperature 20.0 °C,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Thermal Properties,Specific Heat Capacity,0.733,J/g-°C,0.175 BTU/lb-°F,,,Fibers_material_data.csv
+"D-Glass Fiber, Generic",DGF,Optical Properties,Refractive Index,1.465,,1.465,,,Fibers_material_data.csv
+Carbon Fiber,T700S,FIBER PROPERTIES,Tensile Strength,4900,MPa,500 kgf/mm²,,Lot properties are reported as average values of a test set per bobbin sampled. The stated values are typical values. Method: TY-QA-002.,Fibers_material_data.csv
+Carbon Fiber,T700S,FIBER PROPERTIES,Tensile Modulus,230,GPa,23.5 10³kgf/mm²,,Lot properties are reported as average values of a test set per bobbin sampled. The stated values are typical values. Method: TY-QA-002.,Fibers_material_data.csv
+Carbon Fiber,T700S,FIBER PROPERTIES,Elongation,2.1,%,2.10%,,Lot properties are reported as average values of a test set per bobbin sampled. The stated values are typical values. Method: TY-QA-002.,Fibers_material_data.csv
+Carbon Fiber,T700S,FIBER PROPERTIES,Density,1.8,g/cm³,1.80 g/cm³,,Lot properties are reported as average values of a test set per bobbin sampled. The stated values are typical values. Method: TY-QA-003.,Fibers_material_data.csv
+Carbon Fiber,T700S,FIBER PROPERTIES,Yield,800,g/1000m,800 g/1000m,,Lot properties are reported as average values of a test set per bobbin sampled. The stated values are typical values. Filament Count: 12 000. Method: TY-QA-004.,Fibers_material_data.csv
+Carbon Fiber,T700S,FIBER PROPERTIES,Yield,1650,g/1000m,1650 g/1000m,,Lot properties are reported as average values of a test set per bobbin sampled. The stated values are typical values. Filament Count: 24 000. Method: TY-QA-004.,Fibers_material_data.csv
+Carbon Fiber,T700S,FUNCTIONAL PROPERTIES,Specific Heat,0.18,Cal/g.°C,0.18 Cal/g.°C,,Nominal value.,Fibers_material_data.csv
+Carbon Fiber,T700S,FUNCTIONAL PROPERTIES,Electric Resistivity,1.6,x 10⁻³Ω.cm,1.6 x 10⁻³Ω.cm,,Nominal value.,Fibers_material_data.csv
+Carbon Fiber,T700S,FUNCTIONAL PROPERTIES,CTE,-0.38,α10⁻⁶/°C,-0.38 α10⁻⁶/°C,,Nominal value.,Fibers_material_data.csv
+Carbon Fiber,T700S,FUNCTIONAL PROPERTIES,Thermal Conductivity,0.0224,Cal/cm.s.°C,0.0224 Cal/cm.s.°C,,Nominal value.,Fibers_material_data.csv
+Carbon Fiber,T700S,FUNCTIONAL PROPERTIES,Filament Diameter,7,µm,7 µm,,Nominal value.,Fibers_material_data.csv
+Carbon Fiber,T700S,FUNCTIONAL PROPERTIES,Cross Sectional Area,0.44,mm²,0.44 mm²,,Nominal value. Filament Count: 12 000.,Fibers_material_data.csv
+Carbon Fiber,T700S,FUNCTIONAL PROPERTIES,Cross Sectional Area,0.92,mm²,0.92 mm²,,Nominal value. Filament Count: 24 000.,Fibers_material_data.csv
+Carbon Fiber,T700S,COMPOSITE PROPERTIES,Tensile Strength,2550,MPa,260 kgf/mm²,Toray 2500 - 120°C resin system. Measured temperature: RT. Normalized to 60% fiber volume.,Nominal value.,Fibers_material_data.csv
+Carbon Fiber,T700S,COMPOSITE PROPERTIES,Tensile Modulus,135,GPa,14.0 10³kgf/mm²,Toray 2500 - 120°C resin system. Measured temperature: RT. Normalized to 60% fiber volume.,Nominal value.,Fibers_material_data.csv
+Carbon Fiber,T700S,COMPOSITE PROPERTIES,Tensile Strain,1.7,%,1.70%,Toray 2500 - 120°C resin system. Measured temperature: RT. Normalized to 60% fiber volume.,Nominal value.,Fibers_material_data.csv
+Carbon Fiber,T700S,COMPOSITE PROPERTIES,Compressive Strength,1470,MPa,150 kgf/mm²,Toray 2500 - 120°C resin system. Measured temperature: RT. Normalized to 60% fiber volume.,Nominal value.,Fibers_material_data.csv
+Carbon Fiber,T700S,COMPOSITE PROPERTIES,Flexural Modulus,120,GPa,12.3 10³kgf/mm²,Toray 2500 - 120°C resin system. Measured temperature: RT. Normalized to 60% fiber volume.,Nominal value.,Fibers_material_data.csv
+Carbon Fiber,T700S,COMPOSITE PROPERTIES,ILSS,69,MPa,7 kgf/mm²,Toray 2500 - 120°C resin system. Measured temperature: RT. Normalized to 60% fiber volume.,Nominal value.,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,PROPERTY,Type of fiber,Basfiber®,,Basfiber,,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,PROPERTY,Monofilament diameter,From 10 to 22,µm,Range 10 to 22 micrometers,,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,PROPERTY,Linear density,270-4800,tex,Range 270 to 4800 tex,,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,PROPERTY,Type of sizing,"11, 12, 13, 15 and 42.",,Sizing types available,,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,PROPERTY,Sizing content,≥0.4,% wt.,Greater than or equal to 0.4 weight percent,,Minimum content,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,PROPERTY,Resin compatibility,"Polyester, vinyl ester, epoxy polyurethane",,"Compatible with Polyester, vinyl ester, epoxy polyurethane resins",,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,PROPERTY,Moisture content,<0.1,% wt.,Less than 0.1 weight percent,,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL PROPERTIES,Melting Range,1460-1500,°C,1460 to 1500 degrees Celsius,,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL PROPERTIES,Crystallization temperature,1250,°C,1250 degrees Celsius,,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL PROPERTIES,Sintering Temperature,1050,°C,1050 degrees Celsius,,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL PROPERTIES,Thermal Conductivity,0.031-0.038,W/(m·K),Range 0.031 to 0.038 W/(m·K),,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,MECHANICAL PROPRIETIES,E-modulus,2900-3200,GPa,Range 2900 to 3200 GPa,ASTM D2343,"Applies to RDR-10.90, RDR-11.110, RDR-13.150, RDR-17.250, RDR-17.600, RDR-19.600 series.",Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,MECHANICAL PROPRIETIES,Tensile strength,90-94,MPa,Range 90 to 94 MPa,ASTM D2343,For RDR-10.90,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,MECHANICAL PROPRIETIES,Tensile strength,89-93,MPa,Range 89 to 93 MPa,ASTM D2343,For RDR-11.110,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,MECHANICAL PROPRIETIES,Tensile strength,88-92,MPa,Range 88 to 92 MPa,ASTM D2343,For RDR-13.150,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,MECHANICAL PROPRIETIES,Tensile strength,86-90,MPa,Range 86 to 90 MPa,ASTM D2343,"For RDR-17.250, RDR-17.600, RDR-19.600",Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,MECHANICAL PROPRIETIES,Tensile strength,≥750,mN/tex,Greater than or equal to 750 mN/tex,ASTM D3822,"For RDR-10.90, RDR-11.110",Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,MECHANICAL PROPRIETIES,Tensile strength,≥700,mN/tex,Greater than or equal to 700 mN/tex,ASTM D3822,For RDR-13.150,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,MECHANICAL PROPRIETIES,Tensile strength,≥650,mN/tex,Greater than or equal to 650 mN/tex,ASTM D3822,"For RDR-17.250, RDR-17.600, RDR-19.600",Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile strength (dry fiber),≥ 700,mN/tex,Greater than or equal to 700 mN/tex,ASTM D-3822,Monofilament diameter 10 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile strength (dry fiber),≥ 650,mN/tex,Greater than or equal to 650 mN/tex,ASTM D-3822,Monofilament diameter 13 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile strength (dry fiber),≥ 600,mN/tex,Greater than or equal to 600 mN/tex,ASTM D-3822,Monofilament diameter 17 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile strength (epoxy impregnated strand),3200,MPa,3200 MPa,ASTM D-2343,Monofilament diameter 10 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile strength (epoxy impregnated strand),3100,MPa,3100 MPa,ASTM D-2343,Monofilament diameter 13 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile strength (epoxy impregnated strand),2900,MPa,2900 MPa,ASTM D-2343,Monofilament diameter 17 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile modulus (epoxy impregnated strand),90-94,GPa,Range 90 to 94 GPa,ASTM D-2343,Monofilament diameter 10 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile modulus (epoxy impregnated strand),88-92,GPa,Range 88 to 92 GPa,ASTM D-2343,Monofilament diameter 13 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile modulus (epoxy impregnated strand),86-90,GPa,Range 86 to 90 GPa,ASTM D-2343,Monofilament diameter 17 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile strength (Basalt monofilament),4300,MPa,4300 MPa,ASTM D-2101,Monofilament diameter 10 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile strength (Basalt monofilament),4200,MPa,4200 MPa,ASTM D-2101,Monofilament diameter 13 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile strength (Basalt monofilament),4000,MPa,4000 MPa,ASTM D-2101,Monofilament diameter 17 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile modulus (Basalt monofilament),95,GPa,95 GPa,ASTM D-2101,Monofilament diameter 10 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile modulus (Basalt monofilament),93,GPa,93 GPa,ASTM D-2101,Monofilament diameter 13 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,OTHER MECHANICAL PROPRIETIES,Tensile modulus (Basalt monofilament),92,GPa,92 GPa,ASTM D-2101,Monofilament diameter 17 µm,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,CHEMICAL STABILITY,Weightlessness (Loss of weight),0.2,%,0.2% weight loss,3-hour boiling in water,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,CHEMICAL STABILITY,Weightlessness (Loss of weight),0.35,%,0.35% weight loss,3-hour boiling in saturated cement solution (pH 12.9),,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,CHEMICAL STABILITY,Weightlessness (Loss of weight),7-Feb,%,2% to 7% weight loss,3-hour boiling in 2N solution HCl (hydrochloric acid),,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,CHEMICAL STABILITY,Weightlessness (Loss of weight),6,%,6% weight loss,3-hour boiling in 2N solution NaOH (sodium hydroxide),,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,CHEMICAL STABILITY,Weightlessness (Loss of weight),6-Feb,%,2% to 6% weight loss,30 minutes and in 180 minutes in H2SO4 (sulphuric acid),,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,SIZING COMPATIBILITY,Sizing Content,"0,4-0,8",% WEIGHT,Range 0.4 to 0.8 weight percent,,"Applies to all listed sizing types (10, 11, 12, 13, 42).",Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,SIZING COMPATIBILITY,Moisture Content,"<0,1",% WEIGHT,Less than 0.1 weight percent,,"Applies to all listed sizing types (10, 11, 12, 13, 42).",Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL OPERATION RANGE,Operating Temperature Range,From -260 up to +400,°C,-260 to +400 degrees Celsius,Permanent thermal load duration,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL OPERATION RANGE,Operating Temperature Range (Stage 1),Up to +200,°C,Up to +200 degrees Celsius,,Amorphous fiber with sizing on the fiber surface,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL OPERATION RANGE,Operating Temperature Range (Stage 2),From +200 up to +350,°C,+200 to +350 degrees Celsius,,"Burning of sizing (10-15 minutes), amorphous fiber",Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL OPERATION RANGE,Operating Temperature Range (Stage 3),From +350 up to +400,°C,+350 to +400 degrees Celsius,,Amorphous fiber without sizing on the fiber surface,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL OPERATION RANGE,Operating Temperature Range,From +400 up to +850,°C,+400 to +850 degrees Celsius,Short term (few minutes),Short term (few minutes). Also Stage 4: transition of FeO into Fe2O3 and beginning of crystallization,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL OPERATION RANGE,Operating Temperature Range,From +850 up to +1250,°C,+850 to +1250 degrees Celsius,Short term (few seconds),,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL OPERATION RANGE,Operating Temperature Range (Stage 5),From +850 up to +1050,°C,+850 to +1050 degrees Celsius,,"All the Fe2O3 is in crystal form. Material is extremely brittle, mechanical properties are extremely poor, but works as thermal insulation.",Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,THERMAL OPERATION RANGE,Sintering Temperature (Stage 6),From +1050 up to +1250,°C,+1050 to +1250 degrees Celsius,,Sintering temperature,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,TENSILE STRENGHT CHANGE BY THE HEATING OF BASFIBER®,Tensile Strength Change,100,%,100% retention,+20°C,Baseline measurement,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,TENSILE STRENGHT CHANGE BY THE HEATING OF BASFIBER®,Tensile Strength Change,95,%,95% retention,+200°C,,Fibers_material_data.csv
+BASFIBER® ROVING,EGF-R-BASF,TENSILE STRENGHT CHANGE BY THE HEATING OF BASFIBER®,Tensile Strength Change,80,%,80% retention,+400°C,,Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,Product Range,Deniers Range,50-5400,denier,50 to 5400 denier,,Range of available deniers for UHMWPE fibers.,Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,Standard Tenacity,Breaking Tenacity,28,g/d,28.0 grams per denier,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,Standard Tenacity,Specific Gravity,0.97,Ratio,0.97,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,Standard Tenacity,Elongation @ Break,3.6,%,3.6 percent,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,Standard Tenacity,Tensile Modulus,850,g/d,850 grams per denier,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,Standard Tenacity,Moisture Regain,<0.1,%,Less than 0.1 percent,Equilibrium moisture regain @ 55% RH,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,Standard Tenacity,Creep,1.7-5.0,%,1.7 to 5.0 percent,Creep @ 40%-58% ultimate tensile strength,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,Standard Tenacity,Shrinkage,Melts,%,Melts under test conditions,Shrinkage in dry air @ 177 C for 30 minutes,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,Standard Tenacity,Melt Point,147,°C,147 degrees Celsius,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,Standard Tenacity,Decomposition Temp.,TBD,°C,To Be Determined,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,High Tenacity,Breaking Tenacity,38,g/d,38.0 grams per denier,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,High Tenacity,Specific Gravity,0.97,Ratio,0.97,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,High Tenacity,Elongation @ Break,3.1,%,3.1 percent,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,High Tenacity,Tensile Modulus,1250,g/d,1250 grams per denier,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,High Tenacity,Moisture Regain,<0.1,%,Less than 0.1 percent,Equilibrium moisture regain @ 55% RH,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,High Tenacity,Creep,1.7-5.0,%,1.7 to 5.0 percent,Creep @ 40%-58% ultimate tensile strength,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,High Tenacity,Shrinkage,Melts,%,Melts under test conditions,Shrinkage in dry air @ 177 C for 30 minutes,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,High Tenacity,Melt Point,147,°C,147 degrees Celsius,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+Ultra High Molecular Weight Polyethylene,UHMWPE,High Tenacity,Decomposition Temp.,TBD,°C,To Be Determined,,"Data provided for informational purposes only, and does not constitute a specification.",Fibers_material_data.csv
+SE2350 single-end Type 30 roving,SE2350,STRAND TENSILES,Strength,2240,MPA,325,Amine/DER 331 Epoxy Resin; ASTM D 2343,Data generated using production material SE 2350 roving-250 Yield (2000 Tex - 16 Micron).,Fibers_material_data.csv
+SE2350 single-end Type 30 roving,SE2350,INTERLAMINAR SHEAR STRENGTH NOL RING,Dry Shear Strength,64.4,MPA,9340,Amine/DER 331 Epoxy Resin; ASTM D 2344,Data generated using production material SE 2350 roving-250 Yield (2000 Tex - 16 Micron).,Fibers_material_data.csv
+SE2350 single-end Type 30 roving,SE2350,INTERLAMINAR SHEAR STRENGTH NOL RING,Shear Strength Retention,95,%,95%,Amine/DER 331 Epoxy Resin; ASTM D 2344; 72 HR BOIL,Data generated using production material SE 2350 roving-250 Yield (2000 Tex - 16 Micron).,Fibers_material_data.csv
+SE2350 single-end Type 30 roving,SE2350,Technical Characteristics,Yield,250,,250,,Applicable for 16 and 22 micron fiber diameter.,Fibers_material_data.csv
+SE2350 single-end Type 30 roving,SE2350,Technical Characteristics,Tex,2000,Tex,2000,,Applicable for 16 and 22 micron fiber diameter.,Fibers_material_data.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Physical Properties,Density,1.80,g/cc,0.0650 lb/in³,,Typical fiber property,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Physical Properties,Filler Content,62.0,%,62.0 %,,Fiber Volume of Typical epoxy composite,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Physical Properties,Filament Diameter,6.9,µm,6.9 µm,,,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Mechanical Properties,"Tensile Strength, Yield",2140,MPa,310000 psi,,Typical epoxy composite,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Mechanical Properties,"Tensile Strength, Yield",4470,MPa,648000 psi,,Typical fiber property,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Mechanical Properties,Elongation at Break,1.9,%,1.9 %,,Calculated from tow test data,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Mechanical Properties,Tensile Modulus,136,GPa,19700 ksi,,Typical epoxy composite,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Mechanical Properties,Tensile Modulus,221,GPa,32100 ksi,,Typical fiber property; Chord 6000-1000,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Mechanical Properties,Flexural Strength,1725,MPa,250200 psi,,Typical epoxy composite,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Mechanical Properties,Flexural Modulus,128,GPa,18600 ksi,,Typical epoxy composite,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Mechanical Properties,Shear Strength,124,MPa,18000 psi,,Typical epoxy composite,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Component Elements Properties,"Carbon, C",94,%,94 %,,Fiber,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Descriptive Properties,Approximate Yield,1.25,m/g,,,12K,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Descriptive Properties,Approximate Yield,2.5,m/g,,,6K,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Descriptive Properties,Approximate Yield,5,m/g,,,3K,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Descriptive Properties,Filament Shape,Round,,,,,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Descriptive Properties,Tow Cross-Sectional Area,0.11,mm2,,,3K,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Descriptive Properties,Tow Cross-Sectional Area,0.22,mm2,,,6K,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Descriptive Properties,Tow Cross-Sectional Area,0.44,mm2,,,12K,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Descriptive Properties,Twist,,,,,,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Descriptive Properties,Weight/Length,0.2,g/m,,,3K,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Descriptive Properties,Weight/Length,0.4,g/m,,,6K,Fibers_material_data_.csv
+Hexcel® HexTow® AS2C Carbon Fiber,AS2C,Descriptive Properties,Weight/Length,0.8,g/m,,,12K,Fibers_material_data_.csv
+NatureWorks® Ingeo™ 5051X Fiber Grade PLA,5051X,Physical Properties,Specific Gravity,1.24,g/cc,1.24 g/cc,,ASTM D792,Fibers_material_data_.csv
+NatureWorks® Ingeo™ 5051X Fiber Grade PLA,5051X,Physical Properties,Melt Density,1.08,g/cc,0.0390 lb/in³,,ASTM D1238,Fibers_material_data_.csv
+NatureWorks® Ingeo™ 5051X Fiber Grade PLA,5051X,Physical Properties,Viscosity Measurement,3.3,,3.3,@Temperature 230 °C,Relative Viscosity; CD Internal Viscotek Method (English test condition: @Temperature 446 °F),Fibers_material_data_.csv
+NatureWorks® Ingeo™ 5051X Fiber Grade PLA,5051X,Mechanical Properties,Elongation at Break,10 - 70,%,10 - 70 %,,Fiber; ASTM D2256/ASTM D3822,Fibers_material_data_.csv
+NatureWorks® Ingeo™ 5051X Fiber Grade PLA,5051X,Mechanical Properties,Tenacity,0.221 - 0.353,N/tex,2.50 - 4.00 g/denier,,ASTM D2256/ASTM D3822,Fibers_material_data_.csv
+NatureWorks® Ingeo™ 5051X Fiber Grade PLA,5051X,Thermal Properties,Melting Point,145 - 155,°C,293 - 311 °F,,ASTM D3418,Fibers_material_data_.csv
+NatureWorks® Ingeo™ 5051X Fiber Grade PLA,5051X,Thermal Properties,"Glass Transition Temp, Tg",55.0 - 65.0,°C,131 - 149 °F,,ASTM D3417,Fibers_material_data_.csv
+NatureWorks® Ingeo™ 5051X Fiber Grade PLA,5051X,Thermal Properties,Shrinkage,<= 8.0,%,<= 8.0 %,"@Temperature 120 °C, Time 600 sec","Hot Air; ASTM D2102 (English test condition: @Temperature 248 °F, Time 0.167 hour)",Fibers_material_data_.csv
+NatureWorks® Ingeo™ 5051X Fiber Grade PLA,5051X,Processing Properties,Dew Point,-35.0,°C,-31.0 °F,,,Fibers_material_data_.csv
+NatureWorks® Ingeo™ 5051X Fiber Grade PLA,5051X,Processing Properties,Drying Air Flow Rate,>= 14.2,l/min,>= 0.500 ft³/min (CFM),,,Fibers_material_data_.csv
+DowAksa AKSACA™ A-49 D 24K Continuous Carbon Fiber,,Physical Properties,Density,1.79,g/cc,0.0647 lb/in³,,ISO 10119,Fibers_material_data_.csv
+DowAksa AKSACA™ A-49 D 24K Continuous Carbon Fiber,,Physical Properties,Fiber Count,16000,dtex,14400 denier,,ISO 1889,Fibers_material_data_.csv
+DowAksa AKSACA™ A-49 D 24K Continuous Carbon Fiber,,Mechanical Properties,Tensile Strength,4900,MPa,711000 psi,,ISO 10618,Fibers_material_data_.csv
+DowAksa AKSACA™ A-49 D 24K Continuous Carbon Fiber,,Mechanical Properties,Elongation at Break,2,%,2.0 %,,ISO 10618,Fibers_material_data_.csv
+DowAksa AKSACA™ A-49 D 24K Continuous Carbon Fiber,,Mechanical Properties,Tensile Modulus,250,GPa,36300 ksi,,ISO 10618,Fibers_material_data_.csv
+SCS-Ultra™ Silicon Carbide Fiber,SCS-Ultra™,Physical Properties,Density,3.08,g/cc,0.111 lb/in³,,,Fibers_material_data_.csv
+SCS-Ultra™ Silicon Carbide Fiber,SCS-Ultra™,Physical Properties,Thickness,142,microns,5.59 mil,,Diameter,Fibers_material_data_.csv
+SCS-Ultra™ Silicon Carbide Fiber,SCS-Ultra™,Mechanical Properties,"Tensile Strength, Ultimate",5900,MPa,856000 psi,,,Fibers_material_data_.csv
+SCS-Ultra™ Silicon Carbide Fiber,SCS-Ultra™,Mechanical Properties,Modulus of Elasticity,415,GPa,60200 ksi,,,Fibers_material_data_.csv
+SCS-Ultra™ Silicon Carbide Fiber,SCS-Ultra™,Thermal Properties,"CTE, linear",4.10,µm/m-°C,2.28 µin/in-°F,@Temperature 20.0 °C @Temperature 68.0 °F,,Fibers_material_data_.csv
+SCS-Ultra™ Silicon Carbide Fiber,SCS-Ultra™,Descriptive Properties,Cross Section,Round,,,,,Fibers_material_data_.csv
+"SGL Carbon Group SIGRAFIL C® C25 P350 GLY Pelletized Carbon Fiber, Glycerine Sizing",SIGRAFIL C,Physical Properties,Bulk Density,0.220,g/cc,0.00795 lb/in³,,,Fibers_material_data_.csv
+"SGL Carbon Group SIGRAFIL C® C25 P350 GLY Pelletized Carbon Fiber, Glycerine Sizing",SIGRAFIL C,Physical Properties,Density,1.80,g/cc,0.0650 lb/in³,,Fiber Density,Fibers_material_data_.csv
+"SGL Carbon Group SIGRAFIL C® C25 P350 GLY Pelletized Carbon Fiber, Glycerine Sizing",SIGRAFIL C,Physical Properties,Filament Diameter,7.5,µm,7.5 µm,,,Fibers_material_data_.csv
+"SGL Carbon Group SIGRAFIL C® C25 P350 GLY Pelletized Carbon Fiber, Glycerine Sizing",SIGRAFIL C,Mechanical Properties,Tensile Strength at Break,3600,MPa,522000 psi,,ASTM D3379-104,Fibers_material_data_.csv
+"SGL Carbon Group SIGRAFIL C® C25 P350 GLY Pelletized Carbon Fiber, Glycerine Sizing",SIGRAFIL C,Mechanical Properties,Elongation at Break,1.4-1.8,%,1.4-1.8 %,,ASTM D3379-75,Fibers_material_data_.csv
+"SGL Carbon Group SIGRAFIL C® C25 P350 GLY Pelletized Carbon Fiber, Glycerine Sizing",SIGRAFIL C,Mechanical Properties,Modulus of Elasticity,225,GPa,32600 ksi,,ASTM D3379-104,Fibers_material_data_.csv
+"SGL Carbon Group SIGRAFIL C® C25 P350 GLY Pelletized Carbon Fiber, Glycerine Sizing",SIGRAFIL C,Electrical Properties,Volume Resistivity,0.0016,ohm-cm,0.0016 ohm-cm,,,Fibers_material_data_.csv
+"SGL Carbon Group SIGRAFIL C® C25 P350 GLY Pelletized Carbon Fiber, Glycerine Sizing",SIGRAFIL C,Descriptive Properties,Carbon Content,>95,wt %,,,,Fibers_material_data_.csv
+"SGL Carbon Group SIGRAFIL C® C25 P350 GLY Pelletized Carbon Fiber, Glycerine Sizing",SIGRAFIL C,Descriptive Properties,Mean Fiber Length,0.155,mm,,,Milled,Fibers_material_data_.csv
+"SGL Carbon Group SIGRAFIL C® C25 P350 GLY Pelletized Carbon Fiber, Glycerine Sizing",SIGRAFIL C,Descriptive Properties,Sizing Content,1.5 - 6.5,% by weight,,,,Fibers_material_data_.csv
