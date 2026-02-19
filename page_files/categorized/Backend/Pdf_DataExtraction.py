@@ -11,7 +11,7 @@ from typing import Dict, Any, Optional
 
 
 # Backend PDF extraction Logic
-API_KEY = "AIzaSyAruLR2WyiaL9PquOXOhHF4wMn7tfYZWek"  
+API_KEY = ""  
 API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key={API_KEY}"
 
 SCHEMA = {
