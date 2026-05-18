@@ -14,7 +14,7 @@ import requests
 import streamlit as st
 import base64
 
-API_KEY = "AIzaSyBzyMFKEqcjsWpR-OGAY42T250o1O39v3Y"
+API_KEY = ""
 API_URL = (
     "https://generativelanguage.googleapis.com/v1beta/"
     "models/gemini-2.5-flash:generateContent?key="
