@@ -1,0 +1,2579 @@
+[
+    {
+        "material_abbreviation": "PTFE",
+        "material_name": "Polytetrafluoroethylene (PTFE), Molded",
+        "mechanical_properties": [
+            {
+                "section": "Physical Properties",
+                "property_name": "Density",
+                "value": "0.700 - 3.35",
+                "english": "0.0253 - 0.121 lb/in³",
+                "comments": "Average value: 2.07 g/cc Grade Count:113",
+                "unit": "g/cc"
+            },
+            {
+                "section": "Physical Properties",
+                "property_name": "Water Absorption",
+                "value": "0.000 - 0.0100",
+                "english": "0.000 - 0.0100 %",
+                "comments": "Average value: 0.00575% Grade Count:56",
+                "unit": "%"
+            },
+            {
+                "section": "Physical Properties",
+                "property_name": "Particle Size",
+                "value": "0.550 - 4450",
+                "english": "0.550 - 4450 µm",
+                "comments": "Average value: 443 µm Grade Count:33",
+                "unit": "µm"
+            },
+            {
+                "section": "Physical Properties",
+                "property_name": "Viscosity",
+                "value": "1.00e+13 - 1.00e+15",
+                "english": "1.00e+13 - 1.00e+15 cP",
+                "comments": "Average value: 5.05e+14 cP Grade Count:10",
+                "test_condition": "@Temperature 340 - 380 °C",
+                "unit": "cP"
+            },
+            {
+                "section": "Physical Properties",
+                "property_name": "Linear Mold Shrinkage",
+                "value": "0.0200 - 0.0500",
+                "english": "0.0200 - 0.0500 in/in",
+                "comments": "Average value: 0.0317 cm/cm Grade Count:23",
+                "unit": "cm/cm"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Hardness, Shore D",
+                "value": "11.0 - 70.0",
+                "english": "11.0 - 70.0",
+                "comments": "Average value: 57.0 Grade Count:42"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Ball Indentation Hardness",
+                "value": "23.0 - 37.0",
+                "english": "3340 - 5370 psi",
+                "comments": "Average value: 32.0 MPa Grade Count:9",
+                "unit": "MPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Tensile Strength, Ultimate",
+                "value": "13.0 - 333",
+                "english": "1890 - 48300 psi",
+                "comments": "Average value: 35.3 MPa Grade Count:63",
+                "unit": "MPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Tensile Strength, Yield",
+                "value": "0.862 - 41.4",
+                "english": "125 - 6000 psi",
+                "comments": "Average value: 20.5 MPa Grade Count:49",
+                "unit": "MPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Elongation at Break",
+                "value": "70.0 - 650",
+                "english": "70.0 - 650 %",
+                "comments": "Average value: 308% Grade Count:113",
+                "unit": "%"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Modulus of Elasticity",
+                "value": "0.392 - 0.750",
+                "english": "56.9 - 109 ksi",
+                "comments": "Average value: 0.521 GPa Grade Count:39",
+                "unit": "GPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Flexural Modulus",
+                "value": "0.490 - 0.700",
+                "english": "71.1 - 102 ksi",
+                "comments": "Average value: 0.531 GPa Grade Count:19",
+                "unit": "GPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Compressive Yield Strength",
+                "value": "1.50 - 28.6",
+                "english": "218 - 4150 psi",
+                "comments": "Average value: 9.82 MPa Grade Count:26",
+                "unit": "MPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Flex Crack Resistance",
+                "value": "1.00e+6",
+                "english": "1.00e+6",
+                "comments": "Average value: 1.00e+6 Grade Count:7"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Shear Strength",
+                "value": "9.30792 - 25.5106",
+                "english": "1350.00 - 3700.01 psi",
+                "comments": "Average value: 15.1 MPa Grade Count:2",
+                "test_condition": "@Temperature 26.7 - 204 °C",
+                "unit": "MPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Izod Impact, Notched",
+                "value": "1.30 - 1.87",
+                "english": "2.44 - 3.50 ft-lb/in",
+                "comments": "Average value: 1.65 J/cm Grade Count:14",
+                "unit": "J/cm"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Izod Impact, Unnotched",
+                "value": "1.60",
+                "english": "3.00 ft-lb/in",
+                "comments": "Average value: 1.60 J/cm Grade Count:10",
+                "unit": "J/cm"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Charpy Impact, Notched",
+                "value": "1.40 - 1.90",
+                "english": "6.66 - 9.04 ft-lb/in²",
+                "comments": "Average value: 1.76 J/cm² Grade Count:5",
+                "unit": "J/cm²"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Coefficient of Friction",
+                "value": "0.0200 - 0.280",
+                "english": "0.0200 - 0.280",
+                "comments": "Average value: 0.0625 Grade Count:43"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Coefficient of Friction, Static",
+                "value": "0.0200 - 0.0800",
+                "english": "0.0200 - 0.0800",
+                "comments": "Average value: 0.0524 Grade Count:25"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "K (wear) Factor",
+                "value": "3.00 - 5040 x 10⁻⁸",
+                "english": "1.49 - 2500 x 10⁻¹⁰ in³-min/ft-lb-hr",
+                "comments": "Average value: 2180 x 10⁻⁸ mm³/N-M Grade Count:6",
+                "unit": "mm³/N-M"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Taber Abrasion, mg/1000 Cycles",
+                "value": "5.00 - 41.8",
+                "english": "5.00 - 41.8",
+                "comments": "Average value: 21.5 Grade Count:10",
+                "unit": "mg"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Compression Set",
+                "value": "3.00 - 20.1",
+                "english": "3.00 - 20.1 %",
+                "comments": "Average value: 11.7% Grade Count:6",
+                "unit": "%"
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Electrical Resistivity",
+                "value": "1.00e+14 - 1.10e+18",
+                "english": "1.00e+14 - 1.10e+18 ohm-cm",
+                "comments": "Average value: 8.68e+17 ohm-cm Grade Count:49",
+                "unit": "ohm-cm"
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Surface Resistance",
+                "value": "1.00e+13 - 1.00e+18",
+                "english": "1.00e+13 - 1.00e+18 ohm",
+                "comments": "Average value: 4.66e+17 ohm Grade Count:25",
+                "unit": "ohm"
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Dielectric Constant",
+                "value": "2.00 - 12.0",
+                "english": "2.00 - 12.0",
+                "comments": "Average value: 2.39 Grade Count:56"
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Dielectric Strength",
+                "value": "2.50 - 165",
+                "english": "63.5 - 4200 kV/in",
+                "comments": "Average value: 58.7 kV/mm Grade Count:74",
+                "unit": "kV/mm"
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Dissipation Factor",
+                "value": "0.0000100 - 0.0360",
+                "english": "0.0000100 - 0.0360",
+                "comments": "Average value: 0.00119 Grade Count:53"
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Dielectric Loss Index",
+                "value": "0.000100",
+                "english": "0.000100",
+                "comments": "Average value: 0.000100 Grade Count:6"
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Arc Resistance",
+                "value": "300 - 420",
+                "english": "300 - 420 sec",
+                "comments": "Average value: 346 sec Grade Count:13",
+                "unit": "sec"
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Comparative Tracking Index",
+                "value": "600",
+                "english": "600 V",
+                "comments": "Average value: 600 V Grade Count:6",
+                "unit": "V"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "CTE, linear",
+                "value": "14.0 - 250",
+                "english": "7.78 - 139 µin/in-°F",
+                "comments": "Average value: 109 µm/m-°C Grade Count:43",
+                "unit": "µm/m-°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "CTE, linear",
+                "value": "57.0 - 170",
+                "english": "31.7 - 94.4 µin/in-°F",
+                "comments": "Average value: 95.7 µm/m-°C Grade Count:9",
+                "test_condition": "@Temperature 30.0 - 300 °C",
+                "unit": "µm/m-°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Specific Heat Capacity",
+                "value": "1.00 - 1.05",
+                "english": "0.239 - 0.251 BTU/lb-°F",
+                "comments": "Average value: 1.01 J/g-°C Grade Count:6",
+                "unit": "J/g-°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Specific Heat Capacity",
+                "value": "0.960 - 1.03",
+                "english": "0.229 - 0.246 BTU/lb-°F",
+                "comments": "Average value: 0.995 J/g-°C Grade Count:1",
+                "test_condition": "@Temperature 0.000 - 50.0 °C",
+                "unit": "J/g-°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Thermal Conductivity",
+                "value": "0.230 - 0.500",
+                "english": "1.60 - 3.47 BTU-in/hr-ft²-°F",
+                "comments": "Average value: 0.263 W/m-K Grade Count:34",
+                "unit": "W/m-K"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Thermal Conductivity",
+                "value": "0.220 - 0.320",
+                "english": "1.53 - 2.22 BTU-in/hr-ft²-°F",
+                "comments": "Average value: 0.276 W/m-K Grade Count:7",
+                "unit": "W/m-K"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Melting Point",
+                "value": "135 - 344",
+                "english": "275 - 651 °F",
+                "comments": "Average value: 325 °C Grade Count:57",
+                "test_condition": "@Temperature 100 - 250 °C",
+                "unit": "°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Maximum Service Temperature, Air",
+                "value": "93.3 - 316",
+                "english": "200 - 600 °F",
+                "comments": "Average value: 259 °C Grade Count:73",
+                "unit": "°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Minimum Service Temperature, Air",
+                "value": "-268 - -200",
+                "english": "-450 - -328 °F",
+                "comments": "Average value: -212 °C Grade Count:23",
+                "unit": "°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Flammability, UL94",
+                "value": "V-0",
+                "english": "V-0",
+                "comments": "Grade Count:58"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Oxygen Index",
+                "value": "92.0 - 95.0",
+                "english": "92.0 - 95.0 %",
+                "comments": "Average value: 94.9% Grade Count:30",
+                "unit": "%"
+            },
+            {
+                "section": "Processing Properties",
+                "property_name": "Processing Temperature",
+                "value": "370",
+                "english": "698 °F",
+                "comments": "Average value: 370 °C Grade Count:5",
+                "unit": "°C"
+            },
+            {
+                "section": "Processing Properties",
+                "property_name": "Moisture Content",
+                "value": "0.0400",
+                "english": "0.0400 %",
+                "comments": "Average value: 0.0400% Grade Count:4",
+                "unit": "%"
+            }
+        ]
+    },
+    {
+        "material_abbreviation": "ABS",
+        "material_name": "Acrylonitrile Butadiene Styrene (ABS), Molded",
+        "mechanical_properties": [
+            {
+                "property_name": "Density",
+                "value": "0.882 - 3.50",
+                "english": "0.0319 - 0.126 lb/in³",
+                "comments": "Average value: 1.07 g/cc Grade Count:774",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "g/cc"
+            },
+            {
+                "property_name": "Water Absorption",
+                "value": "0.0250 - 2.30",
+                "english": "0.0250 - 2.30 %",
+                "comments": "Average value: 0.383 % Grade Count:85",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Moisture Absorption at Equilibrium",
+                "value": "0.100 - 0.300",
+                "english": "0.100 - 0.300 %",
+                "comments": "Average value: 0.232 % Grade Count:26",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Water Absorption at Saturation",
+                "value": "0.00950 - 1.03",
+                "english": "0.00950 - 1.03 %",
+                "comments": "Average value: 0.561 % Grade Count:14",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Maximum Moisture Content",
+                "value": "0.0100 - 0.150",
+                "english": "0.0100 - 0.150",
+                "comments": "Average value: 0.0459 Grade Count:71",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Linear Mold Shrinkage",
+                "value": "0.000 - 0.0290",
+                "english": "0.000 - 0.0290 in/in",
+                "comments": "Average value: 0.00533 cm/cm Grade Count:581",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "cm/cm"
+            },
+            {
+                "property_name": "Linear Mold Shrinkage, Transverse",
+                "value": "0.00200 - 0.00900",
+                "english": "0.00200 - 0.00900 in/in",
+                "comments": "Average value: 0.00522 cm/cm Grade Count:52",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "cm/cm"
+            },
+            {
+                "property_name": "Melt Flow",
+                "value": "0.0800 - 125",
+                "english": "0.0800 - 125 g/10 min",
+                "comments": "Average value: 16.5 g/10 min Grade Count:805",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "g/10 min"
+            },
+            {
+                "property_name": "Hardness, Rockwell M",
+                "value": "53.0 - 92.0",
+                "english": "53.0 - 92.0",
+                "comments": "Average value: 71.8 Grade Count:4",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Hardness, Rockwell R",
+                "value": "13.0 - 122",
+                "english": "13.0 - 122",
+                "comments": "Average value: 108 Grade Count:431",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Hardness, Shore D",
+                "value": "79.0 - 103",
+                "english": "79.0 - 103",
+                "comments": "Average value: 87.0 Grade Count:3",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Ball Indentation Hardness",
+                "value": "70.0 - 120",
+                "english": "10200 - 17400 psi",
+                "comments": "Average value: 101 MPa Grade Count:68",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Tensile Strength, Ultimate",
+                "value": "2.60 - 73.1",
+                "english": "377 - 10600 psi",
+                "comments": "Average value: 41.0 MPa Grade Count:346",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Tensile Strength, Ultimate",
+                "value": "20.0 - 43.0",
+                "english": "2900 - 6240 psi",
+                "comments": "Average value: 31.8 MPa Grade Count:2",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature 60.0 - 90.0 °C",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Tensile Strength, Yield",
+                "value": "2.00 - 77.0",
+                "english": "290 - 11200 psi",
+                "comments": "Average value: 44.8 MPa Grade Count:624",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Elongation at Break",
+                "value": "1.40 - 110",
+                "english": "1.40 - 110 %",
+                "comments": "Average value: 28.5 % Grade Count:493",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Elongation at Yield",
+                "value": "1.70 - 40.0",
+                "english": "1.70 - 40.0 %",
+                "comments": "Average value: 3.66 % Grade Count:189",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Modulus of Elasticity",
+                "value": "0.778 - 21.2",
+                "english": "113 - 3080 ksi",
+                "comments": "Average value: 2.35 GPa Grade Count:356",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "GPa"
+            },
+            {
+                "property_name": "Flexural Yield Strength",
+                "value": "0.379 - 655",
+                "english": "55.0 - 95000 psi",
+                "comments": "Average value: 70.6 MPa Grade Count:626",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Flexural Modulus",
+                "value": "0.0241 - 6.89",
+                "english": "3.50 - 1000 ksi",
+                "comments": "Average value: 2.33 GPa Grade Count:699",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "GPa"
+            },
+            {
+                "property_name": "Flexural Modulus",
+                "value": "1.50 - 4.00",
+                "english": "218 - 580 ksi",
+                "comments": "Average value: 2.84 GPa Grade Count:2",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature 60.0 - 90.0 °C",
+                "unit": "GPa"
+            },
+            {
+                "property_name": "Poissons Ratio",
+                "value": "0.360 - 0.380",
+                "english": "0.360 - 0.380",
+                "comments": "Average value: 0.364 Grade Count:5",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Izod Impact, Notched",
+                "value": "0.100 - 7.85",
+                "english": "0.187 - 14.7 ft-lb/in",
+                "comments": "Average value: 2.41 J/cm Grade Count:516",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Notched",
+                "value": "0.350 - 3.00",
+                "english": "0.656 - 5.62 ft-lb/in",
+                "comments": "Average value: 1.00 J/cm Grade Count:23",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -50.0 - 0.000 °C",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Notched",
+                "value": "0.290 - 2.35",
+                "english": "0.543 - 4.40 ft-lb/in",
+                "comments": "Average value: 1.00 J/cm Grade Count:30",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - 0.000 °C",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Notched",
+                "value": "0.290 - 2.35",
+                "english": "0.543 - 4.40 ft-lb/in",
+                "comments": "Average value: 1.00 J/cm Grade Count:30",
+                "section": "Mechanical Properties",
+                "test_condition": "@Thickness 3.17 - 12.7 mm",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Unnotched",
+                "value": "1.50 J/cm - NB",
+                "english": "2.81 ft-lb/in - NB",
+                "comments": "Average value: 8.79 J/cm Grade Count:27",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Unnotched",
+                "value": "0.600 - 6.47239",
+                "english": "1.12 - 12.1254 ft-lb/in",
+                "comments": "Average value: 1.24 J/cm Grade Count:4",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -30.0 - 0.125 °C",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Unnotched",
+                "value": "0.392266 - 4.8051",
+                "english": "0.734875 - 9.0019 ft-lb/in",
+                "comments": "Average value: 1.24 J/cm Grade Count:34",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -30.0 - -20.0 °C",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Unnotched",
+                "value": "0.392266 - 4.8051",
+                "english": "0.734875 - 9.0019 ft-lb/in",
+                "comments": "Average value: 1.24 J/cm Grade Count:34",
+                "section": "Mechanical Properties",
+                "test_condition": "@Thickness 3.20 - 6.40 mm",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Notched (ISO)",
+                "value": "1.00 - 45.0",
+                "english": "0.476 - 21.4 ft-lb/in²",
+                "comments": "Average value: 18.5 kJ/m² Grade Count:184",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "kJ/m²"
+            },
+            {
+                "property_name": "Izod Impact, Notched (ISO)",
+                "value": "6.00 - 22.0",
+                "english": "2.86 - 10.5 ft-lb/in²",
+                "comments": "Average value: 9.13 kJ/m² Grade Count:61",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - -20.0 °C",
+                "unit": "kJ/m²"
+            },
+            {
+                "property_name": "Izod Impact, Unnotched (ISO)",
+                "value": "6.00 - 6.00",
+                "english": "2.86 - 2.86 ft-lb/in²",
+                "comments": "Average value: 9.13 kJ/m² Grade Count:1",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - -40.0 °C",
+                "unit": "kJ/m²"
+            },
+            {
+                "property_name": "Izod Impact, Unnotched (ISO)",
+                "value": "6.00 - 6.00",
+                "english": "2.86 - 2.86 ft-lb/in²",
+                "comments": "Average value: 9.13 kJ/m² Grade Count:1",
+                "section": "Mechanical Properties",
+                "test_condition": "@Thickness 4.00 - 4.00 mm",
+                "unit": "kJ/m²"
+            },
+            {
+                "property_name": "Charpy Impact Unnotched",
+                "value": "39.2 kJ/m² NB",
+                "english": "18.7 ft-lb/in² - NB",
+                "comments": "Average value: 77.2 kJ/m² Grade Count:27",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "kJ/m²"
+            },
+            {
+                "property_name": "Charpy Impact Unnotched",
+                "value": "60.0 - 70.0",
+                "english": "28.6 - 33.3 ft-lb/in²",
+                "comments": "Average value: 68.0 kJ/m² Grade Count:5",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -30.0 - -30.0 °C",
+                "unit": "kJ/m²"
+            },
+            {
+                "property_name": "Charpy Impact Unnotched",
+                "value": "1.00 J/cm² NB",
+                "english": "4.76 ft-lb/in² - NB",
+                "comments": "Average value: 11.4 J/cm² Grade Count:145",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J/cm²"
+            },
+            {
+                "property_name": "Charpy Impact Unnotched",
+                "value": "0.300 J/cm² NB",
+                "english": "1.43 ft-lb/in² - NB",
+                "comments": "Average value: 7.48 J/cm² Grade Count:96",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - -20.0 °C",
+                "unit": "J/cm²"
+            },
+            {
+                "property_name": "Charpy Impact, Notched",
+                "value": "0.100 - 14.0",
+                "english": "0.476 - 66.6 ft-lb/in²",
+                "comments": "Average value: 1.90 J/cm² Grade Count:292",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J/cm²"
+            },
+            {
+                "property_name": "Charpy Impact, Notched",
+                "value": "0.200 - 2.40",
+                "english": "0.952 - 11.4 ft-lb/in²",
+                "comments": "Average value: 0.877 J/cm² Grade Count:103",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - -20.0 °C",
+                "unit": "J/cm²"
+            },
+            {
+                "property_name": "Gardner Impact",
+                "value": "1.80 - 22.6",
+                "english": "1.33 - 16.7 ft-lb",
+                "comments": "Average value: 15.9 J Grade Count:7",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J"
+            },
+            {
+                "property_name": "Dart Drop, Total Energy",
+                "value": "2.37 - 46.3",
+                "english": "1.75 - 34.1 ft-lb",
+                "comments": "Average value: 28.0 J Grade Count:5",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J"
+            },
+            {
+                "property_name": "Dart Drop, Total Energy",
+                "value": "32.8 - 32.8",
+                "english": "24.2 - 24.2 ft-lb",
+                "comments": "Average value: 35.8 J Grade Count:1",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -18.0 - -18.0 °C",
+                "unit": "J"
+            },
+            {
+                "property_name": "Dart Drop, Total Energy",
+                "value": "37.3 - 37.3",
+                "english": "27.5 - 27.5 ft-lb",
+                "comments": "Average value: 35.8 J Grade Count:1",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -18.0 - -18.0 °C",
+                "unit": "J"
+            },
+            {
+                "property_name": "Dart Drop, Total Energy",
+                "value": "37.3 - 37.3",
+                "english": "27.5 - 27.5 ft-lb",
+                "comments": "Average value: 35.8 J Grade Count:1",
+                "section": "Mechanical Properties",
+                "test_condition": "@Thickness 3.20 - 3.20 mm",
+                "unit": "J"
+            },
+            {
+                "property_name": "Falling Dart Impact",
+                "value": "2.82 - 37.6",
+                "english": "2.08 - 27.7 ft-lb",
+                "comments": "Average value: 25.3 J Grade Count:9",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J"
+            },
+            {
+                "property_name": "Instrumented Impact Total Energy",
+                "value": "5.40 - 54.0",
+                "english": "3.98 - 39.8 ft-lb",
+                "comments": "Average value: 39.6 J Grade Count:21",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J"
+            },
+            {
+                "property_name": "Tensile Creep Modulus, 1 hour",
+                "value": "2200 - 2800",
+                "english": "319000 - 406000 psi",
+                "comments": "Average value: 2480 MPa Grade Count:4",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Tensile Creep Modulus, 1000 hours",
+                "value": "1250 - 1900",
+                "english": "181000 - 276000 psi",
+                "comments": "Average value: 1640 MPa Grade Count:4",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Electrical Resistivity",
+                "value": "1500 - 1.00e+18",
+                "english": "1500 - 1.00e+18 ohm-cm",
+                "comments": "Average value: 1.87e+16 ohm-cm Grade Count:127",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "ohm-cm"
+            },
+            {
+                "property_name": "Surface Resistance",
+                "value": "1000 - 2.00e+17",
+                "english": "1000 - 2.00e+17 ohm",
+                "comments": "Average value: 6.94e+15 ohm Grade Count:120",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "ohm"
+            },
+            {
+                "property_name": "Static Decay",
+                "value": "0.250 - 3.00",
+                "english": "0.250 - 3.00 sec",
+                "comments": "Average value: 1.24 sec Grade Count:7",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "sec"
+            },
+            {
+                "property_name": "Dielectric Constant",
+                "value": "2.70 - 3.80",
+                "english": "2.70 - 3.80",
+                "comments": "Average value: 2.98 Grade Count:54",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Dielectric Strength",
+                "value": "15.7 - 53.0",
+                "english": "400 - 1350 kV/in",
+                "comments": "Average value: 32.0 kV/mm Grade Count:80",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "kV/mm"
+            },
+            {
+                "property_name": "Dissipation Factor",
+                "value": "0.00400 - 0.0900",
+                "english": "0.00400 - 0.0900",
+                "comments": "Average value: 0.00949 Grade Count:52",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Arc Resistance",
+                "value": "0.000 - 180",
+                "english": "0.000 - 180 sec",
+                "comments": "Average value: 78.8 sec Grade Count:28",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "sec"
+            },
+            {
+                "property_name": "Comparative Tracking Index",
+                "value": "92.0 - 600",
+                "english": "92.0 - 600 V",
+                "comments": "Average value: 561 V Grade Count:93",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "V"
+            },
+            {
+                "property_name": "Hot Wire Ignition, HWI",
+                "value": "7.00 - 120",
+                "english": "7.00 - 120 sec",
+                "comments": "Average value: 26.9 sec Grade Count:33",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "sec"
+            },
+            {
+                "property_name": "High Amp Arc Ignition, HAI",
+                "value": "30.0 - 200",
+                "english": "30.0 - 200 arcs",
+                "comments": "Average value: 123 arcs Grade Count:33",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "arcs"
+            },
+            {
+                "property_name": "High Voltage Arc-Tracking Rate, HVTR",
+                "value": "0.000 - 150",
+                "english": "0.000 - 5.91 in/min",
+                "comments": "Average value: 34.4 mm/min Grade Count:31",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "mm/min"
+            },
+            {
+                "property_name": "CTE, linear",
+                "value": "7.90 - 139",
+                "english": "4.39 - 77.2 µin/in-°F",
+                "comments": "Average value: 83.4 µm/m-°C Grade Count:189",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "µm/m-°C"
+            },
+            {
+                "property_name": "CTE, linear, Transverse to Flow",
+                "value": "81.0 - 100",
+                "english": "45.0 - 55.6 µin/in-°F",
+                "comments": "Average value: 91.4 µm/m-°C Grade Count:15",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "µm/m-°C"
+            },
+            {
+                "property_name": "Specific Heat Capacity",
+                "value": "1.60 - 2.13",
+                "english": "0.382 - 0.509 BTU/lb-°F",
+                "comments": "Average value: 1.99 J/g-°C Grade Count:7",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "J/g-°C"
+            },
+            {
+                "property_name": "Thermal Conductivity",
+                "value": "0.128 - 0.187",
+                "english": "0.888 - 1.30 BTU-in/hr-ft²-°F",
+                "comments": "Average value: 0.162 W/m-K Grade Count:19",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "W/m-K"
+            },
+            {
+                "property_name": "Thermal Conductivity",
+                "value": "0.250 - 0.250",
+                "english": "1.74 - 1.74 BTU-in/hr-ft²-°F",
+                "comments": "Average value: 0.250 W/m-K Grade Count:1",
+                "section": "Thermal Properties",
+                "test_condition": "@Temperature 30.0 - 260 °C",
+                "unit": "W/m-K"
+            },
+            {
+                "property_name": "Maximum Service Temperature, Air",
+                "value": "50.0 - 109",
+                "english": "122 - 228 °F",
+                "comments": "Average value: 74.9 °C Grade Count:24",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Hot Ball Pressure Test",
+                "value": "75.0 - 105",
+                "english": "167 - 221 °F",
+                "comments": "Average value: 88.0 °C Grade Count:27",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Deflection Temperature at 0.46 MPa (66 psi)",
+                "value": "56.0 - 165",
+                "english": "133 - 329 °F",
+                "comments": "Average value: 95.3 °C Grade Count:256",
+                "section": "Thermal Properties",
+                "test_condition": "0.46 MPa (66 psi)",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Deflection Temperature at 1.8 MPa (264 psi)",
+                "value": "63.9 - 220",
+                "english": "147 - 428 °F",
+                "comments": "Average value: 89.0 °C Grade Count:702",
+                "section": "Thermal Properties",
+                "test_condition": "1.8 MPa (264 psi)",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Vicat Softening Point",
+                "value": "45.0 - 160",
+                "english": "113 - 320 °F",
+                "comments": "Average value: 99.5 °C Grade Count:571",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Heat Distortion Temperature",
+                "value": "76.4 - 87.8",
+                "english": "170 - 190 °F",
+                "comments": "Average value: 84.2 °C Grade Count:6",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Glass Transition Temp, Tg",
+                "value": "105 - 109",
+                "english": "221 - 228 °F",
+                "comments": "Average value: 107 °C Grade Count:9",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "UL RTI Electrical",
+                "value": "50.0 - 120",
+                "english": "122 - 248 °F",
+                "comments": "Average value: 73.4 °C Grade Count:94",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "UL RTI, Mechanical with Impact",
+                "value": "50.0 - 105",
+                "english": "122 - 221 °F",
+                "comments": "Average value: 71.1 °C Grade Count:85",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "UL RTI, Mechanical without Impact",
+                "value": "50.0 - 120",
+                "english": "122 - 248 °F",
+                "comments": "Average value: 73.2 °C Grade Count:84",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Flammability, UL94",
+                "value": "HB - 5VA",
+                "english": "HB - 5VA",
+                "comments": "Average value: 1.50 Grade Count:511",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Oxygen Index",
+                "value": "19.0 - 30.0",
+                "english": "19.0 - 30.0 %",
+                "comments": "Average value: 21.6 % Grade Count:5",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Glow Wire Test",
+                "value": "600 - 960",
+                "english": "1110 - 1760 °F",
+                "comments": "Average value: 673 °C Grade Count:49",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Haze",
+                "value": "2.00 - 4.00",
+                "english": "2.00 - 4.00 %",
+                "comments": "Average value: 2.74 % Grade Count:7",
+                "section": "Optical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Gloss",
+                "value": "30.0 - 98.0",
+                "english": "30.0 - 98.0 %",
+                "comments": "Average value: 84.0 % Grade Count:57",
+                "section": "Optical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Yellow Index",
+                "value": "-1.40 - 24.3",
+                "english": "-1.40 - 24.3 %",
+                "comments": "Average value: 14.2 % Grade Count:5",
+                "section": "Optical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Transmission, Visible",
+                "value": "0.000 - 90.0",
+                "english": "0.000 - 90.0 %",
+                "comments": "Average value: 68.8 % Grade Count:51",
+                "section": "Optical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Processing Temperature",
+                "value": "170 - 270",
+                "english": "338 - 518 °F",
+                "comments": "Average value: 212 °C Grade Count:87",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Nozzle Temperature",
+                "value": "180 - 310",
+                "english": "356 - 590 °F",
+                "comments": "Average value: 238 °C Grade Count:172",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Adapter Temperature",
+                "value": "200 - 300",
+                "english": "392 - 572 °F",
+                "comments": "Average value: 277 °C Grade Count:31",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Die Temperature",
+                "value": "200 - 295",
+                "english": "392 - 563 °F",
+                "comments": "Average value: 267 °C Grade Count:31",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Melt Temperature",
+                "value": "149 - 323",
+                "english": "300 - 613 °F",
+                "comments": "Average value: 234 °C Grade Count:315",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Mold Temperature",
+                "value": "10.0 - 120",
+                "english": "50.0 - 248 °F",
+                "comments": "Average value: 62.3 °C Grade Count:377",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Injection Velocity",
+                "value": "200 - 240",
+                "english": "7.87 - 9.45 in/sec",
+                "comments": "Average value: 232 mm/sec Grade Count:30",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "mm/sec"
+            },
+            {
+                "property_name": "Roll Temperature",
+                "value": "60.0 - 150",
+                "english": "140 - 302 °F",
+                "comments": "Average value: 127 °C Grade Count:29",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Drying Temperature",
+                "value": "60.0 - 120",
+                "english": "140 - 248 °F",
+                "comments": "Average value: 84.2 °C Grade Count:381",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Moisture Content",
+                "value": "0.0100 - 0.300",
+                "english": "0.0100 - 0.300 %",
+                "comments": "Average value: 0.0668 % Grade Count:115",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Dew Point",
+                "value": "-29.0 - 17.8",
+                "english": "-20.2 - 0.000 °F",
+                "comments": "Average value: -19.6 °C Grade Count:6",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Injection Pressure",
+                "value": "4.14 - 130",
+                "english": "600 - 18900 psi",
+                "comments": "Average value: 56.9 MPa Grade Count:35",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Vent Depth",
+                "value": "0.00254 - 0.0510",
+                "english": "0.00100 - 0.0201 in",
+                "comments": "Average value: 0.0123 cm Grade Count:10",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "cm"
+            }
+        ]
+    },
+    {
+        "material_abbreviation": "PEKK",
+        "material_name": "Polyetherketoneketone (PEKK), Unreinforced",
+        "mechanical_properties": [
+            {
+                "section": "Physical Properties",
+                "property_name": "Density",
+                "value": "1.27 - 1.31",
+                "english": "0.0459 - 0.0473 lb/in³",
+                "comments": "Average value: 1.28 g/cc Grade Count:20",
+                "unit": "g/cc"
+            },
+            {
+                "section": "Physical Properties",
+                "property_name": "Water Absorption",
+                "value": "0.100 - 0.600",
+                "english": "0.100 - 0.600 %",
+                "comments": "Average value: 0.260 % Grade Count:5",
+                "unit": "%"
+            },
+            {
+                "section": "Physical Properties",
+                "property_name": "Moisture Absorption at Equilibrium",
+                "value": "0.150 - 0.600",
+                "english": "0.150 - 0.600 %",
+                "comments": "Average value: 0.300 % Grade Count:3",
+                "unit": "%"
+            },
+            {
+                "section": "Physical Properties",
+                "property_name": "Linear Mold Shrinkage",
+                "value": "0.00500 - 0.0160",
+                "english": "0.00500 - 0.0160 in/in",
+                "comments": "Average value: 0.00950 cm/cm Grade Count:4",
+                "unit": "cm/cm"
+            },
+            {
+                "section": "Physical Properties",
+                "property_name": "Melt Flow",
+                "value": "6.00 - 120",
+                "english": "6.00 - 120 g/10 min",
+                "comments": "Average value: 30.3 g/10 min Grade Count:12",
+                "unit": "g/10 min"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Hardness, Rockwell M",
+                "value": "86.0 - 88.0",
+                "english": "86.0 - 88.0",
+                "comments": "Average value: 87.3 Grade Count:3",
+                "unit": ""
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Tensile Strength, Ultimate",
+                "value": "40.6 - 111",
+                "english": "5890 - 16100 psi",
+                "comments": "Average value: 76.2 MPa Grade Count:13",
+                "unit": "MPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Tensile Strength, Ultimate",
+                "value": "25.9 - 116.5",
+                "english": "3760 - 16900 psi",
+                "comments": "Average value: 68.0 MPa Grade Count:1",
+                "test_condition": "@Temperature -184 - 149 °C",
+                "unit": "MPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Tensile Strength, Yield",
+                "value": "40.6 - 95.0",
+                "english": "5890 - 13800 psi",
+                "comments": "Average value: 78.7 MPa Grade Count:5",
+                "unit": "MPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Elongation at Break",
+                "value": "0.940 - 80.0",
+                "english": "0.940 - 80.0 %",
+                "comments": "Average value: 13.4 % Grade Count:13",
+                "unit": "%"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Elongation at Break",
+                "value": "1.20 - 23.5",
+                "english": "1.20 - 23.5 %",
+                "comments": "Average value: 5.76 % Grade Count:1",
+                "test_condition": "@Temperature -184 - 149 °C",
+                "unit": "%"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Elongation at Yield",
+                "value": "0.580 - 4.89",
+                "english": "0.580 - 4.89 %",
+                "comments": "Average value: 3.61 % Grade Count:5",
+                "unit": "%"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Modulus of Elasticity",
+                "value": "2.68 - 6.56",
+                "english": "389 - 952 ksi",
+                "comments": "Average value: 3.61 GPa Grade Count:20",
+                "unit": "GPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Modulus of Elasticity",
+                "value": "1.44 - 8.074",
+                "english": "209.0 - 1171 ksi",
+                "comments": "Average value: 5.03 GPa Grade Count:1",
+                "test_condition": "@Temperature -184 - 149 °C",
+                "unit": "GPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Flexural Yield Strength",
+                "value": "54.0 - 193",
+                "english": "7830 - 28000 psi",
+                "comments": "Average value: 124 MPa Grade Count:12",
+                "unit": "MPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Flexural Modulus",
+                "value": "2.50 - 5.54",
+                "english": "363 - 804 ksi",
+                "comments": "Average value: 3.37 GPa Grade Count:12",
+                "unit": "GPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Flexural Strain at Break",
+                "value": "1.40 - 6.00",
+                "english": "1.40 - 6.00 %",
+                "comments": "Average value: 3.26 % Grade Count:7",
+                "unit": "%"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Compressive Yield Strength",
+                "value": "90.6 - 207",
+                "english": "13100 - 30000 psi",
+                "comments": "Average value: 117 MPa Grade Count:9",
+                "unit": "MPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Compressive Modulus",
+                "value": "2.12 - 5.86",
+                "english": "307 - 850 ksi",
+                "comments": "Average value: 2.86 GPa Grade Count:6",
+                "unit": "GPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Poissons Ratio",
+                "value": "0.330 - 0.450",
+                "english": "0.330 - 0.450",
+                "comments": "Average value: 0.390 Grade Count:4",
+                "unit": ""
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Shear Modulus",
+                "value": "1.17 - 1.57",
+                "english": "170 - 228 ksi",
+                "comments": "Average value: 1.44 GPa Grade Count:3",
+                "unit": "GPa"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Izod Impact, Notched",
+                "value": "0.220 - 0.630",
+                "english": "0.412 - 1.18 ft-lb/in",
+                "comments": "Average value: 0.399 J/cm Grade Count:8",
+                "unit": "J/cm"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Izod Impact, Unnotched",
+                "value": "0.470 - 30.8",
+                "english": "0.881 - 57.7 ft-lb/in",
+                "comments": "Average value: 8.66 J/cm Grade Count:5",
+                "unit": "J/cm"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Charpy Impact Unnotched",
+                "value": "2.20",
+                "english": "10.5 ft-lb/in²",
+                "comments": "Average value: 4.87 J/cm² Grade Count:8",
+                "test_condition": "NB",
+                "unit": "J/cm²"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Charpy Impact Unnotched",
+                "value": "1.80",
+                "english": "8.57 ft-lb/in²",
+                "comments": "Average value: 3.72 J/cm² Grade Count:7",
+                "test_condition": "NB @Temperature -30.0 - 30.0 °C",
+                "unit": "J/cm²"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Charpy Impact, Notched",
+                "value": "0.450 - 0.550",
+                "english": "2.14 - 2.62 ft-lb/in²",
+                "comments": "Average value: 0.488 J/cm² Grade Count:8",
+                "unit": "J/cm²"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Charpy Impact, Notched",
+                "value": "0.400 - 0.500",
+                "english": "1.90 - 2.38 ft-lb/in²",
+                "comments": "Average value: 0.457 J/cm² Grade Count:7",
+                "test_condition": "@Temperature -30.0 - 30.0 °C",
+                "unit": "J/cm²"
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Coefficient of Friction",
+                "value": "0.173 - 0.186",
+                "english": "0.173 - 0.186",
+                "comments": "Average value: 0.177 Grade Count:3",
+                "unit": ""
+            },
+            {
+                "section": "Mechanical Properties",
+                "property_name": "Coefficient of Friction, Static",
+                "value": "0.262 - 0.285",
+                "english": "0.262 - 0.285",
+                "comments": "Average value: 0.270 Grade Count:3",
+                "unit": ""
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Electrical Resistivity",
+                "value": "3820 - 1.00e+16",
+                "english": "3820 - 1.00e+16 ohm-cm",
+                "comments": "Average value: 2.73e+15 ohm-cm Grade Count:10",
+                "unit": "ohm-cm"
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Surface Resistance",
+                "value": "8.43 - 2.00e+16",
+                "english": "8.43 - 2.00e+16 ohm",
+                "comments": "Average value: 8.57e+15 ohm Grade Count:6",
+                "unit": "ohm"
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Dielectric Constant",
+                "value": "2.50 - 3.32",
+                "english": "2.50 - 3.32",
+                "comments": "Average value: 2.95 Grade Count:13",
+                "unit": ""
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Dielectric Strength",
+                "value": "23.6 - 84.0",
+                "english": "599 - 2130 kV/in",
+                "comments": "Average value: 47.8 kV/mm Grade Count:4",
+                "unit": "kV/mm"
+            },
+            {
+                "section": "Electrical Properties",
+                "property_name": "Dissipation Factor",
+                "value": "0.00300 - 0.00400",
+                "english": "0.00300 - 0.00400",
+                "comments": "Average value: 0.00363 Grade Count:6",
+                "unit": ""
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "CTE, linear",
+                "value": "21.0 - 77.0",
+                "english": "11.7 - 42.8 µin/in-°F",
+                "comments": "Average value: 42.8 µm/m-°C Grade Count:5",
+                "unit": "µm/m-°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "CTE, linear",
+                "value": "34.74 - 59.22",
+                "english": "19.30 - 32.90 µin/in-°F",
+                "comments": "Average value: 46.5 µm/m-°C Grade Count:4",
+                "test_condition": "@Temperature 30.0 - 150 °C",
+                "unit": "µm/m-°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Thermal Conductivity",
+                "value": "0.250 - 0.470",
+                "english": "1.74 - 3.26 BTU-in/hr-ft²-°F",
+                "comments": "Average value: 0.329 W/m-K Grade Count:4",
+                "unit": "W/m-K"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Melting Point",
+                "value": "300 - 360",
+                "english": "572 - 680 °F",
+                "comments": "Average value: 318 °C Grade Count:7",
+                "unit": "°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Maximum Service Temperature, Air",
+                "value": "149 - 300",
+                "english": "300 - 572 °F",
+                "comments": "Average value: 228 °C Grade Count:7",
+                "unit": "°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Deflection Temperature at 0.46 MPa",
+                "value": "150 - 277",
+                "english": "302 - 531 °F",
+                "comments": "Average value: 170 °C Grade Count:7",
+                "test_condition": "0.46 MPa (66 psi)",
+                "unit": "°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Deflection Temperature at 1.8 MPa",
+                "value": "139 - 185",
+                "english": "282 - 365 °F",
+                "comments": "Average value: 157 °C Grade Count:18",
+                "test_condition": "1.8 MPa (264 psi)",
+                "unit": "°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Glass Transition Temp, Tg",
+                "value": "149 - 160",
+                "english": "300 - 320 °F",
+                "comments": "Average value: 156 °C Grade Count:11",
+                "unit": "°C"
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Flammability, UL94",
+                "value": "V-0",
+                "english": "V-0",
+                "comments": "Grade Count:5",
+                "unit": ""
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Smoke Density",
+                "value": "10.0",
+                "english": "10.0",
+                "comments": "Average value: 10.0 Grade Count:3",
+                "unit": ""
+            },
+            {
+                "section": "Thermal Properties",
+                "property_name": "Oxygen Index",
+                "value": "35.0 - 40.0",
+                "english": "35.0 - 40.0 %",
+                "comments": "Average value: 37.5 % Grade Count:11",
+                "unit": "%"
+            }
+        ]
+    },
+    {
+        "material_abbreviation": "PA66",
+        "material_name": "Nylon 66, Unreinforced",
+        "mechanical_properties": [
+            {
+                "property_name": "Density",
+                "value": "1.02 - 2.70",
+                "english": "0.0368 - 0.0975 lb/in³",
+                "comments": "Average value: 1.17 g/cc Grade Count:517",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "g/cc"
+            },
+            {
+                "property_name": "Water Absorption",
+                "value": "0.300 - 9.50",
+                "english": "0.300 - 9.50%",
+                "comments": "Average value: 3.51% Grade Count:226",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Moisture Absorption at Equilibrium",
+                "value": "0.170 - 8.50",
+                "english": "0.170 - 8.50%",
+                "comments": "Average value: 2.47% Grade Count:168",
+                "section": "Physical Properties",
+                "test_condition": ""
+            },
+            {
+                "property_name": "Moisture Absorption at Equilibrium",
+                "value": "2.90 - 3.10",
+                "english": "2.90 - 3.10%",
+                "comments": "Average value: 3.00% Grade Count:6",
+                "section": "Physical Properties",
+                "test_condition": "@Temperature 70.0 - 70.0 °C",
+                "unit": "%"
+            },
+            {
+                "property_name": "Water Absorption at Saturation",
+                "value": "1.70 - 9.00",
+                "english": "1.70 - 9.00%",
+                "comments": "Average value: 6.44% Grade Count:99",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Viscosity",
+                "value": "2.48 - 50.0",
+                "english": "2.48 - 50.0 cP",
+                "comments": "Average value: 9.44 cP Grade Count:7",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "cP"
+            },
+            {
+                "property_name": "Viscosity",
+                "value": "13.0 - 700000",
+                "english": "13.0 - 700000 cP",
+                "comments": "Average value: 122000 cP Grade Count:12",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "cP"
+            },
+            {
+                "property_name": "Viscosity",
+                "value": "13.0 - 700000",
+                "english": "13.0 - 700000 cP",
+                "comments": "Average value: 122000 cP Grade Count:12",
+                "section": "Physical Properties",
+                "test_condition": "@Temperature 200 - 300 °C",
+                "unit": "cP"
+            },
+            {
+                "property_name": "Viscosity",
+                "value": "13.0 - 700000",
+                "english": "13.0 - 700000 cP",
+                "comments": "",
+                "section": "Physical Properties",
+                "test_condition": "@Shear Rate 30.0 - 10000 1/s",
+                "unit": "cP"
+            },
+            {
+                "property_name": "Viscosity Test",
+                "value": "115 - 160",
+                "english": "1.15 - 1.60 dl/g",
+                "comments": "Average value: 141 cm³/g Grade Count:7",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "cm³/g"
+            },
+            {
+                "property_name": "Viscosity Number",
+                "value": "140 - 330",
+                "english": "1.40 - 3.30 dl/g",
+                "comments": "Average value: 199 cm³/g Grade Count:15",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "cm³/g"
+            },
+            {
+                "property_name": "Maximum Moisture Content",
+                "value": "0.0200 - 0.200",
+                "english": "0.0200 - 0.200",
+                "comments": "Average value: 0.139 Grade Count:29",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Maximum Moisture Content",
+                "value": "0.200 - 0.200",
+                "english": "0.200 - 0.200",
+                "comments": "Average value: 0.200 Grade Count:1",
+                "section": "Physical Properties",
+                "test_condition": "@Temperature 120 - 120 °C",
+                "unit": ""
+            },
+            {
+                "property_name": "Maximum Moisture Content",
+                "value": "0.200 - 0.200",
+                "english": "0.200 - 0.200",
+                "comments": "Average value: 0.200 Grade Count:1",
+                "section": "Physical Properties",
+                "test_condition": "@Time 299 - 299 sec",
+                "unit": ""
+            },
+            {
+                "property_name": "Linear Mold Shrinkage",
+                "value": "0.00100 - 0.0310",
+                "english": "0.00100 - 0.0310 in/in",
+                "comments": "Average value: 0.0139 cm/cm Grade Count:337",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "cm/cm"
+            },
+            {
+                "property_name": "Linear Mold Shrinkage, Transverse",
+                "value": "0.00160 - 0.0740",
+                "english": "0.00160 - 0.0740 in/in",
+                "comments": "Average value: 0.0157 cm/cm Grade Count:156",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "cm/cm"
+            },
+            {
+                "property_name": "Melt Flow",
+                "value": "2.00 - 180",
+                "english": "2.00 - 180 g/10 min",
+                "comments": "Average value: 52.5 g/10 min Grade Count:56",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "g/10 min"
+            },
+            {
+                "property_name": "Spiral Flow",
+                "value": "104 - 105",
+                "english": "40.9 - 41.3 in",
+                "comments": "Average value: 104 cm Grade Count:4",
+                "section": "Physical Properties",
+                "test_condition": "",
+                "unit": "cm"
+            },
+            {
+                "property_name": "Hardness, Rockwell M",
+                "value": "55.0 - 90.0",
+                "english": "55.0 - 90.0",
+                "comments": "Average value: 75.8 Grade Count:31",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Hardness, Rockwell R",
+                "value": "78.0 - 121",
+                "english": "78.0 - 121",
+                "comments": "Average value: 114 Grade Count:82",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Hardness, Rockwell R",
+                "value": "97.0 - 97.0",
+                "english": "97.0 - 97.0",
+                "comments": "Average value: 97.0 Grade Count:3",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature 80.0 - 80.0 °C",
+                "unit": ""
+            },
+            {
+                "property_name": "Hardness, Shore D",
+                "value": "76.0 - 88.0",
+                "english": "76.0 - 88.0",
+                "comments": "Average value: 82.2 Grade Count:15",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Ball Indentation Hardness",
+                "value": "70.0 - 180",
+                "english": "10200 - 26100 psi",
+                "comments": "Average value: 137 MPa Grade Count:12",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Tensile Strength, Ultimate",
+                "value": "7.52 - 260",
+                "english": "1090 - 37700 psi",
+                "comments": "Average value: 81.2 MPa Grade Count:274",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Tensile Strength, Ultimate",
+                "value": "10.0 - 98.0",
+                "english": "1450 - 14200 psi",
+                "comments": "Average value: 76.8 MPa Grade Count:6",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - 80.0 °C",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Tensile Strength, Yield",
+                "value": "28.0 - 116",
+                "english": "4060 - 16800 psi",
+                "comments": "Average value: 72.1 MPa Grade Count:298",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Tensile Strength, Yield",
+                "value": "44.8159 - 44.8159",
+                "english": "6500.01 - 6500.01 psi",
+                "comments": "Average value: 44.8 MPa Grade Count:1",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature 77.0 - 77.0 °C",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Elongation at Break",
+                "value": "0.000 - 300",
+                "english": "0.000 - 300%",
+                "comments": "Average value: 47.6% Grade Count:436",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Elongation at Break",
+                "value": ">= 100",
+                "english": ">= 100%",
+                "comments": "Average value: 100% Grade Count:1",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature 60.0 - 150 °C",
+                "unit": "%"
+            },
+            {
+                "property_name": "Elongation at Yield",
+                "value": "1.50 - 210",
+                "english": "1.50 - 210%",
+                "comments": "Average value: 13.9% Grade Count:220",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Elongation at Yield",
+                "value": "30.0 - 30.0",
+                "english": "30.0 - 30.0%",
+                "comments": "Average value: 30.0% Grade Count:1",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature 76.7 - 76.7 °C",
+                "unit": "%"
+            },
+            {
+                "property_name": "Modulus of Elasticity",
+                "value": "0.600 - 25.0",
+                "english": "87.0 - 3630 ksi",
+                "comments": "Average value: 3.47 GPa Grade Count:346",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "GPa"
+            },
+            {
+                "property_name": "Modulus of Elasticity",
+                "value": "0.350 - 1.90",
+                "english": "50.8 - 276 ksi",
+                "comments": "Average value: 0.850 GPa Grade Count:1",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature 60.0 - 150 °C",
+                "unit": "GPa"
+            },
+            {
+                "property_name": "Flexural Yield Strength",
+                "value": "11.0 - 350",
+                "english": "1600 - 50800 psi",
+                "comments": "Average value: 102 MPa Grade Count:361",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Flexural Yield Strength",
+                "value": "29.9922 - 140",
+                "english": "4350.01 - 20300 psi",
+                "comments": "Average value: 85.3 MPa Grade Count:7",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - 90.0 °C",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Flexural Modulus",
+                "value": "0.600 - 18.5",
+                "english": "87.0 - 2680 ksi",
+                "comments": "Average value: 3.01 GPa Grade Count:413",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "GPa"
+            },
+            {
+                "property_name": "Flexural Modulus",
+                "value": "0.500 - 4.30",
+                "english": "72.5 - 624 ksi",
+                "comments": "Average value: 2.27 GPa Grade Count:7",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - 90.0 °C",
+                "unit": "GPa"
+            },
+            {
+                "property_name": "Flexural Strain at Break",
+                "value": "5.50 - 9.00",
+                "english": "5.50 - 9.00%",
+                "comments": "Average value: 7.38% Grade Count:12",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Compressive Yield Strength",
+                "value": "7.00 - 100",
+                "english": "1020 - 14500 psi",
+                "comments": "Average value: 57.6 MPa Grade Count:14",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Poissons Ratio",
+                "value": "0.380 - 0.450",
+                "english": "0.380 - 0.450",
+                "comments": "Average value: 0.400 Grade Count:22",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Shear Strength",
+                "value": "50.0 - 80.0",
+                "english": "7250 - 11600 psi",
+                "comments": "Average value: 70.3 MPa Grade Count:9",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Izod Impact, Notched",
+                "value": "0.300 - 8.54",
+                "english": "0.562 - 16.0 ft-lb/in",
+                "comments": "Average value: 1.04 J/cm Grade Count:154",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Notched",
+                "value": "0.240 - 0.480",
+                "english": "0.450 - 0.899 ft-lb/in",
+                "comments": "Average value: 0.385 J/cm Grade Count:8",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - 20.0 °C",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Notched",
+                "value": "0.490332 - 0.490332",
+                "english": "0.918594 - 0.918594 ft-lb/in",
+                "comments": "Average value: 0.385 J/cm Grade Count:1",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature 3.20 - 3.20 °C",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Notched",
+                "value": "0.490332 - 0.490332",
+                "english": "0.918594 - 0.918594 ft-lb/in",
+                "comments": "Average value: 0.385 J/cm Grade Count:1",
+                "section": "Mechanical Properties",
+                "test_condition": "@Thickness 23.0 - 23.0 mm",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Unnotched",
+                "value": "0.0510",
+                "english": "0.0955 ft-lb/in",
+                "comments": "NB; Average value: 5.01 J/cm Grade Count:20",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J/cm"
+            },
+            {
+                "property_name": "Izod Impact, Notched (ISO)",
+                "value": "3.00 - 21000",
+                "english": "1.43 - 9990 ft-lb/in²",
+                "comments": "Average value: 13.4 kJ/m² Grade Count:192",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "kJ/m²"
+            },
+            {
+                "property_name": "Izod Impact, Notched (ISO)",
+                "value": "3.00 - 50.0",
+                "english": "1.43 - 23.8 ft-lb/in²",
+                "comments": "Average value: 7.72 kJ/m² Grade Count:62",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - -20.0 °C",
+                "unit": "kJ/m²"
+            },
+            {
+                "property_name": "Izod Impact, Unnotched (ISO)",
+                "value": "35.7 - 21000",
+                "english": "17.0 - 9990 ft-lb/in²",
+                "comments": "Average value: 79.2 kJ/m² Grade Count:29",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "kJ/m²"
+            },
+            {
+                "property_name": "Izod Impact, Unnotched (ISO)",
+                "value": "55.0",
+                "english": "26.2 ft-lb/in²",
+                "comments": "NB; Average value: 88.8 kJ/m² Grade Count:12",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -30.0 - 30.0 °C",
+                "unit": "kJ/m²"
+            },
+            {
+                "property_name": "Charpy Impact Unnotched",
+                "value": "1.00",
+                "english": "4.76 ft-lb/in²",
+                "comments": "NB; Average value: 7.03 J/cm² Grade Count:268",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J/cm²"
+            },
+            {
+                "property_name": "Charpy Impact Unnotched",
+                "value": "0.400",
+                "english": "1.90 ft-lb/in²",
+                "comments": "NB; Average value: 7.36 J/cm² Grade Count:139",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - 5.00 °C",
+                "unit": "J/cm²"
+            },
+            {
+                "property_name": "Charpy Impact, Notched",
+                "value": "0.100 - 2100",
+                "english": "0.476 - 9990 ft-lb/in²",
+                "comments": "Average value: 1.34 J/cm² Grade Count:292",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J/cm²"
+            },
+            {
+                "property_name": "Charpy Impact, Notched",
+                "value": "0.100",
+                "english": "0.476 ft-lb/in²",
+                "comments": "NB; Average value: 0.827 J/cm² Grade Count:140",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -40.0 - 5.00 °C",
+                "unit": "J/cm²"
+            },
+            {
+                "property_name": "Gardner Impact",
+                "value": "6.78 - 22.6",
+                "english": "5.00 - 16.7 ft-lb",
+                "comments": "Average value: 13.6 J Grade Count:3",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J"
+            },
+            {
+                "property_name": "Puncture Energy",
+                "value": "13.1 - 50.0",
+                "english": "9.66 - 36.9 ft-lb",
+                "comments": "Average value: 27.7 J Grade Count:4",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "J"
+            },
+            {
+                "property_name": "Puncture Energy",
+                "value": "5.10 - 60.0",
+                "english": "3.76 - 44.3 ft-lb",
+                "comments": "Average value: 20.4 J Grade Count:3",
+                "section": "Mechanical Properties",
+                "test_condition": "@Temperature -30.0 - 30.0 °C",
+                "unit": "J"
+            },
+            {
+                "property_name": "Coefficient of Friction",
+                "value": "0.100 - 0.420",
+                "english": "0.100 - 0.420",
+                "comments": "Average value: 0.246 Grade Count:13",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Coefficient of Friction, Static",
+                "value": "0.172 - 0.200",
+                "english": "0.172 - 0.200",
+                "comments": "Average value: 0.184 Grade Count:3",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Tensile Creep Modulus, 1 hour",
+                "value": "1000 - 3400",
+                "english": "145000 - 493000 psi",
+                "comments": "Average value: 2760 MPa Grade Count:9",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Tensile Creep Modulus, 1000 hours",
+                "value": "450 - 980",
+                "english": "65300 - 142000 psi",
+                "comments": "Average value: 676 MPa Grade Count:10",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "K (wear) Factor",
+                "value": "24.2 - 403 x 10⁻⁸",
+                "english": "12.0 - 200 x 10⁻¹⁰ in²³-min/ft-lb-hr",
+                "comments": "Average value: 308 x 10⁻⁸ mm³/N-M Grade Count:4",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": "mm³/N-M"
+            },
+            {
+                "property_name": "Taber Abrasion, mg/1000 Cycles",
+                "value": "4.00 - 8.00",
+                "english": "4.00 - 8.00",
+                "comments": "Average value: 6.75 Grade Count:12",
+                "section": "Mechanical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Electrical Resistivity",
+                "value": "4000 - 1.00e+17",
+                "english": "4000 - 1.00e+17 ohm-cm",
+                "comments": "Average value: 1.21e+15 ohm-cm Grade Count:196",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "ohm-cm"
+            },
+            {
+                "property_name": "Surface Resistance",
+                "value": "100 - 1.00e+15",
+                "english": "100 - 1.00e+15 ohm",
+                "comments": "Average value: 1.19e+14 ohm Grade Count:116",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "ohm"
+            },
+            {
+                "property_name": "Dielectric Constant",
+                "value": "1.60 - 15.0",
+                "english": "1.60 - 15.0",
+                "comments": "Average value: 4.31 Grade Count:128",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Dielectric Strength",
+                "value": "9.84 - 120",
+                "english": "250 - 3050 kV/in",
+                "comments": "Average value: 31.5 kV/mm Grade Count:153",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "kV/mm"
+            },
+            {
+                "property_name": "Dissipation Factor",
+                "value": "0.000200 - 0.320",
+                "english": "0.000200 - 0.320",
+                "comments": "Average value: 0.0616 Grade Count:82",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Dielectric Loss Index",
+                "value": "0.0150 - 0.200",
+                "english": "0.0150 - 0.200",
+                "comments": "Average value: 0.0989 Grade Count:11",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Arc Resistance",
+                "value": "60.0 - 240",
+                "english": "60.0 - 240 sec",
+                "comments": "Average value: 144 sec Grade Count:29",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "sec"
+            },
+            {
+                "property_name": "Comparative Tracking Index",
+                "value": "350 - 650",
+                "english": "350 - 650 V",
+                "comments": "Average value: 587 V Grade Count:150",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "V"
+            },
+            {
+                "property_name": "Hot Wire Ignition, HWI",
+                "value": "7.00 - 60.0",
+                "english": "7.00 - 60.0 sec",
+                "comments": "Average value: 22.2 sec Grade Count:18",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "sec"
+            },
+            {
+                "property_name": "High Amp Arc Ignition, HAI",
+                "value": "60.0 - 120",
+                "english": "60.0 - 120 arcs",
+                "comments": "Average value: 117 arcs Grade Count:18",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "arcs"
+            },
+            {
+                "property_name": "High Voltage Arc-Tracking Rate, HVTR",
+                "value": "0.000 - 50.0",
+                "english": "0.000 - 1.97 in/min",
+                "comments": "Average value: 6.92 mm/min Grade Count:17",
+                "section": "Electrical Properties",
+                "test_condition": "",
+                "unit": "mm/min"
+            },
+            {
+                "property_name": "CTE, linear",
+                "value": "40.0 - 130",
+                "english": "22.2 - 72.2 µin/in-°F",
+                "comments": "Average value: 81.2 µm/m-°C Grade Count:107",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "µm/m-°C"
+            },
+            {
+                "property_name": "CTE, linear",
+                "value": "71.0 - 100",
+                "english": "39.4 - 55.6 µin/in-°F",
+                "comments": "Average value: 95.7 µm/m-°C Grade Count:18",
+                "section": "Thermal Properties",
+                "test_condition": "@Temperature 35.0 - 55.0 °C",
+                "unit": "µm/m-°C"
+            },
+            {
+                "property_name": "CTE, linear",
+                "value": "71.0 - 100",
+                "english": "39.4 - 55.6 µin/in-°F",
+                "comments": "Average value: 95.7 µm/m-°C Grade Count:48",
+                "section": "Thermal Properties",
+                "test_condition": "@Thickness 2.00 - 2.00 mm",
+                "unit": "µm/m-°C"
+            },
+            {
+                "property_name": "CTE, linear, Transverse to Flow",
+                "value": "67.0 - 130",
+                "english": "37.2 - 72.2 µin/in-°F",
+                "comments": "Average value: 95.7 µm/m-°C Grade Count:48",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "µm/m-°C"
+            },
+            {
+                "property_name": "Specific Heat Capacity",
+                "value": "1.45 - 2.10",
+                "english": "0.347 - 0.502 BTU/lb-°F",
+                "comments": "Average value: 1.72 J/g-°C Grade Count:29",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "J/g-°C"
+            },
+            {
+                "property_name": "Thermal Conductivity",
+                "value": "0.200 - 11.0",
+                "english": "1.39 - 76.3 BTU-in/hr-ft²-°F",
+                "comments": "Average value: 1.06 W/m-K Grade Count:45",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "W/m-K"
+            },
+            {
+                "property_name": "Melting Point",
+                "value": "197 - 270",
+                "english": "387 - 518 °F",
+                "comments": "Average value: 258 °C Grade Count:356",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Maximum Service Temperature, Air",
+                "value": "70.0 - 249",
+                "english": "158 - 480 °F",
+                "comments": "Average value: 136 °C Grade Count:60",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Hot Ball Pressure Test",
+                "value": "125 - 165",
+                "english": "257 - 329 °F",
+                "comments": "Average value: 158 °C Grade Count:5",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Deflection Temperature at 0.46 MPa (66 psi)",
+                "value": "70.0 - 260",
+                "english": "158 - 500 °F",
+                "comments": "Average value: 211 °C Grade Count:284",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Deflection Temperature at 1.8 MPa (264 psi)",
+                "value": "45.0 - 250",
+                "english": "113 - 482 °F",
+                "comments": "Average value: 91.6 °C Grade Count:395",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Deflection Temperature at 8.0 MPa",
+                "value": "50.0 - 60.0",
+                "english": "122 - 140 °F",
+                "comments": "Average value: 53.3 °C Grade Count:3",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Vicat Softening Point",
+                "value": "23.0 - 255",
+                "english": "73.4 - 491 °F",
+                "comments": "Average value: 233 °C Grade Count:96",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Minimum Service Temperature, Air",
+                "value": "-40.0 - -20.0",
+                "english": "-40.0 - -4.00 °F",
+                "comments": "Average value: -30.0 °C Grade Count:12",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Glass Transition Temp, Tg",
+                "value": "5.00 - 72.0",
+                "english": "41.0 - 162 °F",
+                "comments": "Average value: 39.1 °C Grade Count:10",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Decomposition Temperature",
+                "value": "300 - 310",
+                "english": "572 - 590 °F",
+                "comments": "Average value: 308 °C Grade Count:10",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "UL RTI, Electrical",
+                "value": "65.0 - 140",
+                "english": "149 - 284 °F",
+                "comments": "Average value: 124 °C Grade Count:23",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "UL RTI, Mechanical with Impact",
+                "value": "65.0 - 110",
+                "english": "149 - 230 °F",
+                "comments": "Average value: 77.8 °C Grade Count:23",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "UL RTI, Mechanical without Impact",
+                "value": "65.0 - 125",
+                "english": "149 - 257 °F",
+                "comments": "Average value: 86.2 °C Grade Count:23",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Flammability, UL94",
+                "value": "HB - V-0",
+                "english": "HB - V-0",
+                "comments": "Grade Count:234",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": ""
+            },
+            {
+                "property_name": "Flame Spread",
+                "value": "0.000 - 30.0",
+                "english": "0.000 - 1.18 in/min",
+                "comments": "Average value: 10.0 mm/min Grade Count:6",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "mm/min"
+            },
+            {
+                "property_name": "Oxygen Index",
+                "value": "20.0 - 34.0",
+                "english": "20.0 - 34.0%",
+                "comments": "Average value: 26.1% Grade Count:48",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Glow Wire Test",
+                "value": "649 - 960",
+                "english": "1200 - 1760 °F",
+                "comments": "Average value: 837 °C Grade Count:58",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Ignition Temperature",
+                "value": "400",
+                "english": "752 °F",
+                "comments": "Average value: 400 °C Grade Count:10",
+                "section": "Thermal Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Yellow Index",
+                "value": "-10.0 - 8.00",
+                "english": "-10.0 - 8.00%",
+                "comments": "Average value: -4.00% Grade Count:14",
+                "section": "Optical Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Processing Temperature",
+                "value": "80.0 - 310",
+                "english": "176 - 590 °F",
+                "comments": "Average value: 258 °C Grade Count:68",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Nozzle Temperature",
+                "value": "250 - 310",
+                "english": "482 - 590 °F",
+                "comments": "Average value: 285 °C Grade Count:75",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Die Temperature",
+                "value": "270 - 295",
+                "english": "518 - 563 °F",
+                "comments": "Average value: 283 °C Grade Count:6",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Melt Temperature",
+                "value": "209 - 320",
+                "english": "409 - 608 °F",
+                "comments": "Average value: 279 °C Grade Count:250",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Mold Temperature",
+                "value": "20.0 - 150",
+                "english": "68.0 - 302 °F",
+                "comments": "Average value: 75.6 °C Grade Count:263",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Drying Temperature",
+                "value": "48.9 - 140",
+                "english": "120 - 284 °F",
+                "comments": "Average value: 81.5 °C Grade Count:223",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Moisture Content",
+                "value": "0.0200 - 0.500",
+                "english": "0.0200 - 0.500%",
+                "comments": "Average value: 0.158% Grade Count:73",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "%"
+            },
+            {
+                "property_name": "Dew Point",
+                "value": "-40.0 - -17.8",
+                "english": "-40.0 - 0.000 °F",
+                "comments": "Average value: -22.2 °C Grade Count:5",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "°C"
+            },
+            {
+                "property_name": "Injection Pressure",
+                "value": "3.45 - 138",
+                "english": "500 - 20000 psi",
+                "comments": "Average value: 79.7 MPa Grade Count:45",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "MPa"
+            },
+            {
+                "property_name": "Vent Depth",
+                "value": "0.000762",
+                "english": "0.000300 in",
+                "comments": "Average value: 0.000762 cm Grade Count:4",
+                "section": "Processing Properties",
+                "test_condition": "",
+                "unit": "cm"
+            }
+        ]
+    }
+]

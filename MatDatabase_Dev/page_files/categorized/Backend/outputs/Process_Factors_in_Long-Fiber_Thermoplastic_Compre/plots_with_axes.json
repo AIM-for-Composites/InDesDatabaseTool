@@ -1,0 +1,27 @@
+[
+  {
+    "page": 3,
+    "caption": "Figure 1. LFT-D processing scheme [24]. (a) LFT-D in-line compounding, factors and governing equations. (b) Compression molding steps: (I) charging the mold with the plastificate; (II) closing and filling the mold; (III) de-molding the part with resulting charge and flow area.",
+    "image": "outputs\\Process_Factors_in_Long-Fiber_Thermoplastic_Compre\\plots_with_axes\\p03_0000.png"
+  },
+  {
+    "page": 4,
+    "caption": "Figure 2. Parameter spaces and resulting wf of factors nTSE and nrov for different mp. Based on [24].",
+    "image": "outputs\\Process_Factors_in_Long-Fiber_Thermoplastic_Compre\\plots_with_axes\\p04_0001.png"
+  },
+  {
+    "page": 11,
+    "caption": "Figure 3. Screw design schematics of TSE1 (a) and TSE2 (b) [5]. Machine overview (c).",
+    "image": "outputs\\Process_Factors_in_Long-Fiber_Thermoplastic_Compre\\plots_with_axes\\p11_0002.png"
+  },
+  {
+    "page": 12,
+    "caption": "Figure 4. Sampling schemes for (a) mechanical testing and (b) TGA overlayed on a photo of a plate with C area (dashed rectangle) and F area visible [5].",
+    "image": "outputs\\Process_Factors_in_Long-Fiber_Thermoplastic_Compre\\plots_with_axes\\p12_0003.png"
+  },
+  {
+    "page": 15,
+    "caption": "Figure 6. Specific tensile properties from this work in comparison to those presented in Tables 5 and 6 [5].",
+    "image": "outputs\\Process_Factors_in_Long-Fiber_Thermoplastic_Compre\\plots_with_axes\\p15_0004.png"
+  }
+]
