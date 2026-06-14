@@ -6,31 +6,36 @@
       "role": "ceo",
       "title": "Chief / orchestrator",
       "workspace": "C:\\Users\\mathi\\OneDrive\\Documents\\Claude\\Projects\\AIM_Composites_Database_Project_20260519\\team\\ceo",
-      "session_id": null
+      "session_id": null,
+      "tier": "orchestrator"
     },
     "design": {
       "role": "design",
       "title": "Design",
       "workspace": "C:\\Users\\mathi\\OneDrive\\Documents\\Claude\\Projects\\AIM_Composites_Database_Project_20260519\\team\\design",
-      "session_id": null
+      "session_id": null,
+      "tier": "advisor"
     },
     "prod": {
       "role": "prod",
       "title": "Product",
       "workspace": "C:\\Users\\mathi\\OneDrive\\Documents\\Claude\\Projects\\AIM_Composites_Database_Project_20260519\\team\\prod",
-      "session_id": null
+      "session_id": null,
+      "tier": "advisor"
     },
     "eng": {
       "role": "eng",
       "title": "Engineering",
       "workspace": "C:\\Users\\mathi\\OneDrive\\Documents\\Claude\\Projects\\AIM_Composites_Database_Project_20260519\\team\\eng",
-      "session_id": null
+      "session_id": null,
+      "tier": "builder"
     },
     "qa": {
       "role": "qa",
       "title": "QA",
       "workspace": "C:\\Users\\mathi\\OneDrive\\Documents\\Claude\\Projects\\AIM_Composites_Database_Project_20260519\\team\\qa",
-      "session_id": null
+      "session_id": null,
+      "tier": "builder"
     }
   }
 }
