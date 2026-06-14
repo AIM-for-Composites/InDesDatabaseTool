@@ -1,0 +1,36 @@
+{
+  "project": "C:\\Users\\mathi\\OneDrive\\Documents\\Claude\\Projects\\AIM_Composites_Database_Project_20260519",
+  "name": "AIM_Composites_Database_Project_20260519",
+  "members": {
+    "ceo": {
+      "role": "ceo",
+      "title": "Chief / orchestrator",
+      "workspace": "C:\\Users\\mathi\\OneDrive\\Documents\\Claude\\Projects\\AIM_Composites_Database_Project_20260519\\team\\ceo",
+      "session_id": null
+    },
+    "design": {
+      "role": "design",
+      "title": "Design",
+      "workspace": "C:\\Users\\mathi\\OneDrive\\Documents\\Claude\\Projects\\AIM_Composites_Database_Project_20260519\\team\\design",
+      "session_id": null
+    },
+    "prod": {
+      "role": "prod",
+      "title": "Product",
+      "workspace": "C:\\Users\\mathi\\OneDrive\\Documents\\Claude\\Projects\\AIM_Composites_Database_Project_20260519\\team\\prod",
+      "session_id": null
+    },
+    "eng": {
+      "role": "eng",
+      "title": "Engineering",
+      "workspace": "C:\\Users\\mathi\\OneDrive\\Documents\\Claude\\Projects\\AIM_Composites_Database_Project_20260519\\team\\eng",
+      "session_id": null
+    },
+    "qa": {
+      "role": "qa",
+      "title": "QA",
+      "workspace": "C:\\Users\\mathi\\OneDrive\\Documents\\Claude\\Projects\\AIM_Composites_Database_Project_20260519\\team\\qa",
+      "session_id": null
+    }
+  }
+}

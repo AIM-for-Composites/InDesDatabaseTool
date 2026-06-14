@@ -1,0 +1,7 @@
+# AIM Composites crawler + ingest dependencies
+# Install everything:  pip install -r requirements.txt
+# Then once:           playwright install chromium
+
+requests       # HTTP — used by pdf_crawler.py, matweb_discovery.py, batch_ingest.py
+playwright     # real-browser automation — matweb_discovery.py stage 1
+ddgs           # DuckDuckGo search — matweb_discovery.py stage 2

@@ -1,0 +1,29 @@
+# --- secrets / local ---
+.env
+.env.local
+*.key
+*.pem
+credentials.json
+agent-teams-auth.json
+.claude/
+
+# --- python ---
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# --- node ---
+node_modules/
+
+# --- os ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# --- agent-teams runtime (chat logs churn; keep code, not logs) ---
+team/**/transcript.jsonl
+
+# --- project-specific ---
+crawl_out/
