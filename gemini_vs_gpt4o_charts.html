@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemini vs GPT-4o Extraction — AIM Composites</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f3; color: #2c2c2a; padding: 2rem; }
+  h1 { font-size: 20px; font-weight: 500; margin-bottom: 0.25rem; }
+  .subtitle { font-size: 13px; color: #5f5e5a; margin-bottom: 1.5rem; }
+  .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .metric { background: #fff; border-radius: 8px; border: 0.5px solid #d3d1c7; padding: 0.75rem 1rem; }
+  .metric-label { font-size: 12px; color: #5f5e5a; margin-bottom: 4px; }
+  .metric-val { font-size: 22px; font-weight: 500; }
+  .metric-sub { font-size: 11px; color: #888780; margin-top: 2px; }
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+  .chart-box { background: #fff; border: 0.5px solid #d3d1c7; border-radius: 12px; padding: 1.25rem; }
+  .chart-title { font-size: 13px; font-weight: 500; margin-bottom: 12px; }
+  .legend { display: flex; gap: 16px; margin-bottom: 10px; font-size: 12px; color: #5f5e5a; }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .legend-sq { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+  .note { font-size: 11px; color: #888780; font-style: italic; margin-top: 0.5rem; }
+</style>
+</head>
+<body>
+
+<h1>Gemini vs GPT-4o — Extraction Evaluation</h1>
+<p class="subtitle">PA6 GF LFT-D ground truth, 217 hand-labeled rows (DOI 10.3390/polym18070806)</p>
+
+<div class="metric-grid">
+  <div class="metric">
+    <p class="metric-label">Gemini recall</p>
+    <p class="metric-val">93.5%</p>
+    <p class="metric-sub">203 of 217 GT rows</p>
+  </div>
+  <div class="metric">
+    <p class="metric-label">GPT-4o recall</p>
+    <p class="metric-val">90.3%</p>
+    <p class="metric-sub">196 of 217 GT rows</p>
+  </div>
+  <div class="metric">
+    <p class="metric-label">Gemini missed</p>
+    <p class="metric-val">14</p>
+    <p class="metric-sub">of 217 GT rows</p>
+  </div>
+  <div class="metric">
+    <p class="metric-label">GPT-4o missed</p>
+    <p class="metric-val">21</p>
+    <p class="metric-sub">of 217 GT rows</p>
+  </div>
+</div>
+
+<div class="chart-row">
+  <div class="chart-box">
+    <p class="chart-title">GT coverage (217 rows total)</p>
+    <div class="legend">
+      <span><span class="legend-sq" style="background:#1D9E75;"></span>Covered</span>
+      <span><span class="legend-sq" style="background:#D85A30;"></span>Missed</span>
+    </div>
+    <div style="position: relative; height: 220px;">
+      <canvas id="c1"></canvas>
+    </div>
+  </div>
+  <div class="chart-box">
+    <p class="chart-title">Recall comparison</p>
+    <div class="legend">
+      <span><span class="legend-sq" style="background:#534AB7;"></span>Gemini</span>
+      <span><span class="legend-sq" style="background:#378ADD;"></span>GPT-4o</span>
+    </div>
+    <div style="position: relative; height: 220px;">
+      <canvas id="c2"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="chart-row">
+  <div class="chart-box">
+    <p class="chart-title">Rows missed by each model</p>
+    <div class="legend">
+      <span><span class="legend-sq" style="background:#534AB7;"></span>Gemini</span>
+      <span><span class="legend-sq" style="background:#378ADD;"></span>GPT-4o</span>
+    </div>
+    <div style="position: relative; height: 220px;">
+      <canvas id="c3"></canvas>
+    </div>
+  </div>
+  <div class="chart-box">
+    <p class="chart-title">Extraction source: text vs table</p>
+    <div class="legend">
+      <span><span class="legend-sq" style="background:#378ADD;"></span>Text</span>
+      <span><span class="legend-sq" style="background:#534AB7;"></span>Table</span>
+    </div>
+    <div style="position: relative; height: 220px;">
+      <canvas id="c4"></canvas>
+    </div>
+  </div>
+</div>
+
+<p class="note">Coverage figures from full evaluation run. Scored sheets in evaluation_results.xlsx represent a subset only.</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const def = (id, cfg) => new Chart(document.getElementById(id), cfg);
+
+def('c1', {
+  type: 'bar',
+  data: {
+    labels: ['Gemini', 'GPT-4o'],
+    datasets: [
+      { label: 'Covered', data: [203, 196], backgroundColor: '#1D9E75' },
+      { label: 'Missed', data: [14, 21], backgroundColor: '#D85A30' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { color: '#888780' } },
+      y: { stacked: true, max: 217, grid: { color: 'rgba(136,135,128,0.15)' }, ticks: { color: '#888780' } }
+    }
+  }
+});
+
+def('c2', {
+  type: 'bar',
+  data: {
+    labels: ['Gemini', 'GPT-4o'],
+    datasets: [{ data: [93.5, 90.3], backgroundColor: ['#534AB7', '#378ADD'] }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#888780' } },
+      y: { min: 85, max: 100, grid: { color: 'rgba(136,135,128,0.15)' }, ticks: { color: '#888780', callback: v => v + '%' } }
+    }
+  }
+});
+
+def('c3', {
+  type: 'bar',
+  data: {
+    labels: ['Gemini', 'GPT-4o'],
+    datasets: [{ data: [14, 21], backgroundColor: ['#534AB7', '#378ADD'] }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#888780' } },
+      y: { grid: { color: 'rgba(136,135,128,0.15)' }, ticks: { color: '#888780', stepSize: 5 } }
+    }
+  }
+});
+
+def('c4', {
+  type: 'bar',
+  data: {
+    labels: ['Gemini', 'GPT-4o'],
+    datasets: [
+      { label: 'Text', data: [1, 12], backgroundColor: '#378ADD' },
+      { label: 'Table', data: [7, 10], backgroundColor: '#534AB7' }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#888780' } },
+      y: { grid: { color: 'rgba(136,135,128,0.15)' }, ticks: { color: '#888780', stepSize: 5 } }
+    }
+  }
+});
+</script>
+</body>
+</html>
