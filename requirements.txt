@@ -5,3 +5,6 @@
 requests       # HTTP — used by pdf_crawler.py, matweb_discovery.py, batch_ingest.py
 playwright     # real-browser automation — matweb_discovery.py stage 1
 ddgs           # DuckDuckGo search — matweb_discovery.py stage 2
+pint           # unit normalization — extraction.py (value_si / unit_canonical)
+PyMuPDF        # PDF text extraction (import fitz) — extraction.py grounding + scanned detection
+# ocrmypdf     # optional — OCR for scanned/image-only PDFs (not required)
