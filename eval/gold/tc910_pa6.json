@@ -1,0 +1,18 @@
+{
+  "pdf": "tc910_pa6.pdf",
+  "notes": "Toray Cetex TC910 PA6 (Nylon 6) carbon-fiber UD tape, thermoplastic composite. Values hand-read from the page-2 mechanical table. Composite (carbon fiber + PA6 matrix). Tests single-material composite classification and ksi/Msi -> MPa/GPa unit handling.",
+  "materials": [
+    {
+      "material_name": "Toray Cetex TC910 Nylon 6 Carbon Fiber Uni-directional Tape",
+      "aliases": ["tc910", "pa6", "nylon 6", "carbon fiber uni-directional tape"],
+      "material_class": "Composite",
+      "properties": [
+        {"property_name": "Tensile Strength", "aliases": ["tensile strength"], "value_num": 2068, "unit": "MPa", "tolerance_pct": 5},
+        {"property_name": "Tensile Modulus", "aliases": ["tensile modulus"], "value_num": 99.9, "unit": "GPa", "tolerance_pct": 5},
+        {"property_name": "Compressive Strength", "aliases": ["compressive strength"], "value_num": 992, "unit": "MPa", "tolerance_pct": 5},
+        {"property_name": "In-Plane Shear Modulus", "aliases": ["shear modulus"], "value_num": 2.8, "unit": "GPa", "tolerance_pct": 5},
+        {"property_name": "Composite density", "aliases": ["density"], "value_num": 1.45, "unit": "g/cm3", "tolerance_pct": 5}
+      ]
+    }
+  ]
+}

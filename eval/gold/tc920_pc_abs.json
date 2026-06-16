@@ -1,0 +1,42 @@
+{
+  "pdf": "tc920_pc_abs.pdf",
+  "notes": "Toray CFRT TC920 PC/ABS product data sheet. Reports THREE distinct materials: a fiberglass-reinforced UD tape, a carbon-fiber UD tape, and the neat resin. Values hand-read from the PDF tables. Used to test multi-material separation (no cross-contamination), GPa/MPa vs ksi/Msi unit handling, and range parsing (Tg 70-75 C). tolerance_pct is the allowed deviation when value-matching (compared in SI).",
+  "materials": [
+    {
+      "material_name": "Fiberglass Fiber PC/ABS Unidirectional Tape",
+      "aliases": ["fiberglass", "glass fiber pc/abs", "fiberglass pc/abs"],
+      "material_class": "Composite",
+      "properties": [
+        {"property_name": "Tensile Strength", "aliases": ["tensile strength"], "value_num": 610, "unit": "MPa", "tolerance_pct": 5},
+        {"property_name": "Tensile Modulus", "aliases": ["tensile modulus"], "value_num": 33.8, "unit": "GPa", "tolerance_pct": 5},
+        {"property_name": "Flexural Strength", "aliases": ["flexural strength"], "value_num": 985, "unit": "MPa", "tolerance_pct": 5},
+        {"property_name": "Flexural Modulus", "aliases": ["flexural modulus"], "value_num": 34.4, "unit": "GPa", "tolerance_pct": 5},
+        {"property_name": "Compressive Strength", "aliases": ["compressive strength"], "value_num": 212, "unit": "MPa", "tolerance_pct": 5},
+        {"property_name": "Composite Density", "aliases": ["density"], "value_num": 1.73, "unit": "g/cm3", "tolerance_pct": 5}
+      ]
+    },
+    {
+      "material_name": "Carbon Fiber PC/ABS Unidirectional Tape",
+      "aliases": ["carbon fiber pc/abs", "carbon pc/abs", "cf pc/abs"],
+      "material_class": "Composite",
+      "properties": [
+        {"property_name": "Tensile Strength", "aliases": ["tensile strength"], "value_num": 1351, "unit": "MPa", "tolerance_pct": 5},
+        {"property_name": "Tensile Modulus", "aliases": ["tensile modulus"], "value_num": 99.4, "unit": "GPa", "tolerance_pct": 5},
+        {"property_name": "Flexural Strength", "aliases": ["flexural strength"], "value_num": 1088, "unit": "MPa", "tolerance_pct": 5},
+        {"property_name": "Flexural Modulus", "aliases": ["flexural modulus"], "value_num": 87.9, "unit": "GPa", "tolerance_pct": 5},
+        {"property_name": "Compressive Strength", "aliases": ["compressive strength"], "value_num": 268, "unit": "MPa", "tolerance_pct": 5},
+        {"property_name": "Composite Density", "aliases": ["density"], "value_num": 1.46, "unit": "g/cm3", "tolerance_pct": 5}
+      ]
+    },
+    {
+      "material_name": "PC/ABS neat resin",
+      "aliases": ["neat resin", "pc/abs"],
+      "material_class": "Polymer",
+      "properties": [
+        {"property_name": "Density", "aliases": ["density", "specific gravity"], "value_num": 1.2, "unit": "g/cm3", "tolerance_pct": 5},
+        {"property_name": "Glass transition temperature", "aliases": ["glass transition", "tg"], "value_min": 70, "value_max": 75, "unit": "degC", "tolerance_pct": 5},
+        {"property_name": "Melt temperature", "aliases": ["melt", "tm", "melting"], "value_num": 250, "unit": "degC", "tolerance_pct": 5}
+      ]
+    }
+  ]
+}
