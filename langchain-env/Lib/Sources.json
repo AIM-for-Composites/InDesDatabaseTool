@@ -1,0 +1,20 @@
+[
+  {
+    "url": "https://arxiv.org",
+    "type": "api",
+    "domain": "arxiv.org",
+    "added": "2025-01-01",
+    "discovered_by": "manual",
+    "priority": 10,
+    "yield_score": 49.5
+  },
+  {
+    "url": "https://api.semanticscholar.org",
+    "type": "api",
+    "domain": "semanticscholar.org",
+    "added": "2025-01-01",
+    "discovered_by": "manual",
+    "priority": 10,
+    "yield_score": 2.69
+  }
+]
