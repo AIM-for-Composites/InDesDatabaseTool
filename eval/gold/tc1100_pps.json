@@ -1,0 +1,15 @@
+{
+  "pdf": "tc1100_pps.pdf",
+  "notes": "Toray Cetex TC1100 PPS — T300JB 3K carbon, 5HS woven-fabric reinforced laminate (43% resin content). Values hand-read from the woven-fabric mechanical table; 0-degree (longitudinal), RTD condition only. Composite. PPS matrix (vs TC1200's PEEK) — tests extraction across a different matrix/test-standard (EN 2597).",
+  "materials": [
+    {
+      "material_name": "Toray Cetex TC1100 PPS carbon woven fabric laminate",
+      "aliases": ["tc1100", "pps", "carbon", "woven", "5hs", "t300"],
+      "material_class": "Composite",
+      "properties": [
+        {"property_name": "Tensile strength (0)", "aliases": ["tensile strength"], "value_num": 752, "unit": "MPa", "tolerance_pct": 5},
+        {"property_name": "Tensile modulus (0)", "aliases": ["tensile modulus"], "value_num": 58.0, "unit": "GPa", "tolerance_pct": 5}
+      ]
+    }
+  ]
+}

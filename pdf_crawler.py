@@ -58,6 +58,11 @@ from typing import Any, Iterable, Optional
 
 import requests
 
+try:
+    import fitz  # PyMuPDF — optional structural PDF validation in download_pdf()
+except Exception:  # pragma: no cover - optional dependency
+    fitz = None
+
 log = logging.getLogger("pdf_crawler")
 
 # ---------------------------------------------------------------------------
@@ -536,9 +541,26 @@ def download_pdf(cand: Candidate, pdf_dir: Path, state: CrawlerState) -> Optiona
     if len(data) < MIN_PDF_BYTES:
         log.debug("Too small (%d B), skipping: %s", len(data), cand.pdf_url)
         return None
-    if not data.startswith(b"%PDF"):
-        log.debug("Not a PDF (no %%PDF magic): %s", cand.pdf_url)
+    # Reject anything that isn't a real PDF. Require a "%PDF-" header within the
+    # first bytes (tolerating a leading BOM/whitespace), and — when PyMuPDF is
+    # available — that the bytes actually open as a non-locked, >=1-page document.
+    # This catches paywall/login/CAPTCHA HTML mis-served as application/pdf, which
+    # a Content-Type check alone would save and then extract into garbage rows.
+    if b"%PDF-" not in data[:1024]:
+        log.debug("Not a PDF (no %%PDF- magic): %s", cand.pdf_url)
         return None
+    if fitz is not None:
+        try:
+            doc = fitz.open(stream=data, filetype="pdf")
+            try:
+                if doc.needs_pass or doc.page_count < 1:
+                    log.debug("Rejected (encrypted/zero-page PDF): %s", cand.pdf_url)
+                    return None
+            finally:
+                doc.close()
+        except Exception as exc:
+            log.debug("Rejected (PyMuPDF cannot open: %s): %s", exc, cand.pdf_url)
+            return None
 
     sha = hashlib.sha256(data).hexdigest()
     if sha in state.seen_hashes:

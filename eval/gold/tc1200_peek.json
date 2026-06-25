@@ -1,0 +1,17 @@
+{
+  "pdf": "tc1200_peek.pdf",
+  "notes": "Toray Cetex TC1200 PEEK — T300JB 3K carbon, 5HS woven-fabric reinforced laminate (42% resin content). Values hand-read from the woven-fabric mechanical table; 0-degree (longitudinal), RTD condition only, to avoid 0/90 matching ambiguity. Composite. Tests ksi/Msi -> MPa/GPa normalization and ISO/AITM test-method handling.",
+  "materials": [
+    {
+      "material_name": "Toray Cetex TC1200 PEEK carbon woven fabric laminate",
+      "aliases": ["tc1200", "peek", "carbon", "woven", "5hs", "t300"],
+      "material_class": "Composite",
+      "properties": [
+        {"property_name": "Tensile strength (0)", "aliases": ["tensile strength"], "value_num": 776, "unit": "MPa", "tolerance_pct": 5},
+        {"property_name": "Tensile modulus (0)", "aliases": ["tensile modulus"], "value_num": 56.1, "unit": "GPa", "tolerance_pct": 5},
+        {"property_name": "Compression strength (0)", "aliases": ["compression strength", "compressive strength"], "value_num": 585, "unit": "MPa", "tolerance_pct": 5},
+        {"property_name": "In-plane shear strength", "aliases": ["in-plane shear strength", "shear strength"], "value_num": 155, "unit": "MPa", "tolerance_pct": 5}
+      ]
+    }
+  ]
+}
