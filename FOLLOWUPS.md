@@ -1,68 +1,144 @@
-# Manual follow-ups (extraction-hardening phase)
+# Manual follow-ups
 
-These could not be done from this repo and need a human / a separate repo.
+Two groups: (A) follow-ups from the extraction-hardening phase in **this** repo,
+and (B) findings from reviewing the companion **InDeS** agentic repo
+(`AIM-for-Composites/InDesDatabaseTool`, branch `agentic_code`) — a different
+repo that can't be edited from here.
 
-## 1. Rotate the committed Gemini API key (security) — do this first
+---
 
-`Backend/Pdf_DataExtraction.py` in the **app repo** (the live Streamlit/HF Space
-project, not this one) has a real `GEMINI_API_KEY` committed in source. Treat it
-as compromised:
+## A. Extraction-hardening phase (this repo)
 
-1. Revoke/rotate the key in Google AI Studio / Cloud console.
-2. Remove it from the code; read it from the environment instead
-   (`os.environ["GEMINI_API_KEY"]`), the way `extraction.py` does here.
-3. Because it's in git history, rotating is mandatory — scrubbing the file alone
-   does not un-leak it. Consider `git filter-repo` / BFG on that repo, then force
-   the new key everywhere it's used (HF Space secrets, local `.env`).
-
-This repo never hardcodes a key (env-only) and `.gitignore` already excludes
-`.env`, `*.key`, `*.pem`, `credentials.json`.
-
-## 2. Sync the duplicated prompt/schema in the app repo to `PROMPT_VERSION`
-
-The same Gemini prompt/schema is duplicated and has drifted across three places.
-This repo's copy is now centralized in `extraction.py`
-(`PROMPT_VERSION = "2.0"`). The other two are in the **app repo** and were not
-edited from here:
-
-- `page_files/categorized/page6.py`
-- `Backend/Pdf_DataExtraction.py`
-
-Action: in that repo, replace both copies with an import from a shared module
-mirroring `extraction.py` (or vendor `extraction.py` over), and add at the top of
-each old definition:
-
-```python
-# TODO: sync with extraction.py PROMPT_VERSION ("2.0") — schema is now a
-# materials[] list with structured value_num/min/max + source_quote/page.
-```
-
-Until they're synced, the app and the batch ingester extract with **different**
-schemas (single flat `mechanical_properties` list vs. multi-material structured
-properties), so their outputs are not directly comparable.
-
-`page1.py`'s exact-match `section` filter depends on the section enum — keep it
-aligned with `extraction.SECTION_ENUM` when syncing.
-
-## 3. Run the eval baseline once a key is available
-
-`python -m eval` needs `GEMINI_API_KEY`. Suggested flow to satisfy acceptance
-test #6 (precision/recall holds or improves):
+### A1. Run the eval baseline once a key is available
+`python -m eval` needs `GEMINI_API_KEY`. Suggested flow for acceptance test #6
+(precision/recall holds or improves):
 
 ```bash
-# (optional) capture a pre-change baseline by checking out the previous commit
+# (optional) capture a pre-change baseline from the previous commit
 python -m eval --report eval_baseline.json
 # then on this branch:
 python -m eval --report eval_report.json --baseline eval_baseline.json
 ```
 
-Add 1–3 more gold cases to reach the 3–5 suggested in the prompt (a bare-fiber
-datasheet for the Fiber class, and a journal paper with ranges, would round out
-coverage). See `eval/gold/README.md`.
+Add 1–3 more gold cases to reach the suggested 3–5 (a bare-fiber datasheet for
+the Fiber class; a journal paper with ranges). See `eval/gold/README.md`.
 
-## 4. Optional niceties not built
-
+### A2. Optional niceties not built
 - Streamlit review view over `status != 'ok'` rows (a CSV `--promote` path is
   implemented; a UI is not).
 - OCR route (`ocrmypdf`/`pytesseract`) for scanned PDFs — currently they are
   detected and skipped as `scanned_no_text` rather than OCR'd.
+
+---
+
+## B. InDeS agentic repo (`InDesDatabaseTool`, branch `agentic_code`)
+
+Reviewed 2026-06 (5-subsystem code review). This is the live agentic system:
+a LangGraph crawler (`crawler_graph.py`), a dual-LLM extractor
+(`langchain-env/Lib/DocToDB_eval_v2.py`), and a validation agent
+(`langchain-env/Lib/pdf_monitor_agent.py`). All code lives under
+`langchain-env/Lib/` — which is **a committed virtualenv** (see B5).
+
+### B1. 🔴 Rotate leaked API keys — do this first (PUBLIC repo)
+Two separate leaks, both in a public repo, so both are compromised:
+
+1. **`langchain-env/Lib/.env`** is committed and (per
+   `PDF_MONITOR_AGENT_SETUP.md`) contains **`GEMINI_API_KEY` + `OPENAI_API_KEY`**.
+   → Rotate **both** Google and OpenAI keys.
+2. **`page_files/categorized/Backend/Pdf_DataExtraction.py:138`** hardcodes a
+   Gemini key (`GEMINI_KEY = "AIza…"`) in source.
+
+Steps for each:
+- Revoke/rotate in the provider console (Google AI Studio, OpenAI dashboard).
+- Move to env-only (`os.environ[...]`), as `extraction.py` does in this repo.
+- They're in git history → rotating is mandatory; scrubbing the file alone does
+  not un-leak. Use `git filter-repo`/BFG, then update any HF Space / CI secrets.
+- Also: `DocToDB_eval_v2.py` passes the Gemini key as a **URL query parameter**
+  (~lines 114, 1106), which leaks into proxy/server logs — switch to the
+  `x-goog-api-key` header.
+
+### B2. 🔴 Gemini extraction is silently disabled (dual-LLM is GPT-only)
+`DocToDB_eval_v2._call_gemini` reads `_GEMINI_CONFIG["max_output_tokens"]`, a key
+that is **never set** (commented out at ~line 280; absent from `_GEMINI_DEFAULTS`
+~257). Every Gemini call raises a `KeyError` that is swallowed (~1140), so
+`df_gemini` is always empty and the "dual-LLM consensus" degrades to GPT-only —
+silently. The pick-winner / consensus logic is effectively dead for Gemini.
+→ Add `max_output_tokens` to `_GEMINI_DEFAULTS` (or `.get(..., default)`).
+
+### B3. 🟠 Prompt/schema drift across **four** copies
+The Gemini prompt + JSON schema is duplicated and has drifted across:
+- `langchain-env/Lib/DocToDB_eval_v2.py`
+- `langchain-env/Lib/Extraction.py`
+- `page_files/categorized/page6.py`
+- `page_files/categorized/Backend/Pdf_DataExtraction.py`
+
+Specific drifts found:
+- In `DocToDB_eval_v2.py` the schema array is named `mechanical_properties`
+  (~358) but prompts/consumers use `properties`; the cache round-trip writes back
+  `mechanical_properties` (~1733) while merge reads `properties` first, so
+  **cached re-runs drop all properties**.
+- `Backend/Pdf_DataExtraction.py`'s active prompt asks for
+  `experiment_name/measured_value/...` while its `responseSchema` demands
+  `material_name/mechanical_properties` — contradictory (correct prompt is
+  commented out).
+- Dead `trade_grade` parsing in `DocToDB_eval_v2.py` (~1120-1133) for a field the
+  schema doesn't define.
+
+→ Consolidate to one shared module (mirror this repo's `extraction.py`, which is
+the multi-material, grounded, unit-aware, enum-`section`, retry/backoff upgrade)
+and stamp a single `PROMPT_VERSION`. Until then, the app, the batch ingester, and
+the agentic extractor all extract with **different** schemas — outputs are not
+comparable. `page1.py`'s exact-match `section` filter must stay aligned with the
+shared section enum.
+
+### B4. 🟠 Import-time side effects make modules unsafe to import
+`DocToDB_eval_v2.py` runs at **import time**: a debug `print`, `load_dotenv`, a
+live `get_gemini_model` HTTP call (~146), a daemon prewarm thread (~682), and
+startup probes (~683). With no key these still fire (10s timeouts) and break
+import/tests. Separately, the Streamlit `Backend/Pdf_DataExtraction.py` runs an
+**entire Excel↔DB matching pipeline at import time** (module-level code ~214-295),
+so importing it connects to a DB, reads Excel, calls Gemini, and writes files.
+→ Move all network/thread/IO work into entry functions guarded by
+`if __name__ == "__main__":`.
+
+### B5. 🟠 A virtualenv is committed (repo bloat)
+`langchain-env/` is a full committed Python venv (~52k files, including
+`materials.db`, `pdf_extraction_cache.json`, `chroma_store/`, `downloads/`). It
+bloats the repo and truncates the GitHub tree.
+→ `.gitignore` the venv + DB + caches, `git rm -r --cached` them, and purge from
+history. Keep only the source files (`*.py`, `Sources.json`, the setup docs).
+
+### B6. 🟡 Lower-severity correctness (from review, verify before fixing)
+- `_to_si` offset-converts °C→K then compares with a *relative* 5% tolerance
+  (meaningless on an offset scale); percent / wt% / vol% / mol% all collapse to
+  one ratio family and are treated as interchangeable in consensus matching.
+- `_numeric_found_in_text` strips all non-digits so `2,5`→`25.0` and bare `5`
+  matches any chunk containing `5` — drives `source_verified`, giving false
+  confidence.
+- `_ev_score` trusts LLM-judge indices with no bounds check; an `IndexError` is
+  swallowed and silently switches to the token-overlap fallback while still
+  labeling matches `llm_judge`.
+- `build_batches` truncates oversized chunks in place (already indexed in
+  ChromaDB) instead of splitting → displayed text corrupted, data lost.
+
+---
+
+## C. Deliverable produced here: `combined_agent.py`
+
+A single LangGraph agent that **merges the crawler and validation agents** into
+one workflow (built at the user's request; lives at
+`Desktop/InDeS_combined_agent/combined_agent.py`, to be dropped into
+`langchain-env/Lib/`):
+
+```
+load_frontier → fetch_papers → filter_relevance → download_pdfs →
+save_papers → extract_and_validate → log_run → END
+```
+
+`extract_and_validate` runs the dual-LLM pipeline per downloaded PDF, GT-scores
+when a `{stem}_gt.*` file exists (keeps the higher-F1 winner's TP rows) and falls
+back to consensus + source-verified rows otherwise, then persists to a **new
+`properties` table** in `materials.db` (additive). It lazy-imports
+`DocToDB_eval_v2` to avoid the B4 import-time side effects and degrades
+gracefully around the B2 Gemini bug. **Untested at runtime** (needs the repo,
+keys, and heavy deps) — do a first run in the repo after B1/B2.
