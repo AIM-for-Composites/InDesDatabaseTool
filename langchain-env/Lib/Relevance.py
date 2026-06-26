@@ -11,7 +11,7 @@ from typing import List, Dict
 
 client = ChatGoogleGenerativeAI(
     model="gemini-2.0-flash",
-    google_api_key=os.getenv("GEMINI_API_KEY", "AIzaSyBzyMFKEqcjsWpR-OGAY42T250o1O39v3Y")
+    google_api_key=os.getenv("GEMINI_API_KEY", "")
 )
 STRONG_INCLUDE = [
     "composite", "fiber reinforced", "fibre reinforced",
