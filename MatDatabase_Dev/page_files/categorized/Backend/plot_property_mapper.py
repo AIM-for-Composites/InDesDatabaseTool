@@ -33,7 +33,7 @@ from PIL import Image
 # ---------------------------------------------------------------------------
 _GEMINI_KEY = os.getenv(
     "GEMINI_API_KEY",
-    "AIzaSyAuI-qwSCRpdAcGTvNNaS70NkxlLMSrWF0",   # fallback – prefer env var
+    "",   # fallback – prefer env var
 )
 _GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025"
 _GEMINI_URL = (
