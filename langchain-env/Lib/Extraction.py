@@ -80,7 +80,7 @@ log = logging.getLogger(__name__)
 if OCR_AVAILABLE:
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyBzyMFKEqcjsWpR-OGAY42T250o1O39v3Y")
+API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 _cached_model: Optional[str] = None
  
