@@ -153,7 +153,7 @@ def save_single_image_with_property(
 # expected by the rest of the UI (list of {caption, page, image_data}).
 # ─────────────────────────────────────────────────────────────────────────────
 
-_GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyBzyMFKEqcjsWpR-OGAY42T250o1O39v3Y")
+_GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
 def extract_images(pdf_path: str) -> list:
     """
