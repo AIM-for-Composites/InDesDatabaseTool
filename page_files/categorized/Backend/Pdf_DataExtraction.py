@@ -135,7 +135,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 DB_PATH = "output_materials.db"
 EXCEL_PATH = "5.1__actual.xlsx"
 OUTPUT_EXCEL = "5.1__filled.xlsx"
-GEMINI_KEY = "AIzaSyBJ_2gJmwwT7gMNWHo2Lgh5dNYOmGDQZWE"
+GEMINI_KEY = ""
 
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
