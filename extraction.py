@@ -34,6 +34,7 @@ import base64
 import dataclasses
 import json
 import logging
+import os
 import re
 import time
 import unicodedata
@@ -58,7 +59,11 @@ log = logging.getLogger("extraction")
 # Configuration
 # ---------------------------------------------------------------------------
 
-GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025"
+# Stable release only — the previous pin ("gemini-2.5-flash-preview-09-2025",
+# a *preview*) was shut down by Google on 2026-02-17 and silently killed every
+# extraction call. Previews get retired with ~2 weeks notice; stable models
+# don't. Overridable via env so a future swap needs no code change.
+GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash")
 PROMPT_VERSION = "2.0"
 
 GEMINI_URL_TEMPLATE = (

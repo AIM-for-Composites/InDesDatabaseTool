@@ -7,4 +7,5 @@ playwright     # real-browser automation — matweb_discovery.py stage 1
 ddgs           # DuckDuckGo search — matweb_discovery.py stage 2
 pint           # unit normalization — extraction.py (value_si / unit_canonical)
 PyMuPDF        # PDF text extraction (import fitz) — extraction.py grounding + scanned detection
+psycopg[binary]  # Postgres mirror — batch_ingest.py --pg / pg_migrate.py (the DB the HF Space reads)
 # ocrmypdf     # optional — OCR for scanned/image-only PDFs (not required)

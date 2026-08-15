@@ -29,6 +29,11 @@ Usage:
     # one-off, non-destructive column migration of an existing DB:
     python batch_ingest.py --migrate --db ./materials_mirror.sqlite
 
+    # write to the shared Postgres (the DB the HF Space reads) instead of
+    # SQLite — env: DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD or DATABASE_URL.
+    # Requires a one-time `python pg_migrate.py --apply` first (see pg_mirror.py):
+    python batch_ingest.py --pg --input ./pdfs
+
 Author: Mathias Heider, ME8930 course project, May 2026.
 Extraction prompt and schema now centralized in extraction.py (was adapted from
 the live Streamlit app's page_files/categorized/Backend/upload_backend.py,
@@ -182,6 +187,12 @@ def _row_values(row: PropertyRow) -> tuple:
     return tuple(mapping[c] for c in _INSERT_COLS)
 
 
+def seen_sha1(conn: sqlite3.Connection, sha1: str) -> bool:
+    """True if this exact PDF (by sha1) was already ingested."""
+    cur = conn.execute("SELECT 1 FROM sources WHERE pdf_sha1 = ? LIMIT 1", (sha1,))
+    return cur.fetchone() is not None
+
+
 def already_inserted(conn: sqlite3.Connection, table: str, row: PropertyRow) -> bool:
     """Source-aware dedup (Task 6).
 
@@ -250,18 +261,20 @@ def _empty_result(pdf_path: Path, started: float, error: str) -> PdfResult:
 
 def process_pdf(
     pdf_path: Path,
-    conn: sqlite3.Connection,
+    conn: Any,
     api_key: str,
+    db: Any = None,
 ) -> PdfResult:
+    # `db` = backend module providing seen_sha1 / record_source /
+    # already_inserted / insert_row. Defaults to this module (SQLite);
+    # main() passes pg_mirror for --pg. Same logic either way.
+    db = db or sys.modules[__name__]
     started = time.time()
     pdf_bytes = pdf_path.read_bytes()
     sha1 = hashlib.sha1(pdf_bytes).hexdigest()
 
     # Skip if we already ingested this exact file.
-    already = conn.execute(
-        "SELECT 1 FROM sources WHERE pdf_sha1 = ? LIMIT 1", (sha1,)
-    ).fetchone()
-    if already:
+    if db.seen_sha1(conn, sha1):
         return _empty_result(pdf_path, started, "skipped_seen_sha1")
 
     try:
@@ -271,7 +284,7 @@ def process_pdf(
 
     if extracted.doc_status == "scanned_no_text":
         # Don't fabricate rows from an image-only PDF (Task 10).
-        record_source(conn, pdf_path, sha1, "scanned_no_text", None)
+        db.record_source(conn, pdf_path, sha1, "scanned_no_text", None)
         conn.commit()
         return _empty_result(pdf_path, started, "scanned_no_text")
     if extracted.doc_status != "ok" or not extracted.materials:
@@ -286,15 +299,15 @@ def process_pdf(
     classes = [extraction.classify_material(m) for m in extracted.materials]
     primary_class = classes[0] if classes else None
     primary_abbr = rows[0].material_abbreviation if rows else None
-    record_source(conn, pdf_path, sha1, primary_class, primary_abbr)
+    db.record_source(conn, pdf_path, sha1, primary_class, primary_abbr)
 
     inserted = flagged = duplicates = 0
     for row in rows:
         table = TABLE_FOR_CLASS.get(row.material_class, "Polymers")
-        if already_inserted(conn, table, row):
+        if db.already_inserted(conn, table, row):
             duplicates += 1
             continue
-        insert_row(conn, table, row)
+        db.insert_row(conn, table, row)
         inserted += 1
         if row.status != "ok":
             flagged += 1
@@ -426,6 +439,9 @@ def main() -> int:
                         help="Add hardening-phase columns to an existing DB and exit")
     parser.add_argument("--promote", type=Path, default=None,
                         help="Re-admit corrected rows from a review CSV as status='ok'")
+    parser.add_argument("--pg", action="store_true",
+                        help="Write to the shared Postgres (env DB_HOST/... or "
+                             "DATABASE_URL) instead of the local SQLite mirror")
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -435,16 +451,30 @@ def main() -> int:
     )
     log = logging.getLogger("batch_ingest")
 
+    # Select the storage backend: this module (SQLite, default) or pg_mirror.
+    if args.pg:
+        import pg_mirror as db
+        log.info("Postgres mode: %s", db.config_summary())
+    else:
+        db = sys.modules[__name__]
+
     if args.migrate:
+        if args.pg:
+            log.error("Schema changes to the shared Postgres are deliberately "
+                      "kept in one place: run `python pg_migrate.py` (dry-run) "
+                      "then `python pg_migrate.py --apply`.")
+            return 2
         conn = init_db(args.db)
         conn.close()
         log.info("Migration complete: %s", args.db)
         return 0
 
     if args.promote:
-        conn = init_db(args.db)
-        n = promote_review_queue(conn, args.promote)
-        export_review_queue(conn, args.review)
+        conn = db.connect_from_env() if args.pg else init_db(args.db)
+        if args.pg:
+            db.check_schema(conn)
+        n = db.promote_review_queue(conn, args.promote)
+        db.export_review_queue(conn, args.review)
         conn.close()
         log.info("Promoted %d rows to status='ok' from %s", n, args.promote)
         return 0
@@ -465,12 +495,17 @@ def main() -> int:
         log.error("No PDFs found under %s", args.input)
         return 2
 
-    log.info("Ingesting %d PDFs into %s", len(pdfs), args.db)
-    conn = init_db(args.db)
+    if args.pg:
+        log.info("Ingesting %d PDFs into Postgres (%s)", len(pdfs), db.config_summary())
+        conn = db.connect_from_env()
+        db.check_schema(conn)  # refuse to run against an unmigrated schema
+    else:
+        log.info("Ingesting %d PDFs into %s", len(pdfs), args.db)
+        conn = init_db(args.db)
     results: list[PdfResult] = []
     for i, pdf in enumerate(pdfs, start=1):
         log.info("[%d/%d] %s", i, len(pdfs), pdf.name)
-        result = process_pdf(pdf, conn, api_key)
+        result = process_pdf(pdf, conn, api_key, db=db)
         results.append(result)
         log.info(
             "  -> materials=%d classes=%s extracted=%d inserted=%d "
@@ -485,7 +520,7 @@ def main() -> int:
             result.error,
         )
 
-    n_flagged = export_review_queue(conn, args.review)
+    n_flagged = db.export_review_queue(conn, args.review)
     summary = summarize(results)
     args.report.write_text(json.dumps(summary, indent=2))
     log.info("Run summary written to %s", args.report)

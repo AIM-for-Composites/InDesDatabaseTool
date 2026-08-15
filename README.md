@@ -65,6 +65,26 @@ python -m eval --report eval_report.json
 python -m eval --selfcheck            # offline check, no API key needed
 ```
 
+### Postgres mode (feed the HF Space's database)
+
+`batch_ingest.py --pg` writes the same rows into the shared Postgres that the
+[HF Space](https://huggingface.co/spaces/aim4composites/MaterialsDatabase)
+reads (legacy columns stay populated, so the Space needs no changes). Config
+comes from the environment — the same names the Space uses: `DB_HOST`,
+`DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` (or a single `DATABASE_URL`);
+`DB_SSLMODE` defaults to `require`.
+
+```bash
+pip install "psycopg[binary]"
+python pg_migrate.py                  # one-time, DRY-RUN: shows planned changes
+python pg_migrate.py --apply          # CSV-backs-up the tables, then adds columns/indexes
+python batch_ingest.py --pg --input crawl_out/pdfs   # ingest straight to Postgres
+```
+
+`pg_migrate.py` is additive only (new columns, a partial dedup index, a
+`sources` table); `batch_ingest.py --pg` refuses to run until the migration has
+been applied. See `pg_mirror.py` for details.
+
 ## Notes
 
 - `crawl_out/` (downloaded PDFs, crawl state) is gitignored — it's regenerable.
