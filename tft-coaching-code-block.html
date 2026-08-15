@@ -1,0 +1,379 @@
+<!-- ============================================================
+  TFT Coaching — NEW 1-on-1 Coaching  ·  paste EVERYTHING in this file into ONE
+  Code Block on the Squarespace page with URL slug /new-coaching
+  (final slug /coaching at launch · keep under Pages > Not Linked until then)
+  Images expected (already uploaded): /s/logo-white.png /s/hero-membership.jpg
+  /s/broseph.png /s/upsetmax.webp  — no new uploads needed.
+============================================================= -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Squarespace neutralizer (this page only) ===== */
+html,body,#siteWrapper,#page{background:#13141b!important}
+body{overflow-x:hidden!important}
+#header,#footer-sections,footer.sections,.sqs-announcement-bar-dropzone,.sqs-cart-dropzone,#sqs-cart-root,.floating-cart{display:none!important}
+/* structural overrides: published page only (auto-disabled while editing) */
+body:not(.sqs-edit-mode-active) #page{padding:0!important}
+body:not(.sqs-edit-mode-active) #page .page-section{padding:0!important;min-height:0!important;background:transparent!important}
+body:not(.sqs-edit-mode-active) #page .page-section .section-background{background:transparent!important}
+body:not(.sqs-edit-mode-active) #page .section-border{background:transparent!important}
+body:not(.sqs-edit-mode-active) #page .content-wrapper,
+body:not(.sqs-edit-mode-active) #page .content,
+body:not(.sqs-edit-mode-active) #page .fluid-engine,
+body:not(.sqs-edit-mode-active) #page .fe-block,
+body:not(.sqs-edit-mode-active) #page .sqs-block,
+body:not(.sqs-edit-mode-active) #page .sqs-block .sqs-block-content{max-width:none!important;width:100%!important;padding:0!important;margin:0!important}
+body:not(.sqs-edit-mode-active) #page .fluid-engine{display:block!important}
+body:not(.sqs-edit-mode-active) #page .fe-block{position:static!important}
+body:not(.sqs-edit-mode-active) #page .sqs-block{overflow:visible!important}
+#tft-sq{position:relative;width:100%}
+/* pin text colors (Squarespace themes set h1/h2/p colors directly, which beats inheritance) */
+#tft-sq h1,#tft-sq h2,#tft-sq h3,#tft-sq h4,#tft-sq h5,#tft-sq h6{color:#fff}
+#tft-sq p{color:inherit}
+/* ===== TFT Coaching site styles (scoped to outrank Squarespace theme) ===== */
+:root,#tft-sq{
+  --bg:#13141b;
+  --bg-elev:#181a22;
+  --surface:#1d1f29;
+  --surface-2:#252834;
+  --line:rgba(255,255,255,.10);
+  --line-2:rgba(255,255,255,.19);
+  --text:#ffffff;
+  --muted:#b1b7c4;
+  --faint:#9097a6;
+  --accent:#c98bff;
+  --accent-strong:#a63ae8;
+  --accent-deep:#7a2cc4;
+  --c-teal:#ffffff;
+  --c-gold:#ffffff;
+  --c-pink:#c98bff;
+  --c-blue:#ffffff;
+  --gold:#f5b13d;
+  --maxw:1160px;
+  --r:14px;
+}#tft-sq,#tft-sq *{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}#tft-sq a:focus-visible,#tft-sq button:focus-visible,#tft-sq summary:focus-visible,#tft-sq .chip:focus-visible,#tft-sq input:focus-visible,#tft-sq select:focus-visible,#tft-sq textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}#tft-sq .btn:focus-visible{outline-offset:2px;border-radius:999px}#tft-sq{font-family:'Inter',system-ui,sans-serif;color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:16px;
+  background:var(--bg);
+  background-image:
+    radial-gradient(1000px 600px at 88% 14%,rgba(166,58,232,.07),transparent 60%),
+    radial-gradient(900px 600px at 4% 48%,rgba(166,58,232,.055),transparent 60%),
+    radial-gradient(1000px 700px at 92% 86%,rgba(120,80,220,.05),transparent 60%)}#tft-sq h1,#tft-sq h2,#tft-sq h3,#tft-sq h4,#tft-sq .dsp{font-family:'Space Grotesk',sans-serif;line-height:1.08;letter-spacing:-.01em;font-weight:600}#tft-sq a{color:inherit;text-decoration:none}#tft-sq img{max-width:100%}#tft-sq .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}#tft-sq .acc{color:var(--accent)}#tft-sq .ey{display:inline-flex;align-items:center;gap:8px;font-family:'Space Grotesk';text-transform:uppercase;letter-spacing:.16em;font-weight:650;font-size:12.5px;color:#d9aeff}#tft-sq .ey::before{content:"";width:18px;height:1px;background:currentColor;opacity:.7}#tft-sq .ey.teal,#tft-sq .ey.gold,#tft-sq .ey.pink,#tft-sq .ey.blue{color:var(--accent)}#tft-sq .muted{color:var(--muted)}#tft-sq svg{display:block}#tft-sq .ico{width:20px;height:20px;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}#tft-sq .btn{display:inline-flex;align-items:center;gap:9px;font-family:'Space Grotesk';font-weight:600;font-size:15px;padding:12px 24px;border-radius:999px;cursor:pointer;border:1px solid transparent;transition:.2s;white-space:nowrap}#tft-sq .btn .ico{width:17px;height:17px}#tft-sq .btn-primary{background:linear-gradient(135deg,#c25dff 0%,#a63ae8 55%,#8d2ed1 100%);color:#fff;box-shadow:0 10px 28px -10px rgba(166,58,232,.7),inset 0 1px 0 rgba(255,255,255,.18);font-weight:700}#tft-sq .btn-primary:hover{background:linear-gradient(135deg,#cf7aff 0%,#b44cf2 55%,#9a38dd 100%);transform:translateY(-1px);box-shadow:0 14px 34px -10px rgba(166,58,232,.9),inset 0 1px 0 rgba(255,255,255,.2)}#tft-sq .btn-ghost{background:rgba(255,255,255,.04);color:var(--text);border-color:var(--line-2)}#tft-sq .btn-ghost:hover{border-color:rgba(255,255,255,.4);color:#fff;background:rgba(255,255,255,.08)}#tft-sq .btn-free{background:rgba(201,139,255,.22);color:#f4eafe;border-color:rgba(201,139,255,.85);box-shadow:0 0 22px -6px rgba(201,139,255,.55),inset 0 1px 0 rgba(255,255,255,.12);font-weight:700}#tft-sq .btn-free::before{content:"";width:13px;height:13px;flex:none;background:#e8c8ff;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}#tft-sq .btn-free:hover{background:rgba(201,139,255,.34);border-color:#d9adf5;color:#fff;transform:translateY(-1px);box-shadow:0 0 30px -6px rgba(201,139,255,.8),inset 0 1px 0 rgba(255,255,255,.15)}#tft-sq .logo-img{height:38px;width:auto;display:block}#tft-sq header{position:sticky;top:0;z-index:60;background:rgba(10,11,15,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--line-2)}#tft-sq header::before{content:"";display:block;height:2px;background:linear-gradient(90deg,var(--accent-strong),var(--accent) 35%,rgba(201,139,255,.15) 75%,transparent)}#tft-sq nav{display:flex;align-items:center;justify-content:space-between;height:72px}#tft-sq .brand{display:flex;align-items:center}#tft-sq .nav-links{display:flex;gap:22px;align-items:center}#tft-sq .nav-links a{font-size:14.5px;color:#c6cbd6;font-weight:550;transition:.18s;position:relative}#tft-sq .nav-links a:hover{color:var(--text)}#tft-sq .nav-links a.active{color:var(--text)}#tft-sq .nav-links a.active::after{content:"";position:absolute;left:0;right:0;bottom:-9px;height:2.5px;background:var(--accent);border-radius:2px}#tft-sq .nav-links a.free{color:#f4eafe;background:rgba(201,139,255,.2);border:1px solid rgba(201,139,255,.8);padding:7px 15px;border-radius:999px;font-weight:700;box-shadow:0 0 16px -5px rgba(201,139,255,.5)}#tft-sq .nav-links a.free::before{content:"";display:inline-block;width:10px;height:10px;margin-right:7px;background:#e8c8ff;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}#tft-sq .nav-links a.free:hover{background:rgba(201,139,255,.32);border-color:#d9adf5;color:#fff}#tft-sq .nav-links a.free.active::after{display:none}#tft-sq .nav-right{display:flex;align-items:center;gap:18px}#tft-sq .nav-right .login{font-size:14px;color:#c6cbd6}#tft-sq .nav-right .login:hover{color:var(--text)}#tft-sq .mobile-free{display:none}#tft-sq .m-login{display:none}#tft-sq .burger{display:none;background:none;border:0;cursor:pointer}#tft-sq .burger .ico{width:24px;height:24px;color:var(--text)}#tft-sq .hero{position:relative;padding:88px 0 72px;overflow:hidden}#tft-sq .hero-art{position:absolute;inset:0;z-index:0;pointer-events:none;background:url("/s/hero-home.jpg") center 38%/cover no-repeat}#tft-sq .hero-art::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(19,20,27,.92) 0%,rgba(19,20,27,.5) 58%,rgba(19,20,27,.62) 100%),linear-gradient(180deg,rgba(19,20,27,.3) 0%,rgba(19,20,27,.55) 55%,#13141b 100%)}#tft-sq .glowbg{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(720px 420px at 80% -10%,rgba(166,58,232,.18),transparent 62%)}#tft-sq .grid-fade{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.4;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(640px 420px at 72% 12%,#000,transparent 75%);mask-image:radial-gradient(640px 420px at 72% 12%,#000,transparent 75%)}#tft-sq .hero .wrap{position:relative;z-index:2;display:grid;grid-template-columns:1.02fr .98fr;gap:54px;align-items:center}#tft-sq .hero h1{font-size:clamp(42px,5.8vw,70px);font-weight:700;margin:20px 0 20px;letter-spacing:-.02em}#tft-sq .hero h1 .acc{background:linear-gradient(92deg,#eed7ff 0%,#cf94ff 55%,#b566f0 100%);-webkit-background-clip:text;background-clip:text;color:transparent}#tft-sq .hero .lead{font-size:19px;color:#c8ccd6;max-width:520px}#tft-sq .hero .lead b{color:var(--text);font-weight:600}#tft-sq .hero-cta{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap}#tft-sq .cred{display:flex;gap:10px;margin-top:30px;flex-wrap:wrap}#tft-sq .cred .pill{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:#d6dae2;background:var(--surface);border:1px solid var(--line);padding:7px 12px;border-radius:999px}#tft-sq .cred .pill .ico{width:14px;height:14px;color:#d9b6f6;stroke-width:2}#tft-sq .cred .pill:nth-child(2) .ico{color:#fff}#tft-sq .cred .pill:nth-child(3) .ico{color:var(--accent)}#tft-sq .herofig{position:relative}#tft-sq .herofig>.frame{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line-2);box-shadow:0 44px 90px -46px rgba(0,0,0,.8)}#tft-sq .herofig>.frame img{width:100%;display:block;aspect-ratio:4/3.1;object-fit:cover}#tft-sq .herofig>.frame::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(12,13,17,.55));pointer-events:none}#tft-sq .duo{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}#tft-sq .ph-main,#tft-sq .ph-sub{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line-2);box-shadow:0 36px 80px -40px rgba(0,0,0,.85)}#tft-sq .ph-main img,#tft-sq .ph-sub img{width:100%;height:100%;display:block;aspect-ratio:4/5;object-fit:cover}#tft-sq .ph-main img{object-position:center 20%}#tft-sq .ph-sub img{object-position:center 25%}#tft-sq .ph-name{position:absolute;left:0;right:0;bottom:0;padding:36px 14px 12px;background:linear-gradient(180deg,transparent,rgba(10,11,15,.9))}#tft-sq .ph-name b{font-family:'Space Grotesk';font-size:15px;display:block;color:#fff;line-height:1.25}#tft-sq .ph-name span{font-size:12px;color:#c9cedb}#tft-sq .stat-chip{position:absolute;left:-14px;top:-14px;z-index:3;display:flex;align-items:center;gap:9px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:12px;padding:9px 13px;box-shadow:0 20px 40px -20px rgba(0,0,0,.7)}#tft-sq .stat-chip .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px rgba(201,139,255,.9)}#tft-sq .stat-chip b{font-family:'Space Grotesk';font-size:13px;font-weight:600}#tft-sq .stat-chip span{display:block;font-size:12px;color:var(--muted)}#tft-sq .float-badge{position:absolute;right:-16px;bottom:20px;z-index:3;background:var(--surface-2);border:1px solid var(--line-2);border-radius:12px;padding:11px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 22px 44px -20px rgba(0,0,0,.8)}#tft-sq .float-badge .av{width:34px;height:34px;border-radius:9px;background:linear-gradient(140deg,var(--accent),var(--accent-deep));display:grid;place-items:center;color:#fff;font-family:'Space Grotesk';font-weight:700}#tft-sq .float-badge .n{font-size:13px;font-weight:600}#tft-sq .float-badge .s{font-size:12px;color:var(--muted)}#tft-sq .phero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);padding:56px 0 50px;text-align:center}#tft-sq .phero .glowbg{background:radial-gradient(620px 360px at 50% -20%,rgba(166,58,232,.2),transparent 65%)}#tft-sq .phero .wrap{position:relative;z-index:2}#tft-sq .phero h1{font-size:clamp(32px,4.4vw,50px);font-weight:700;margin:14px 0 14px}#tft-sq .phero p{color:var(--muted);font-size:17px;max-width:600px;margin:0 auto}#tft-sq .phero .hero-cta{justify-content:center}#tft-sq .trust{background:transparent;border:0}#tft-sq .trust .row{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}#tft-sq .trust .c{padding:30px 22px;text-align:center;border-left:1px solid var(--line)}#tft-sq .trust .c:first-child{border-left:0}#tft-sq .trust .v{font-family:'Space Grotesk';font-weight:700;font-size:32px;color:#fff;letter-spacing:-.01em}#tft-sq .trust .c:first-child .v{color:var(--accent)}#tft-sq .trust .k{font-size:13px;color:var(--muted);margin-top:4px}#tft-sq .sec{padding:68px 0}#tft-sq .sec.alt{background:transparent;border:0}#tft-sq .sec-head{max-width:640px;margin:0 auto 40px;text-align:center}#tft-sq .sec-head h2{font-size:clamp(30px,4vw,46px);font-weight:700;margin:14px 0 12px;letter-spacing:-.022em}#tft-sq .sec-head p{color:var(--muted);font-size:16px}#tft-sq .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}#tft-sq .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px;transition:.2s}#tft-sq .card:hover{border-color:rgba(201,139,255,.45);transform:translateY(-3px);background:var(--surface-2)}#tft-sq .card .ib{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;color:var(--accent);background:rgba(201,139,255,.12);border:1px solid rgba(201,139,255,.3);margin-bottom:16px}#tft-sq .card .ib .ico{width:20px;height:20px}#tft-sq .card:nth-child(even) .ib{color:#fff;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2)}#tft-sq .card h3{font-size:18px;font-weight:600;margin-bottom:6px}#tft-sq .card p{color:var(--muted);font-size:14px;line-height:1.55}#tft-sq .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}#tft-sq .step{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px 22px}#tft-sq .step .num{width:38px;height:38px;border-radius:10px;color:var(--accent);background:rgba(201,139,255,.12);border:1px solid rgba(201,139,255,.3);font-family:'Space Grotesk';font-weight:700;font-size:17px;display:grid;place-items:center;margin-bottom:15px}#tft-sq .step:nth-child(even) .num{color:#fff;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2)}#tft-sq .step h3{font-size:17px;margin-bottom:6px}#tft-sq .step p{color:var(--muted);font-size:13.5px;line-height:1.55}#tft-sq .topicgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}#tft-sq .topic{display:flex;gap:13px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:17px 18px}#tft-sq .topic .tk{width:32px;height:32px;border-radius:9px;color:var(--accent);background:rgba(201,139,255,.12);border:1px solid rgba(201,139,255,.3);display:grid;place-items:center;flex:none}#tft-sq .topic .tk .ico{width:16px;height:16px}#tft-sq .topic:nth-child(even) .tk{color:#fff;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2)}#tft-sq .topic b{font-family:'Space Grotesk';font-size:15px;font-weight:600;display:block;margin-bottom:2px}#tft-sq .topic span{font-size:13px;color:var(--muted);line-height:1.5}#tft-sq .feat{display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:center;padding:34px 0}#tft-sq .feat + .feat{border-top:1px solid var(--line)}#tft-sq .feat h3{font-size:26px;font-weight:600;margin:12px 0 10px;letter-spacing:-.01em}#tft-sq .feat p{color:var(--muted);font-size:15px;max-width:440px}#tft-sq .feat ul{list-style:none;margin-top:16px;display:flex;flex-direction:column;gap:9px}#tft-sq .feat li{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:#d6dae2}#tft-sq .feat li .ico{width:17px;height:17px;color:#cf9bf3;flex:none;margin-top:3px;stroke-width:2.2}#tft-sq .mock{border:1px solid var(--line-2);border-radius:14px;background:linear-gradient(180deg,var(--surface-2),var(--surface));padding:16px;box-shadow:0 30px 60px -34px rgba(0,0,0,.8)}#tft-sq .mock-bar{display:flex;align-items:center;gap:6px;margin-bottom:14px}#tft-sq .mock-bar i{width:9px;height:9px;border-radius:50%;background:var(--line-2);display:block}#tft-sq .mock-bar .ttl{margin-left:8px;font-size:12px;color:var(--faint)}#tft-sq .vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}#tft-sq .vthumb{border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface)}#tft-sq .vthumb .img{height:52px;background:linear-gradient(135deg,rgba(201,139,255,.3),rgba(201,139,255,.05));position:relative;display:grid;place-items:center}#tft-sq .vthumb:nth-child(even) .img{background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.03))}#tft-sq .vthumb .img svg{width:18px;height:18px;color:#fff;opacity:.9}#tft-sq .vthumb .meta{padding:8px 9px}#tft-sq .vthumb .t1{display:block;font-size:11.5px;font-weight:600;color:#e6e1f0;line-height:1.35}#tft-sq .vthumb .t2{display:block;font-size:11px;color:var(--muted);margin-top:2px}#tft-sq .sched{display:flex;flex-direction:column;gap:9px}#tft-sq .srow{display:flex;align-items:center;gap:12px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}#tft-sq .srow.live{border-color:rgba(201,139,255,.55);background:rgba(201,139,255,.1)}#tft-sq .srow .day{font-family:'Space Grotesk';font-weight:600;font-size:13px;width:42px;color:var(--muted)}#tft-sq .srow.live .day{color:var(--accent)}#tft-sq .srow .lbl{flex:1;min-width:0}#tft-sq .srow .lbl b{display:block;font-size:13px;font-weight:600;color:#e6e1f0;line-height:1.3}#tft-sq .srow .lbl span{display:block;font-size:11.5px;color:var(--faint);margin-top:1px}#tft-sq .live-pill{font-family:'Space Grotesk';font-size:11px;font-weight:600;letter-spacing:.08em;color:#fff;background:var(--accent-strong);padding:3px 8px;border-radius:999px}#tft-sq .ticket{border:1px dashed rgba(201,139,255,.55);border-radius:12px;background:rgba(201,139,255,.08);padding:18px;display:flex;align-items:center;gap:14px}#tft-sq .ticket .gift{width:46px;height:46px;border-radius:12px;background:rgba(201,139,255,.2);border:1px solid rgba(201,139,255,.45);display:grid;place-items:center;color:#e6d2fb}#tft-sq .ticket .gift .ico{width:22px;height:22px}#tft-sq .ticket .tt{font-family:'Space Grotesk';font-weight:600;font-size:16px}#tft-sq .ticket .ts{font-size:12.5px;color:var(--muted)}#tft-sq .ticket .num{margin-left:auto;font-family:'Space Grotesk';font-weight:700;color:var(--accent);font-size:15px}#tft-sq .about{display:grid;grid-template-columns:.72fr 1.28fr;gap:48px;align-items:center}#tft-sq .about .frame{aspect-ratio:4/5;max-width:380px;border-radius:18px;overflow:hidden;border:1px solid var(--line-2);box-shadow:0 40px 80px -44px rgba(0,0,0,.8)}#tft-sq .about .frame img{width:100%;height:100%;display:block;object-fit:cover}#tft-sq .about h2{font-size:clamp(28px,3.6vw,40px);margin:12px 0 16px}#tft-sq .about p{color:var(--muted);font-size:15.5px;margin-bottom:14px;max-width:540px}#tft-sq .about .mini{display:flex;gap:30px;margin-top:24px;flex-wrap:wrap}#tft-sq .about .mini .v{font-family:'Space Grotesk';font-weight:700;font-size:23px;color:#fff}#tft-sq .about .mini div:first-child .v{color:var(--accent)}#tft-sq .about .mini .k{font-size:12.5px;color:var(--muted)}#tft-sq .tcards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}#tft-sq .tcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px;display:flex;flex-direction:column}#tft-sq .tcard .stars{color:var(--gold);letter-spacing:2px;font-size:13px;margin-bottom:13px}#tft-sq .tcard p{font-size:14px;color:#d6dae2;line-height:1.6;flex:1}#tft-sq .tcard .who{display:flex;align-items:center;gap:11px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}#tft-sq .tcard .av{width:38px;height:38px;border-radius:9px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line-2);flex:none}#tft-sq .tcard .av img{width:100%;height:100%;object-fit:cover;display:block}#tft-sq .tcard .who b{font-size:13.5px;font-weight:600}#tft-sq .tcard .who span{display:block;font-size:12px;color:var(--muted)}#tft-sq .pricing{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;max-width:760px;margin:0 auto}#tft-sq .plan{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:30px;display:flex;flex-direction:column}#tft-sq .plan.feature{border-color:rgba(201,139,255,.55);background:linear-gradient(180deg,rgba(201,139,255,.09),var(--surface));box-shadow:0 30px 70px -40px rgba(166,58,232,.5);position:relative}#tft-sq .plan .pop{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--accent-strong);color:#fff;font-family:'Space Grotesk';font-weight:600;font-size:11.5px;letter-spacing:.06em;padding:4px 13px;border-radius:999px;text-transform:uppercase}#tft-sq .plan .pname{font-family:'Space Grotesk';font-weight:600;font-size:15px;color:var(--muted);letter-spacing:.02em}#tft-sq .plan .price{font-family:'Space Grotesk';font-weight:700;font-size:42px;margin:8px 0 2px}#tft-sq .plan .price small{font-size:15px;color:var(--muted);font-weight:500}#tft-sq .plan .pdesc{font-size:13.5px;color:var(--muted);margin-bottom:20px}#tft-sq .plan ul{list-style:none;display:flex;flex-direction:column;gap:11px;margin-bottom:24px;flex:1}#tft-sq .plan li{display:flex;gap:10px;font-size:14px;color:#d6dae2}#tft-sq .plan li .ico{width:17px;height:17px;color:#cf9bf3;flex:none;margin-top:3px;stroke-width:2.2}#tft-sq .plan .btn{justify-content:center;width:100%}#tft-sq .faq{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:10px}#tft-sq .faq details{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 20px;transition:.2s}#tft-sq .faq details[open]{border-color:var(--line-2);background:var(--surface-2)}#tft-sq .faq summary{list-style:none;cursor:pointer;padding:18px 0;font-family:'Space Grotesk';font-weight:600;font-size:16px;display:flex;justify-content:space-between;align-items:center;gap:16px}#tft-sq .faq summary::-webkit-details-marker{display:none}#tft-sq .faq summary .pl{width:20px;height:20px;flex:none;position:relative}#tft-sq .faq summary .pl::before,#tft-sq .faq summary .pl::after{content:"";position:absolute;background:var(--accent);border-radius:2px;transition:.2s}#tft-sq .faq summary .pl::before{top:9px;left:2px;right:2px;height:2px}#tft-sq .faq summary .pl::after{left:9px;top:2px;bottom:2px;width:2px}#tft-sq .faq details[open] summary .pl::after{opacity:0}#tft-sq .faq p{color:var(--muted);font-size:14.5px;padding:0 0 20px;margin:0;max-width:690px;line-height:1.6}#tft-sq .leadcard{max-width:520px;margin:0 auto;background:var(--surface);border:1px solid var(--line-2);border-radius:18px;padding:30px;box-shadow:0 30px 70px -40px rgba(0,0,0,.8)}#tft-sq .leadcard .field{margin-bottom:14px}#tft-sq .leadcard label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:500}#tft-sq .leadcard input,#tft-sq .leadcard select{width:100%;background:var(--bg);border:1px solid var(--line-2);border-radius:10px;padding:12px 14px;color:var(--text);font-family:inherit;font-size:14.5px}#tft-sq .leadcard input:focus,#tft-sq .leadcard select:focus{outline:none;border-color:var(--accent)}#tft-sq .leadcard .btn{width:100%;justify-content:center;margin-top:6px}#tft-sq .vlist{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}#tft-sq .vitem{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:24px;text-align:center}#tft-sq .vitem .ib{width:46px;height:46px;border-radius:12px;margin:0 auto 14px;display:grid;place-items:center;color:var(--accent);background:rgba(201,139,255,.12);border:1px solid rgba(201,139,255,.3)}#tft-sq .vitem:nth-child(2) .ib{color:#fff;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.2)}#tft-sq .vitem h3{font-size:17px;margin-bottom:6px}#tft-sq .vitem p{color:var(--muted);font-size:14px}#tft-sq .filterbar{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin-bottom:34px}#tft-sq .chip{font-size:13.5px;font-family:'Space Grotesk';font-weight:500;color:var(--muted);background:var(--surface);border:1px solid var(--line);padding:8px 16px;border-radius:999px;cursor:pointer;transition:.18s}#tft-sq .chip:hover{color:var(--text);border-color:var(--line-2)}#tft-sq .chip.on{color:#fff;background:var(--accent-strong);border-color:transparent}#tft-sq .vlib{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}#tft-sq .gcard{display:block;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:.2s}#tft-sq .gcard:hover{transform:translateY(-3px);border-color:rgba(201,139,255,.45)}#tft-sq .gcard .thumb{aspect-ratio:16/9;position:relative;display:grid;place-items:center;background:linear-gradient(135deg,rgba(201,139,255,.28),rgba(201,139,255,.04))}#tft-sq .gcard:nth-child(even) .thumb{background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.02))}#tft-sq .gcard .play{width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.4);display:grid;place-items:center;color:#fff}#tft-sq .gcard .play .ico{width:18px;height:18px}#tft-sq .gcard .tag{position:absolute;top:10px;left:10px;font-size:11.5px;font-family:'Space Grotesk';font-weight:600;color:#fff;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.18);padding:3px 9px;border-radius:999px}#tft-sq .gcard .dur{position:absolute;bottom:10px;right:10px;font-size:11.5px;color:#fff;background:rgba(0,0,0,.6);padding:2px 7px;border-radius:6px}#tft-sq .gcard .gmeta{padding:15px 16px}#tft-sq .gcard .gmeta h3{font-size:15.5px;font-weight:600;margin-bottom:5px;line-height:1.3}#tft-sq .gcard .gmeta .by{font-size:12.5px;color:var(--muted)}#tft-sq .ctawrap{padding:0 28px 90px}#tft-sq .cta{position:relative;max-width:var(--maxw);margin:0 auto;border:1px solid var(--line-2);border-radius:22px;overflow:hidden;background:radial-gradient(560px 300px at 78% -20%,rgba(166,58,232,.25),transparent 65%),linear-gradient(180deg,var(--surface-2),var(--surface))}#tft-sq .cta .in{padding:60px 28px;text-align:center;position:relative;z-index:2}#tft-sq .cta h2{font-size:clamp(28px,3.6vw,42px);font-weight:700;margin:14px 0 12px;letter-spacing:-.02em}#tft-sq .cta p{color:#c8ccd6;max-width:480px;margin:0 auto 26px;font-size:16px}#tft-sq .cta .btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}#tft-sq .cta .grid-fade2{position:absolute;inset:0;z-index:0;opacity:.5;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:42px 42px;-webkit-mask-image:radial-gradient(620px 340px at 50% 0%,#000,transparent 78%);mask-image:radial-gradient(620px 340px at 50% 0%,#000,transparent 78%)}#tft-sq footer{border-top:1px solid var(--line);background:var(--bg-elev);padding:62px 0 34px;margin-top:10px}#tft-sq .fgrid{display:grid;grid-template-columns:1.65fr 1fr 1fr 1fr;gap:38px;margin-bottom:42px}#tft-sq .fbrand .logo-img{height:34px}#tft-sq .fbrand p{color:var(--muted);font-size:13.5px;line-height:1.65;max-width:300px;margin:16px 0 18px}#tft-sq .socials{display:flex;gap:14px}#tft-sq .socials a{color:var(--muted);display:inline-flex}#tft-sq .socials .ico{width:19px;height:19px}#tft-sq .col h4{font-family:'Space Grotesk';font-size:12.5px;font-weight:650;text-transform:uppercase;letter-spacing:.12em;color:#fff;margin-bottom:14px}#tft-sq .col a{display:block;color:var(--muted);font-size:14px;padding:4.5px 0;transition:.18s}#tft-sq .col a:hover{color:var(--text)}#tft-sq .legal{border-top:1px solid var(--line);padding-top:24px;color:var(--faint);font-size:12.5px;line-height:1.75}
+@media (prefers-reduced-motion:no-preference){#tft-sq .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .65s cubic-bezier(.22,.61,.36,1);transition-delay:var(--rd,0s)}#tft-sq .reveal.in{opacity:1;transform:none}
+}#tft-sq .coach{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}#tft-sq .coach:hover{transform:translateY(-4px);border-color:rgba(201,139,255,.5);box-shadow:0 26px 56px -34px rgba(166,58,232,.55)}#tft-sq .plan{transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}#tft-sq .plan:hover{transform:translateY(-4px);border-color:rgba(201,139,255,.5);box-shadow:0 26px 56px -34px rgba(166,58,232,.45)}#tft-sq .cred .pill{transition:.2s}#tft-sq .cred .pill:hover{border-color:rgba(201,139,255,.5);color:#fff;transform:translateY(-1px)}#tft-sq .vthumb{transition:.2s}#tft-sq .vthumb:hover{transform:translateY(-2px);border-color:rgba(201,139,255,.45)}#tft-sq .srow{transition:.2s}#tft-sq .srow:hover{border-color:var(--line-2);transform:translateX(3px)}#tft-sq .gcard .thumb{overflow:hidden}#tft-sq .gcard .thumb .art,#tft-sq .gcard .thumb img{transition:transform .45s ease}#tft-sq .gcard:hover .thumb .art,#tft-sq .gcard:hover .thumb img{transform:scale(1.05)}#tft-sq .gcard .play{transition:transform .25s ease}#tft-sq .gcard:hover .play{transform:scale(1.12)}#tft-sq .chip{transition:.18s}#tft-sq .chip:hover{transform:translateY(-1px)}#tft-sq .socials a{transition:.2s;display:inline-flex}#tft-sq .socials a:hover{transform:translateY(-2px);color:var(--accent)}#tft-sq .coaches{display:grid;grid-template-columns:1fr 1fr;gap:22px}#tft-sq .coach{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:.2s}#tft-sq .coach:hover{border-color:rgba(201,139,255,.45);transform:translateY(-3px)}#tft-sq .coach .photo{position:relative;aspect-ratio:16/11;overflow:hidden;background:linear-gradient(160deg,var(--accent-deep),var(--surface-2))}#tft-sq .coach .photo>img{width:100%;height:100%;object-fit:cover;object-position:center 18%;display:block}#tft-sq .coach .photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 42%,rgba(12,13,17,.88))}#tft-sq .coach .photo .nm{position:absolute;left:20px;bottom:34px;z-index:3;font-family:'Space Grotesk';font-size:24px;font-weight:700;color:#fff}#tft-sq .coach .photo .role{position:absolute;left:20px;bottom:15px;z-index:3;font-size:12.5px;font-weight:600;color:var(--accent);letter-spacing:.02em}#tft-sq .coach:nth-child(2) .photo{background:linear-gradient(160deg,#2a2f3d,var(--surface-2))}#tft-sq .coach:nth-child(2) .photo .role{color:#fff}#tft-sq .coach .body{padding:22px 24px 26px}#tft-sq .chips{display:flex;gap:8px;flex-wrap:wrap}#tft-sq .chips span{font-size:12px;font-weight:600;font-family:'Space Grotesk';color:#ece6f4;background:var(--surface-2);border:1px solid var(--line-2);padding:5px 11px;border-radius:999px}#tft-sq .coach .chips{margin-bottom:16px}#tft-sq .coach ul{list-style:none;display:flex;flex-direction:column;gap:9px}#tft-sq .coach li{display:flex;gap:10px;font-size:13.5px;color:#d6dae2;align-items:flex-start}#tft-sq .coach li .ico{width:16px;height:16px;color:var(--accent);flex:none;margin-top:2px}#tft-sq .coach:nth-child(2) li .ico{color:var(--accent)}#tft-sq .achievements{display:flex;flex-direction:column;gap:8px;margin-top:8px}#tft-sq .achievements .ach{display:flex;gap:11px;align-items:flex-start;font-size:14px;color:#d6dae2}#tft-sq .achievements .ach .yr{font-family:'Space Grotesk';font-weight:600;font-size:12px;color:var(--accent);background:var(--surface-2);border:1px solid var(--line-2);border-radius:7px;padding:3px 8px;flex:none;min-width:56px;text-align:center}
+@media(max-width:780px){#tft-sq .coaches{grid-template-columns:1fr}
+}
+@media(max-width:920px){#tft-sq .nav-links,#tft-sq .nav-right .login,#tft-sq .nav-right .btn-primary{display:none}#tft-sq .logo-img{height:28px}#tft-sq .mobile-free{display:inline-flex;font-size:13.5px;padding:9px 16px}#tft-sq .m-login{display:block}#tft-sq .burger{display:block}#tft-sq .hero .wrap{grid-template-columns:1fr;gap:48px}#tft-sq .herofig{order:2}#tft-sq .trust .row{grid-template-columns:repeat(2,1fr)}#tft-sq .trust .c:nth-child(odd){border-left:0}#tft-sq .cards,#tft-sq .tcards,#tft-sq .vgrid,#tft-sq .vlist,#tft-sq .vlib{grid-template-columns:1fr 1fr}#tft-sq .feat{grid-template-columns:1fr;gap:24px}#tft-sq .feat .mock{order:-1}#tft-sq .steps{grid-template-columns:repeat(2,1fr)}#tft-sq .topicgrid{grid-template-columns:1fr 1fr}#tft-sq .pricing{grid-template-columns:1fr;max-width:460px}#tft-sq .fgrid{grid-template-columns:1fr 1fr}#tft-sq .float-badge{right:10px}#tft-sq .stat-chip{left:10px;top:-12px}
+}
+@media(max-width:760px){#tft-sq .about{grid-template-columns:1fr;gap:28px}#tft-sq .about .frame{max-width:340px;margin:0 auto}
+}
+@media(max-width:560px){#tft-sq .cards,#tft-sq .tcards,#tft-sq .vlist,#tft-sq .vlib,#tft-sq .steps,#tft-sq .topicgrid{grid-template-columns:1fr}#tft-sq .fgrid{grid-template-columns:1fr}
+}#tft-sq .phero .hero-art{position:absolute;inset:0;z-index:0;pointer-events:none;background:center 30%/cover no-repeat}#tft-sq .phero .hero-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(19,20,27,.72) 0%,rgba(19,20,27,.78) 55%,#13141b 100%)}#tft-sq .pricing{grid-template-columns:.88fr 1.12fr;max-width:830px;align-items:center}#tft-sq .plan.feature{padding:38px 32px}#tft-sq .plan.feature .price{font-size:52px}#tft-sq .gcard .thumb{background:var(--surface-2)}#tft-sq .gcard .thumb .art{position:absolute;inset:0;background-size:cover;background-position:center;background-repeat:no-repeat}#tft-sq .gcard .thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,15,.05),rgba(10,11,15,.45));z-index:1}#tft-sq .gcard .play,#tft-sq .gcard .tag,#tft-sq .gcard .dur{z-index:2}#tft-sq .showline{text-align:center;color:var(--muted);font-size:13.5px;margin:-16px 0 30px}#tft-sq .showline b{color:var(--text)}#tft-sq .gcard.locked .thumb .art{filter:blur(7px) brightness(.55)}#tft-sq .gcard.locked .play{background:rgba(166,58,232,.35);border-color:rgba(201,139,255,.6)}#tft-sq .gcard.locked .gmeta h3{color:var(--muted)}#tft-sq .locktag{position:absolute;top:10px;left:10px;z-index:2;display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-family:'Space Grotesk';font-weight:600;color:#fff;background:rgba(166,58,232,.55);border:1px solid rgba(201,139,255,.5);padding:3px 9px;border-radius:999px}#tft-sq .locktag .ico{width:11px;height:11px}#tft-sq .claim{display:grid;grid-template-columns:1fr 1.05fr;gap:46px;align-items:start;max-width:980px;margin:0 auto}#tft-sq .claim .leadcard{margin:0;max-width:none}#tft-sq .claimside h3{font-size:20px;margin-bottom:20px}#tft-sq .how{display:flex;gap:14px;margin-bottom:18px;align-items:flex-start}#tft-sq .how .num{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:'Space Grotesk';font-weight:700;font-size:15px;color:var(--accent);background:rgba(201,139,255,.12);border:1px solid rgba(201,139,255,.3)}#tft-sq .how b{font-family:'Space Grotesk';font-size:15.5px;display:block;margin-bottom:2px}#tft-sq .how span{font-size:13.5px;color:var(--muted);line-height:1.55}#tft-sq .coachrow{display:flex;align-items:center;gap:4px;margin-top:26px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}#tft-sq .coachrow img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--surface-2);flex:none}#tft-sq .coachrow img+img{margin-left:-16px}#tft-sq .coachrow span{font-size:13px;color:var(--muted);margin-left:12px;line-height:1.5}#tft-sq .leadcard textarea{width:100%;background:var(--bg);border:1px solid var(--line-2);border-radius:10px;padding:12px 14px;color:var(--text);font-family:inherit;font-size:14.5px;resize:vertical;min-height:74px}#tft-sq .leadcard textarea:focus{outline:none;border-color:var(--accent)}#tft-sq .fmicro{color:var(--faint);font-size:12.5px;margin-top:12px;text-align:center}#tft-sq .about .frame{position:relative}#tft-sq .about .frame::after{content:"";position:absolute;inset:0;background:linear-gradient(165deg,rgba(166,58,232,.16),transparent 45%,rgba(19,20,27,.3));pointer-events:none}#tft-sq .medal{width:15px;height:15px;flex:none;margin-top:4px}#tft-sq .m-gold{color:#f5b13d}#tft-sq .m-silver{color:#ccd3e0}#tft-sq .m-bronze{color:#d59d6b}#tft-sq .ach-more{font-size:13.5px;color:var(--muted);margin-top:10px;line-height:1.6}
+@media(max-width:920px){#tft-sq .claim{grid-template-columns:1fr}#tft-sq .pricing{grid-template-columns:1fr;max-width:460px}
+}#tft-sq .card,#tft-sq .step,#tft-sq .topic,#tft-sq .vitem,#tft-sq .plan,#tft-sq .coach,#tft-sq .gcard,#tft-sq .tcard,#tft-sq .leadcard,#tft-sq .coachrow{
+  background-image:linear-gradient(180deg,rgba(255,255,255,.04),transparent 30%)}#tft-sq .sec-head h2,#tft-sq .feat h3{color:#fff}#tft-sq .sec-head p{color:#bdc3d0}#tft-sq .trust .v{text-shadow:0 0 24px rgba(201,139,255,.3)}#tft-sq .card .ib,#tft-sq .topic .tk,#tft-sq .vitem .ib,#tft-sq .step .num,#tft-sq .how .num{
+  border:0;border-radius:0;
+  clip-path:polygon(50% 2%,94% 26%,94% 74%,50% 98%,6% 74%,6% 26%);
+  color:#e6d2fb;
+  background-color:rgba(201,139,255,.28);
+  background-image:linear-gradient(180deg,rgba(255,255,255,.10),transparent 55%)}#tft-sq .card .ib .ico,#tft-sq .topic .tk .ico,#tft-sq .vitem .ib .ico{stroke-width:2}#tft-sq .card .ib,#tft-sq .vitem .ib{width:44px;height:49px}#tft-sq .topic .tk{width:33px;height:37px}#tft-sq .step .num,#tft-sq .how .num{width:34px;height:38px}#tft-sq .card:nth-child(even) .ib,#tft-sq .topic:nth-child(even) .tk,#tft-sq .step:nth-child(even) .num,#tft-sq .vitem:nth-child(2) .ib{color:#fff;background-color:rgba(255,255,255,.14)}#tft-sq b,#tft-sq strong{font-weight:700;color:#fff}#tft-sq .card h3,#tft-sq .vitem h3,#tft-sq .step h3{font-weight:650;letter-spacing:-.01em}#tft-sq .feat h3{font-size:28px;font-weight:650}#tft-sq .topic b{font-size:15.5px}#tft-sq .card p,#tft-sq .topic span{font-size:14.5px}#tft-sq .hero .lead{font-size:19px}#tft-sq .plan .price{letter-spacing:-.02em}#tft-sq .vthumb .img{position:relative;background-size:cover;background-position:center;background-repeat:no-repeat}#tft-sq .vthumb .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,15,.08),rgba(10,11,15,.42))}#tft-sq .vthumb .img svg{position:relative;z-index:2}#tft-sq .vthumb:nth-child(1) .img{background-image:url("/s/mini-1.jpg")}#tft-sq .vthumb:nth-child(2) .img{background-image:url("/s/mini-2.jpg")}#tft-sq .vthumb:nth-child(3) .img{background-image:url("/s/mini-3.jpg")}#tft-sq .vthumb:nth-child(4) .img{background-image:url("/s/mini-4.jpg")}#tft-sq .vthumb:nth-child(5) .img{background-image:url("/s/mini-5.jpg")}#tft-sq .vthumb:nth-child(6) .img{background-image:url("/s/mini-6.jpg")}
+</style>
+<style>
+/* scoped: 1-on-1 coaching page (this page only) */
+#tft-sq .coach2{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:stretch}
+#tft-sq .ccard{position:relative;display:flex;flex-direction:column;border:1px solid var(--line-2);border-radius:18px;background:linear-gradient(180deg,var(--surface-2),var(--surface));padding:0;overflow:hidden}
+#tft-sq .ccard .cphoto{width:100%;height:230px;object-fit:cover;object-position:center 22%;border-bottom:1px solid var(--line-2)}
+#tft-sq .ccard .cbody{padding:24px 26px 28px;display:flex;flex-direction:column;flex:1}
+#tft-sq .ccard .ey{margin-bottom:8px}
+#tft-sq .ccard h3{font-family:'Space Grotesk';font-weight:700;font-size:24px;margin:0 0 4px}
+#tft-sq .ccard .chandle{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+#tft-sq .ccard .chips{margin:0 0 18px;display:flex;gap:8px;flex-wrap:wrap}
+#tft-sq .ccard .chips span{font-size:11.5px;padding:4px 10px;font-weight:600;font-family:'Space Grotesk';color:#ece6f4;background:var(--surface-2);border:1px solid var(--line-2);border-radius:999px}
+#tft-sq .ccard .cprice{font-family:'Space Grotesk';font-weight:700;font-size:38px;line-height:1;margin:0 0 4px}
+#tft-sq .ccard .cprice small{font-size:15px;color:var(--muted);font-weight:500}
+#tft-sq .ccard .cper{font-size:12.5px;color:var(--faint);margin:0 0 18px}
+#tft-sq .ccard ul{list-style:none;margin:0 0 22px;padding:0;display:grid;gap:10px}
+#tft-sq .ccard ul li{display:flex;gap:9px;align-items:flex-start;font-size:14px;color:#cfc6da}
+#tft-sq .ccard ul li .ico{width:17px;height:17px;flex:0 0 17px;margin-top:2px;color:var(--accent);stroke-width:2.4}
+#tft-sq .ccard .cbtn{margin-top:auto}
+#tft-sq .ccard .cbtn .btn-primary{width:100%;justify-content:center}
+#tft-sq .ccard.bro{border-color:rgba(201,139,255,.4)}
+#tft-sq .packbtn{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px;padding:10px 15px;border-radius:999px;border:1px solid var(--line-2);background:var(--bg);color:var(--text);cursor:pointer;transition:.18s;text-decoration:none}
+#tft-sq .packbtn:hover{border-color:rgba(201,139,255,.6);background:rgba(166,58,232,.1)}
+#tft-sq .packbtn .pk-l{display:flex;flex-direction:column;line-height:1.18;text-align:left;font-family:'Space Grotesk';font-weight:600;font-size:13.5px}
+#tft-sq .packbtn .pk-l small{font-size:11px;color:var(--muted);font-weight:500}
+#tft-sq .packbtn .pk-r{font-family:'Space Grotesk';font-weight:700;font-size:14px;white-space:nowrap;display:flex;align-items:center;gap:6px}
+#tft-sq .savchip{display:inline-block;font-family:'Space Grotesk';font-size:10px;font-weight:700;color:#e8c8ff;background:rgba(166,58,232,.25);border:1px solid rgba(201,139,255,.45);border-radius:999px;padding:1px 7px}
+#tft-sq .howrow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+#tft-sq .howstep{border:1px solid var(--line-2);border-radius:16px;background:var(--surface);padding:22px 22px 20px}
+#tft-sq .howstep .snum{font-family:'Space Grotesk';font-weight:700;font-size:13px;color:var(--accent);display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;border:1px solid rgba(201,139,255,.45);background:rgba(166,58,232,.16);margin-bottom:12px}
+#tft-sq .howstep b{font-family:'Space Grotesk';font-size:16px;display:block;margin-bottom:5px}
+#tft-sq .howstep span{color:var(--muted);font-size:13.5px}
+#tft-sq .vodbanner{margin-top:18px;position:relative;border:1px solid var(--line-2);border-radius:18px;background:radial-gradient(620px 280px at 85% -30%,rgba(166,58,232,.18),transparent 65%),linear-gradient(180deg,var(--surface-2),var(--surface));padding:28px 30px;display:grid;grid-template-columns:auto 1.5fr auto;gap:26px;align-items:center}
+#tft-sq .vodbanner .vicon{width:88px;height:88px;border-radius:18px;display:grid;place-items:center;color:#e6d2fb;background:rgba(201,139,255,.18);border:1px solid rgba(201,139,255,.4)}
+#tft-sq .vodbanner .vicon .ico{width:38px;height:38px;stroke-width:1.8}
+#tft-sq .vodbanner .vt{font-family:'Space Grotesk';font-weight:700;font-size:21px;margin:6px 0 7px}
+#tft-sq .vodbanner p{color:var(--muted);font-size:13.5px;max-width:520px}
+#tft-sq .vodbanner .vbuy{display:flex;flex-direction:column;gap:9px;min-width:210px}
+#tft-sq .vodbanner .vbuy .btn-primary{width:100%;justify-content:center}
+@media(max-width:820px){#tft-sq .coach2{grid-template-columns:1fr;max-width:440px;margin:0 auto}#tft-sq .howrow{grid-template-columns:1fr}#tft-sq .vodbanner{grid-template-columns:1fr;text-align:left}#tft-sq .vodbanner .vbuy{min-width:0}}
+</style>
+<div id="tft-sq">
+<header>
+  <nav class="wrap">
+    <a class="brand" href="/new-home"><img class="logo-img" alt="TFT Coaching" src="/s/logo-white.png"></a>
+    <div class="nav-links">
+      <a href="/new-home">Home</a>
+      <a href="/new-membership">Membership</a>
+      <a href="/new-coaching" class="active">1-on-1</a>
+      <a href="/new-videos">Videos</a>
+      <a href="/new-coaches">Coaches</a>
+      <a class="free" href="/new-free-gameplan">Free Gameplan</a>
+      <a class="m-login" href="/account/login">Log In</a>
+    </div>
+    <div class="nav-right">
+      <a class="login" href="/account/login">Log In</a>
+      <a class="btn btn-primary" href="#book">Book a Session</a>
+      <a class="btn btn-free mobile-free" href="/new-free-gameplan">Free Gameplan</a>
+      <button class="burger" aria-label="Menu" aria-expanded="false"><svg class="ico" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    </div>
+  </nav>
+</header>
+<!-- PAGE HERO -->
+<section class="phero">
+  <div class="hero-art" style="background-image:url('/s/hero-membership.jpg');background-position:center 30%"></div>
+  <div class="wrap">
+    <span class="ey" style="justify-content:center">Private Coaching</span>
+    <h1>One-on-one with a Challenger coach</h1>
+    <p>A live session built entirely around your games. Pick the coach you want to work with, grab a time that fits, and walk away with a plan to climb.</p>
+    <div class="hero-cta"><a class="btn btn-primary" href="#book">Pick a Coach
+      <svg class="ico" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></a>
+      <a class="btn btn-free" href="/new-free-gameplan">Start Free</a>
+    </div>
+  </div>
+</section>
+<!-- BOOK A COACH -->
+<section class="sec" id="book">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="ey">Book a Session</span>
+      <h2>Choose your coach</h2>
+      <p>Both coaches are Challenger players who coach full-time. Each session is live, screen-shared, and 100% focused on your gameplay. Book a single session or save with a 4-session pack.</p>
+    </div>
+    <div class="coach2">
+      <!-- BROSEPH -->
+      <div class="ccard bro">
+        <img class="cphoto" src="/s/broseph.png" alt="Broseph at the TFT Paris Open 2025" loading="lazy">
+        <div class="cbody">
+          <span class="ey">Head Coach &amp; Founder, Broseph Academy</span>
+          <h3>Broseph</h3>
+          <p class="chandle">Challenger since Set 4 · qualified for Worlds via the TFT Pro Circuit</p>
+          <div class="chips"><span>14-set Challenger</span><span>2nd · Esports World Cup (coach)</span><span>3rd · AMER Regional Finals</span><span>3 yrs pro coach</span></div>
+          <div class="cprice">$99.99<small> / session</small></div>
+          <div class="cper">One live 1-on-1 session · pay per booking</div>
+          <ul>
+            <li><svg class="ico" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live VOD review of your own games</li>
+            <li><svg class="ico" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Personalized climb plan for your rank</li>
+            <li><svg class="ico" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Decision-making, econ &amp; positioning fixes</li>
+            <li><svg class="ico" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Direct answers to anything holding you back</li>
+          </ul>
+          <div class="cbtn">
+            <a class="btn btn-primary" href="#" data-checkout="JOE_SINGLE_CHECKOUT_URL">Book 1 session · $99.99
+              <svg class="ico" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a class="packbtn" href="#" data-checkout="JOE_4PACK_CHECKOUT_URL">
+              <span class="pk-l">4-session pack<small>$90 / session</small></span>
+              <span class="pk-r">$359.99 <span class="savchip">save $40</span></span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <!-- UPSETMAX -->
+      <div class="ccard">
+        <img class="cphoto" src="/s/upsetmax.webp" alt="Upsetmax" loading="lazy">
+        <div class="cbody">
+          <span class="ey">Performance &amp; TFT Coach since 2021</span>
+          <h3>Upsetmax</h3>
+          <p class="chandle">Peak Rank 1 NA Challenger · org-level coach since 2021</p>
+          <div class="chips"><span>Rank 1 NA · 1,700 LP</span><span>Head TFT Coach, FITGMR</span><span>Coach, Cloud9 Training Grounds</span></div>
+          <div class="cprice">$69.99<small> / session</small></div>
+          <div class="cper">One live 1-on-1 session · pay per booking</div>
+          <ul>
+            <li><svg class="ico" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Live VOD review of your own games</li>
+            <li><svg class="ico" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Personalized climb plan for your rank</li>
+            <li><svg class="ico" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Org-level coaching habits &amp; fundamentals</li>
+            <li><svg class="ico" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Direct answers to anything holding you back</li>
+          </ul>
+          <div class="cbtn">
+            <a class="btn btn-primary" href="#" data-checkout="MAX_SINGLE_CHECKOUT_URL">Book 1 session · $69.99
+              <svg class="ico" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a class="packbtn" href="#" data-checkout="MAX_4PACK_CHECKOUT_URL">
+              <span class="pk-l">4-session pack<small>$60.00 / session</small></span>
+              <span class="pk-r">$239.99 <span class="savchip">save $40</span></span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- VOD REVIEW (general) -->
+    <div class="vodbanner">
+      <div class="vicon">
+        <svg class="ico" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="13" rx="2"/><path d="M10 9l5 2.5-5 2.5V9Z"/><path d="M8 21h8"/></svg>
+      </div>
+      <div>
+        <span class="ey">Game Review</span>
+        <div class="vt">Just want your games reviewed?</div>
+        <p>Send a VOD and get a focused, recorded breakdown from a coach — no live session needed. Perfect for a quick tune-up between climbs.</p>
+      </div>
+      <div class="vbuy">
+        <a class="btn btn-primary" href="#" data-checkout="VOD_SINGLE_CHECKOUT_URL">VoD Review · $39.99
+          <svg class="ico" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a class="packbtn" href="#" data-checkout="VOD_4PACK_CHECKOUT_URL">
+          <span class="pk-l">4-review pack<small>$30 / review</small></span>
+          <span class="pk-r">$119.99 <span class="savchip">save $40</span></span>
+        </a>
+      </div>
+    </div>
+    <p style="text-align:center;color:var(--faint);font-size:12.5px;margin-top:18px">Want recurring 1-on-1s every month? The <a href="/new-membership" style="color:#eedffc;border-bottom:1px solid rgba(201,139,255,.55)">Pro plan</a> includes a monthly session. For daily, full-immersion coaching, see <a href="/new-membership#pricing" style="color:#eedffc;border-bottom:1px solid rgba(201,139,255,.55)">Broseph Academy</a>.</p>
+  </div>
+</section>
+<!-- HOW IT WORKS -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="ey">How it works</span>
+      <h2>From booking to climbing in three steps</h2>
+      <p>No subscription required. Book one session, or come back whenever you want a tune-up.</p>
+    </div>
+    <div class="howrow">
+      <div class="howstep">
+        <span class="snum">1</span>
+        <b>Book &amp; check out</b>
+        <span>Choose Broseph or Upsetmax and check out securely. You'll get a scheduling link to lock in a time that fits.</span>
+      </div>
+      <div class="howstep">
+        <span class="snum">2</span>
+        <b>Send your games</b>
+        <span>Before the session, share recent VODs or match IDs so your coach comes in ready to dig in.</span>
+      </div>
+      <div class="howstep">
+        <span class="snum">3</span>
+        <b>Climb with a plan</b>
+        <span>Live, screen-shared breakdown of your play, plus a concrete plan to take into your next games.</span>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- CTA -->
+<div class="ctawrap">
+  <div class="cta">
+    <div class="grid-fade2"></div>
+    <div class="in">
+      <span class="ey" style="justify-content:center">Ready to level up?</span>
+      <h2>Book your 1-on-1 today</h2>
+      <p>Work directly with a Challenger coach and turn your weak spots into wins. Pick a coach and grab a time.</p>
+      <div class="btns">
+        <a class="btn btn-primary" href="#book">Pick a Coach
+          <svg class="ico" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a class="btn btn-free" href="/new-free-gameplan">Try the Free Gameplan</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div class="fbrand">
+        <a class="brand" href="/new-home"><img class="logo-img" alt="TFT Coaching" src="/s/logo-white.png"></a>
+        <p>Learn Teamfight Tactics from Broseph &amp; Upsetmax, Challenger players and pro coaches. The best place to learn how to rank up.</p>
+        <div class="socials">
+          <a href="https://discord.gg/vHSbJFH6gN" title="Discord"><svg class="ico" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19.3 5.3A16 16 0 0 0 15.4 4l-.2.4a14 14 0 0 1 3.5 1.1A13.6 13.6 0 0 0 12 4.2 13.6 13.6 0 0 0 5.3 5.5 14 14 0 0 1 8.8 4.4L8.6 4a16 16 0 0 0-3.9 1.3C2 9.3 1.4 13.1 1.7 16.9A16 16 0 0 0 6.6 19l.5-.7c-.8-.3-1.5-.7-2.2-1.1l.5-.4a11.5 11.5 0 0 0 9.8 0l.5.4c-.7.4-1.4.8-2.2 1.1l.5.7a16 16 0 0 0 4.9-2.1c.4-4.4-.6-8.2-3.6-11.6ZM8.9 14.6c-.9 0-1.7-.9-1.7-1.9s.7-1.9 1.7-1.9 1.7.9 1.7 1.9-.8 1.9-1.7 1.9Zm6.2 0c-.9 0-1.7-.9-1.7-1.9s.7-1.9 1.7-1.9 1.7.9 1.7 1.9-.8 1.9-1.7 1.9Z"/></svg></a>
+          <a href="https://www.twitch.tv/brosephtft" title="Twitch"><svg class="ico" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M4 2 3 6v14h5v3h3l3-3h4l4-4V2H4Zm16 11-2 2h-4l-3 3v-3H8V4h12v9ZM15 7h2v5h-2V7Zm-5 0h2v5h-2V7Z"/></svg></a>
+          <a href="https://x.com/BrosephTft" title="X"><svg class="ico" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M18.9 2H22l-7 8 8.2 12h-6.4l-5-7.3L6 22H2.9l7.5-8.6L2.5 2h6.5l4.5 6.6L18.9 2Zm-1.1 18h1.7L7.3 3.8H5.5L17.8 20Z"/></svg></a><a href="https://www.youtube.com/@brosephtft" title="YouTube"><svg class="ico" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M23 12s0-3.8-.5-5.6a2.9 2.9 0 0 0-2-2C18.7 4 12 4 12 4s-6.7 0-8.5.4a2.9 2.9 0 0 0-2 2C1 8.2 1 12 1 12s0 3.8.5 5.6a2.9 2.9 0 0 0 2 2c1.8.4 8.5.4 8.5.4s6.7 0 8.5-.4a2.9 2.9 0 0 0 2-2c.5-1.8.5-5.6.5-5.6ZM9.8 15.6V8.4L16 12l-6.2 3.6Z"/></svg></a>
+        </div>
+      </div>
+      <div class="col"><h4>Membership</h4><a href="/new-membership">Become a Member</a><a href="/new-coaching">1-on-1 Coaching</a><a href="/new-free-gameplan">Free Gameplan</a><a href="/new-videos">Videos</a><a href="/account/login">Sign In</a></div>
+      <div class="col"><h4>Explore</h4><a href="/new-coaches">Meet the Coaches</a><a href="/new-home#coaches">Coach Results</a><a href="/new-membership">Office Hours</a></div>
+      <div class="col"><h4>Community</h4><a href="https://discord.gg/vHSbJFH6gN">Discord</a><a href="https://www.twitch.tv/brosephtft">Twitch</a><a href="https://x.com/BrosephTft">X (Twitter)</a><a href="https://www.youtube.com/@brosephtft">YouTube</a></div>
+    </div>
+    <div class="legal">© 2026 TFT Coaching<br>TFT Coaching isn't endorsed by Riot Games. Riot Games and all associated properties are trademarks of Riot Games, Inc.</div>
+  </div>
+</footer>
+<script>
+  document.querySelector('.burger').addEventListener('click',function(){
+    const l=document.querySelector('.nav-links');
+    const open=l.style.display==='flex';
+    l.style.display=open?'':'flex';
+    this.setAttribute('aria-expanded',String(!open));
+    if(!open){Object.assign(l.style,{position:'absolute',top:'74px',left:'0',right:'0',flexDirection:'column',background:'var(--bg-elev)',padding:'18px 28px',gap:'16px',borderBottom:'1px solid var(--line)'});}
+  });
+</script>
+<script>
+  /* Show "Account" instead of "Log In" when a member is signed in. */
+  (function () {
+    function authed() {
+      try { return !!(window.Static && Static.SQUARESPACE_CONTEXT && Static.SQUARESPACE_CONTEXT.authenticatedAccount); }
+      catch (e) { return false; }
+    }
+    function apply() {
+      if (!authed()) return;
+      document.querySelectorAll('.login, .m-login').forEach(function (a) {
+        a.textContent = 'Account';
+        a.setAttribute('href', '/account/dashboard');
+      });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+    else apply();
+  })();
+</script>
+</div>
+<script>
+/* Scroll-in reveal (respects prefers-reduced-motion) */
+(function () {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+  var els = document.querySelectorAll('#tft-sq .sec-head, #tft-sq .ccard, #tft-sq .vodbanner, #tft-sq .howstep, #tft-sq .phero > *, #tft-sq .cta .in');
+  var counts = new Map();
+  els.forEach(function (el) {
+    el.classList.add('reveal');
+    var p = el.parentElement;
+    var i = counts.get(p) || 0;
+    el.style.setProperty('--rd', Math.min(i, 5) * 90 + 'ms');
+    counts.set(p, i + 1);
+  });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  els.forEach(function (el) { io.observe(el); });
+})();
+</script>
+<script>
+/* ===================================================================
+   SQUARESPACE CHECKOUT LINKS
+   Each button opens the product's Squarespace checkout page (new tab).
+   Put the Calendly scheduling link ON that checkout/confirmation page
+   so the client pays first, then books their time.
+   =================================================================== */
+var CHECKOUT_LINKS = {
+  JOE_SINGLE_CHECKOUT_URL: 'https://www.tft-coaching.com/all-products/p/1-on-1-coaching-with-brosephtft',   // 1 on 1 Coaching with BrosephTFT — $99.99  (SKU SQ8605896)
+  JOE_4PACK_CHECKOUT_URL:  'https://www.tft-coaching.com/all-products/p/1-on-1-coaching-with-brosephtft-6mxkc',    // 1 on 1 Coaching with BrosephTFT 4-Pack — $359.99  (SKU SQ4172336)
+  MAX_SINGLE_CHECKOUT_URL: 'https://www.tft-coaching.com/all-products/p/1-on-1-coaching',   // 1 on 1 Coaching Upsetmax — $69.99  (SKU 1on1 Coaching)
+  MAX_4PACK_CHECKOUT_URL:  'https://www.tft-coaching.com/all-products/p/1-on-1-coaching-p57ks',    // 1 on 1 UpsetMax 4 Package — $239.99  (SKU 1 on 1 Coaching Package)
+  VOD_SINGLE_CHECKOUT_URL: 'https://www.tft-coaching.com/all-products/p/vod-review',   // VoD Review — $39.99  (SKU 1VOD)
+  VOD_4PACK_CHECKOUT_URL:  'https://www.tft-coaching.com/all-products/p/vod-review-x4dna'     // VoD Review 4x Package — $119.99  (SKU 1VOD Package)
+};
+document.querySelectorAll('[data-checkout]').forEach(function(btn){
+  btn.addEventListener('click', function(e){
+    e.preventDefault();
+    var key = btn.getAttribute('data-checkout');
+    var url = CHECKOUT_LINKS[key] || key;
+    if (!/^https?:\/\//.test(url)) { alert('Checkout link not set yet. Add the real Squarespace product URL in the CHECKOUT_LINKS section.'); return; }
+    window.open(url, '_blank', 'noopener');
+  });
+});
+</script>

@@ -1,0 +1,35 @@
+PROOF OF AUTOMATED INGESTION — generated 2026-07-16
+==============================================================
+
+1) SHA-1 fingerprint of the physical file tc1200_peek.pdf,
+   recomputed live from its bytes:
+   e7562657655b84ef943bb4782db493cced0e06ac
+
+2) Database rows stamped source_pdf='tc1200_peek.pdf':
+   rows: 20 | stored source_sha1: e7562657655b84ef943bb4782db493cced0e06ac
+   extracted_at: 2026-07-16T18:21:22+00:00 UTC | model: gemini-3.1-flash-lite | prompt_version: 2.0
+   FINGERPRINT MATCH: YES — these rows came from exactly this file
+
+3) Sample receipts (property → exact sentence the AI had to copy from the PDF):
+   [Composites_materials] Fiber areal weight (FAW) = 281 g/m2 (page 2)
+      quote: "Fiber areal weight (FAW) 281 g/m2 (8.26 oz/yd2)"
+   [Composites_materials] Weight per ply (PAW) = 489 g/m2 (page 2)
+      quote: "Weight per ply (PAW) 489 g/m2 (14.42 oz/yd2)"
+   [Polymers] Density (specific gravity) = 1.30 g/cm³ (page 1)
+      quote: "Density (specific gravity) 1.30 g/cm³ (81.2 lb/ft³)"
+   [Polymers] Tg (glass transition) = 143 °C (page 1)
+      quote: "Tg (glass transition) 143°C (289°F)"
+
+4) Composites table: 18189 old rows have NO provenance columns filled
+   (pre-pipeline era) vs 68 pipeline rows with full provenance —
+   the app's manual upload path cannot write these columns at all.
+
+5) Pipeline logbook (sources table — written only by batch_ingest.py):
+   2026-07-16 18:21:12 UTC  tc1100_pps.pdf
+   2026-07-16 18:21:21 UTC  tc1200_peek.pdf
+   2026-07-16 18:21:30 UTC  tc910_pa6.pdf
+   2026-07-16 18:21:38 UTC  tc920_pc_abs.pdf
+
+6) Cross-check: run_report.json from the run records 82 rows inserted
+   across 4 PDFs at the same timestamps. Re-running the pipeline now
+   inserts 0 rows (sha1 dedup) — proven earlier today.

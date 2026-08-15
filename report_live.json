@@ -1,0 +1,15 @@
+{
+  "pdfs_seen": 4,
+  "pdfs_ok": 4,
+  "errors_by_kind": {},
+  "materials_extracted": 17,
+  "rows_extracted": 82,
+  "rows_inserted": 82,
+  "rows_flagged_in_db": 0,
+  "rows_duplicate_skipped": 0,
+  "insert_rate": 1.0,
+  "flag_rate": 0.0,
+  "duplicate_rate": 0.0,
+  "avg_seconds_per_pdf": 8.76,
+  "total_seconds": 35.03
+}

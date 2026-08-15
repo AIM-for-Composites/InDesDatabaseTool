@@ -1,0 +1,70 @@
+{
+  "per_pdf": [
+    {
+      "pdf": "tc1100_pps.pdf",
+      "materials_gold": 1,
+      "materials_pred": 7,
+      "material_recall": 1.0,
+      "material_precision": 1.0,
+      "prop_recall": 0.0,
+      "prop_precision": 0.0,
+      "value_accuracy": 0.0,
+      "value_checked": 0,
+      "misses": [
+        "Toray Cetex TC1100 PPS carbon woven fabric laminate :: Tensile strength (0) (absent)",
+        "Toray Cetex TC1100 PPS carbon woven fabric laminate :: Tensile modulus (0) (absent)"
+      ]
+    },
+    {
+      "pdf": "tc1200_peek.pdf",
+      "materials_gold": 1,
+      "materials_pred": 5,
+      "material_recall": 1.0,
+      "material_precision": 0.8,
+      "prop_recall": 0.5,
+      "prop_precision": 0.1333,
+      "value_accuracy": 1.0,
+      "value_checked": 2,
+      "misses": [
+        "Toray Cetex TC1200 PEEK carbon woven fabric laminate :: Compression strength (0) (absent)",
+        "Toray Cetex TC1200 PEEK carbon woven fabric laminate :: In-plane shear strength (absent)"
+      ]
+    },
+    {
+      "pdf": "tc910_pa6.pdf",
+      "materials_gold": 1,
+      "materials_pred": 3,
+      "material_recall": 1.0,
+      "material_precision": 0.6667,
+      "prop_recall": 1.0,
+      "prop_precision": 0.4444,
+      "value_accuracy": 1.0,
+      "value_checked": 5,
+      "misses": []
+    },
+    {
+      "pdf": "tc920_pc_abs.pdf",
+      "materials_gold": 3,
+      "materials_pred": 3,
+      "material_recall": 1.0,
+      "material_precision": 0.6667,
+      "prop_recall": 0.8667,
+      "prop_precision": 0.6667,
+      "value_accuracy": 0.9231,
+      "value_checked": 13,
+      "misses": [
+        "PC/ABS neat resin :: Density (value off)",
+        "PC/ABS neat resin :: Glass transition temperature (absent)",
+        "PC/ABS neat resin :: Melt temperature (absent)"
+      ]
+    }
+  ],
+  "aggregate": {
+    "pdfs": 4,
+    "material_recall": 1.0,
+    "material_precision": 0.7833,
+    "prop_recall": 0.5917,
+    "prop_precision": 0.3111,
+    "value_accuracy": 0.7308
+  }
+}

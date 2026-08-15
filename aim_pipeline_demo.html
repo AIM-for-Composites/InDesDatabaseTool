@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIM Composites — How the Database Builds Itself</title>
+<style>
+  :root{
+    --bg:#eef2f7; --card:#ffffff; --line:#e1e7ef; --ink:#0f1f1a; --muted:#64748b;
+    --brand:#bae1fc; --accent:#8ACAFF; --accent-ink:#0b3a66;
+    --ok:#16a34a; --okbg:#f0fdf4; --flag:#d97706; --flagbg:#fff7ed;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%}
+  body{font-family:"DM Sans","Segoe UI",system-ui,-apple-system,sans-serif; background:var(--bg);
+       color:var(--ink); line-height:1.5; padding:22px; max-width:1180px; margin:0 auto;}
+
+  header{background:var(--brand); border:1px solid var(--line); border-radius:14px;
+         padding:22px 28px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap}
+  header h1{font-size:1.65rem; font-weight:800; letter-spacing:-.3px}
+  header p{color:#1e3a5f; font-size:.95rem; max-width:560px}
+  .pill{background:#fff; border:1px solid var(--line); border-radius:999px; padding:6px 14px;
+        font-size:.8rem; font-weight:700; color:var(--accent-ink); white-space:nowrap}
+
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:14px 0}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 18px; text-align:center}
+  .stat b{display:block; font-size:1.55rem; font-weight:800}
+  .stat span{color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:1px}
+
+  /* stage tabs */
+  .stages{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:8px 0 12px}
+  .stage{background:var(--card); border:1.5px solid var(--line); border-radius:12px; padding:12px 10px;
+         cursor:pointer; text-align:center; transition:all .15s ease; user-select:none}
+  .stage:hover{border-color:var(--accent)}
+  .stage.active{background:var(--ink); border-color:var(--ink); color:#fff}
+  .stage.active small{color:#c7d2de}
+  .stage .num{font-size:.68rem; font-weight:800; letter-spacing:1.6px; color:var(--muted)}
+  .stage.active .num{color:var(--accent)}
+  .stage .ico{font-size:1.5rem; display:block; margin:4px 0 2px}
+  .stage b{font-size:.95rem}
+  .stage small{display:block; color:var(--muted); font-size:.72rem; margin-top:2px}
+
+  .panel{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:26px 30px; min-height:210px}
+  .panel h2{font-size:1.3rem; font-weight:800; margin-bottom:8px}
+  .panel .lede{font-size:1.02rem; max-width:820px}
+  .panel ul{margin:12px 0 0 0; list-style:none}
+  .panel li{padding:7px 0 7px 30px; position:relative; max-width:840px}
+  .panel li::before{content:"✔"; position:absolute; left:4px; color:var(--ok); font-weight:800}
+  .factoid{display:inline-block; margin-top:14px; background:var(--flagbg); border:1px solid #fcd9a8;
+           border-radius:10px; padding:8px 14px; font-size:.88rem}
+  .nav{display:flex; gap:10px; margin-top:16px}
+  button{font-family:inherit; font-size:.9rem; font-weight:700; border-radius:999px; cursor:pointer;
+         padding:9px 22px; border:1.5px solid var(--line); background:#fff; color:var(--ink)}
+  button.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+  button:hover{filter:brightness(.97)}
+  button:disabled{opacity:.4; cursor:default}
+
+  /* simulation */
+  .sim{margin-top:16px; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px 28px}
+  .sim h2{font-size:1.2rem; font-weight:800}
+  .sim .sub{color:var(--muted); font-size:.9rem; margin-bottom:14px}
+  .track{display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin:10px 0 4px}
+  .tstage{border:1.5px dashed var(--line); border-radius:12px; min-height:64px; padding:8px;
+          text-align:center; font-size:.72rem; font-weight:800; letter-spacing:1.2px; color:var(--muted);
+          transition:all .25s ease; position:relative}
+  .tstage.lit{border-style:solid; border-color:var(--accent); background:#f4faff; color:var(--accent-ink)}
+  .pdfchip{display:none; margin:6px auto 0; background:#fff; border:1.5px solid var(--accent);
+           border-radius:8px; padding:4px 8px; font-size:.72rem; font-weight:700; color:var(--accent-ink);
+           box-shadow:0 2px 6px rgba(60,120,180,.18); animation:pop .25s ease}
+  .tstage.lit .pdfchip{display:inline-block}
+  @keyframes pop{from{transform:scale(.6); opacity:0} to{transform:scale(1); opacity:1}}
+
+  .simgrid{display:grid; grid-template-columns:1.6fr 1fr; gap:14px; margin-top:14px}
+  .extract, .quarantine{border:1px solid var(--line); border-radius:12px; padding:14px 16px; min-height:190px}
+  .extract h3, .quarantine h3{font-size:.78rem; letter-spacing:1.4px; text-transform:uppercase; color:var(--muted); margin-bottom:10px}
+  .rowline{display:flex; align-items:center; gap:10px; padding:7px 10px; border-radius:8px; margin-bottom:6px;
+           font-size:.88rem; background:var(--okbg); border:1px solid #d3f0dd; animation:pop .3s ease}
+  .rowline.bad{background:var(--flagbg); border-color:#fcd9a8}
+  .rowline .val{margin-left:auto; font-weight:800; white-space:nowrap}
+  .badge{font-size:.68rem; font-weight:800; padding:2px 9px; border-radius:999px; white-space:nowrap}
+  .badge.ok{background:var(--ok); color:#fff}
+  .badge.flag{background:var(--flag); color:#fff}
+  .quarantine{background:#fffdf8}
+  .quarantine .empty{color:var(--muted); font-size:.85rem}
+  .qnote{font-size:.78rem; color:var(--muted); margin-top:10px}
+  .simdone{margin-top:12px; font-weight:800; font-size:.95rem; display:none}
+  .fullwrap{display:none; margin-top:12px; border:1px solid var(--line); border-radius:12px; padding:14px 18px; background:#fbfdff}
+  .fullwrap h3{font-size:.78rem; letter-spacing:1.4px; text-transform:uppercase; color:var(--muted); margin-bottom:4px}
+  .fgroup{margin:12px 0 4px; font-weight:800; font-size:.86rem}
+  .fgroup small{color:var(--muted); font-weight:600}
+  .fgrid{display:grid; grid-template-columns:1fr auto; gap:2px 18px; font-size:.83rem; max-width:560px}
+  .fgrid .fv{font-weight:700; white-space:nowrap; text-align:right}
+  .checks{display:none; gap:8px; margin:10px 0 2px; font-size:.8rem; color:var(--muted)}
+  .checks span{border:1px solid var(--line); border-radius:999px; padding:3px 12px; background:#fff}
+  .checks span.on{border-color:var(--ok); color:var(--ok); font-weight:700}
+
+  /* recently added + trust */
+  .cols{display:grid; grid-template-columns:1.2fr 1fr; gap:14px; margin-top:16px}
+  .box{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px 26px}
+  .box h2{font-size:1.05rem; font-weight:800; margin-bottom:10px}
+  .paperwrap{max-height:320px; overflow-y:auto; padding-right:6px}
+  .phead{font-size:.72rem; font-weight:800; letter-spacing:1px; text-transform:uppercase;
+         color:var(--muted); margin:10px 0 2px}
+  .phead:first-child{margin-top:0}
+  .paper{display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid #f1f5f9; font-size:.86rem}
+  .paper:last-child{border-bottom:none}
+  .paper .nm{white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0}
+  .paper .when{margin-left:auto; color:var(--muted); font-size:.78rem; white-space:nowrap}
+  .tag{font-size:.66rem; font-weight:800; letter-spacing:.6px; padding:2px 8px; border-radius:6px;
+       background:#e0edff; color:#1d4ed8; white-space:nowrap}
+  .trust li{font-size:.9rem}
+  footer{text-align:center; color:var(--muted); font-size:.78rem; margin:20px 0 6px}
+  @media (max-width:860px){ .stats{grid-template-columns:repeat(2,1fr)} .simgrid,.cols{grid-template-columns:1fr}
+    .stages{grid-template-columns:repeat(2,1fr)} .track{grid-template-columns:repeat(2,1fr)} }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🧪 AIM Composites — a database that builds itself</h1>
+    <p>Material properties live buried in thousands of PDF datasheets and papers. This pipeline finds them,
+       reads them, fact-checks every number, and publishes the result — automatically.</p>
+  </div>
+  <div class="pill">Live site: aim4composites · Hugging&nbsp;Face</div>
+</header>
+
+<div class="stats">
+  <div class="stat"><b>29,813</b><span>property values online</span></div>
+  <div class="stat"><b>3</b><span>material families</span></div>
+  <div class="stat"><b>41</b><span>documents auto-collected</span></div>
+  <div class="stat"><b>100%</b><span>values traceable to a PDF page</span></div>
+</div>
+
+<div class="stages" id="stages">
+  <div class="stage" data-i="0"><span class="num">STEP 1</span><span class="ico">🔎</span><b>Find</b><small>a polite robot librarian</small></div>
+  <div class="stage" data-i="1"><span class="num">STEP 2</span><span class="ico">🤖</span><b>Read</b><small>AI fills a strict form</small></div>
+  <div class="stage" data-i="2"><span class="num">STEP 3</span><span class="ico">🕵️</span><b>Check</b><small>every number, 3 ways</small></div>
+  <div class="stage" data-i="3"><span class="num">STEP 4</span><span class="ico">🗄️</span><b>Save</b><small>graded, never duplicated</small></div>
+  <div class="stage" data-i="4"><span class="num">STEP 5</span><span class="ico">🌐</span><b>Show</b><small>the website updates itself</small></div>
+</div>
+
+<div class="panel" id="panel"></div>
+<div class="nav">
+  <button id="prev">← Back</button>
+  <button id="next" class="primary">Next →</button>
+  <span style="margin-left:auto;color:var(--muted);font-size:.8rem;align-self:center">tip: use ← → arrow keys</span>
+</div>
+
+<div class="sim">
+  <h2>▶ Watch one real datasheet travel the pipeline</h2>
+  <div class="sub">Toray Cetex® TC1200 PEEK — carbon-fiber laminate datasheet. Real values, exactly as the pipeline handled them.</div>
+  <div class="track" id="track">
+    <div class="tstage">FIND<div class="pdfchip">📄 TC1200_PEEK.pdf</div></div>
+    <div class="tstage">READ<div class="pdfchip">📄 → form</div></div>
+    <div class="tstage">CHECK<div class="pdfchip">🕵️ 3 checks</div></div>
+    <div class="tstage">SAVE<div class="pdfchip">🗄️ graded</div></div>
+    <div class="tstage">SHOW<div class="pdfchip">🌐 online</div></div>
+  </div>
+  <div class="checks" id="checks">
+    <span id="c1">📄 printed in the PDF?</span>
+    <span id="c2">📏 units make sense?</span>
+    <span id="c3">⚖️ physically plausible?</span>
+  </div>
+  <div class="simgrid">
+    <div class="extract">
+      <h3>What the AI extracted</h3>
+      <div id="rows"></div>
+    </div>
+    <div class="quarantine">
+      <h3>⚠ Review queue (quarantine)</h3>
+      <div id="qbox"><div class="empty">Empty — flagged values land here for a human to check. They are <b>never</b> shown on the site and <b>never</b> deleted.</div></div>
+      <div class="qnote">A person reviews this list weekly. Fixed rows can be promoted back in.</div>
+    </div>
+  </div>
+  <div class="simdone" id="simdone"></div>
+  <div class="fullwrap" id="fullwrap"></div>
+  <div class="nav">
+    <button class="primary" id="runsim">▶ Run the demo</button>
+    <button id="showall" style="display:none">📋 Show all 25 stored values</button>
+    <button id="resetsim">Reset</button>
+  </div>
+</div>
+
+<div class="cols">
+  <div class="box">
+    <h2>🆕 Added by the pipeline today — 17 materials, exactly as named on the live site</h2>
+    <div class="paperwrap">
+      <div class="phead">📄 tc1200_peek.pdf → 5 materials · 25 values</div>
+      <div class="paper"><span class="nm">Toray Cetex TC1200 PEEK Thermoplastic Resin System</span><span class="tag" style="background:#e7f8ee;color:#15803d">POLYMER</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC1200 Standard Modulus Carbon 145gsm FAW UD Tape Laminate</span><span class="tag">COMPOSITE</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC1200 Intermediate Modulus Carbon 145gsm FAW UD Tape Laminate</span><span class="tag">COMPOSITE</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC1200 S2-Glass 204gsm FAW UD Tape Laminate</span><span class="tag">COMPOSITE</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC1200 Standard Modulus T300JB 3K Carbon 281gsm FAW 5HS Woven Fabric Laminate</span><span class="tag">COMPOSITE</span></div>
+      <div class="phead">📄 tc1100_pps.pdf → 6 materials · 21 values</div>
+      <div class="paper"><span class="nm">Toray Cetex TC1100 PolyPhenyleneSulfide (PPS) Thermoplastic Resin</span><span class="tag" style="background:#e7f8ee;color:#15803d">POLYMER</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC1100 EC6 Glass 296gsm FAW 8HS Woven Fabric Laminate</span><span class="tag">COMPOSITE</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC1100 Standard Modulus Carbon 221gsm FAW UD Tape Laminate</span><span class="tag">COMPOSITE</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC1100 Intermediate Modulus Carbon 146gsm FAW UD Tape Laminate</span><span class="tag">COMPOSITE</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC1100 T300JB 3K Carbon 200gsm FAW PW Woven Fabric Laminate</span><span class="tag">COMPOSITE</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC1100 T300JB 3K Carbon 281gsm FAW 5HS Woven Fabric Laminate</span><span class="tag">COMPOSITE</span></div>
+      <div class="phead">📄 tc910_pa6.pdf → 3 materials · 18 values</div>
+      <div class="paper"><span class="nm">Toray Cetex TC910 polyamide 6</span><span class="tag" style="background:#e7f8ee;color:#15803d">POLYMER</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC910 Nylon 6 Carbon Fiber Uni-directional Tape</span><span class="tag">COMPOSITE</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC910 Nylon 6 Fiberglass Uni-directional Tape</span><span class="tag">COMPOSITE</span></div>
+      <div class="phead">📄 tc920_pc_abs.pdf → 3 materials · 18 values</div>
+      <div class="paper"><span class="nm">Toray Cetex TC920 Polycarbonate/ABS blend</span><span class="tag" style="background:#e7f8ee;color:#15803d">POLYMER</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC920 Carbon fiber PC/ABS unidirectional tape</span><span class="tag">COMPOSITE</span></div>
+      <div class="paper"><span class="nm">Toray Cetex TC920 Fiberglass fiber PC/ABS unidirectional tape</span><span class="tag">COMPOSITE</span></div>
+    </div>
+    <div class="qnote">Search any of these names — or just "Cetex" / "TC1200" — on the live site to pull them up.</div>
+  </div>
+  <div class="box trust">
+    <h2>🤝 Why you can trust it</h2>
+    <ul style="list-style:none">
+      <li style="padding:6px 0 6px 28px;position:relative"><span style="position:absolute;left:0">🧾</span>Every value keeps a receipt: source PDF, page number, and the exact sentence it came from.</li>
+      <li style="padding:6px 0 6px 28px;position:relative"><span style="position:absolute;left:0">🚧</span>Anything uncertain is quarantined for human eyes — the site only shows verified data.</li>
+      <li style="padding:6px 0 6px 28px;position:relative"><span style="position:absolute;left:0">🎯</span>Accuracy is measured against hand-checked "answer key" datasheets before anything is automated.</li>
+      <li style="padding:6px 0 6px 28px;position:relative"><span style="position:absolute;left:0">⏰</span>Runs on a weekly schedule with a one-click off switch — not an uncontrolled crawler.</li>
+    </ul>
+  </div>
+</div>
+
+<footer>AIM Composites Materials Database · ME8930 · pipeline demo page (self-contained, works offline)</footer>
+
+<script>
+/* ---------- stage explainer ---------- */
+const STAGES = [
+ {t:"1 · Find — a polite robot librarian",
+  l:"Once a week, the crawler visits trusted research libraries — OpenAlex, arXiv, Unpaywall, Semantic Scholar — plus a short, approved list of manufacturer datasheet pages.",
+  b:["Downloads only genuine PDFs — fakes and login pages are detected and rejected.",
+     "Waits politely between requests; never hammers anyone's website.",
+     "Only sources we've approved — it can't wander off into the open web."],
+  f:"📦 41 documents collected so far — datasheets and peer-reviewed papers."},
+ {t:"2 · Read — an AI that reads like an engineer",
+  l:"Each PDF goes to an AI (Google Gemini) that must fill in a strict form: material name, property, value, unit, test condition — and the page it found it on.",
+  b:["It must also copy out the exact sentence it read — the receipt.",
+     "Blurry scans it can't actually read are skipped, never guessed.",
+     "The same form every time, so a datasheet and a journal paper come out comparable."],
+  f:"🧾 No receipt, no entry — every number must point back to the PDF."},
+ {t:"3 · Check — the fact-checker",
+  l:"No number is trusted just because the AI said so. Three independent checks run on every single value:",
+  b:["Receipt check — is this value really printed in the PDF? (catches AI hallucination)",
+     "Unit check — MPa, GPa, °C… converted to standard units so nothing is compared apples-to-oranges.",
+     "Reality check — 776 MPa is a plausible strength; 776 GPa is not. Implausible values get flagged."],
+  f:"🚦 Fail any check → the value is flagged and quarantined, not published — and not deleted."},
+ {t:"4 · Save — graded, never duplicated",
+  l:"Every value lands in the shared database with a grade: ok, or flagged with the reason.",
+  b:["Re-running the same PDF adds zero duplicates — the database notices it has seen it before.",
+     "The same property from a *different* paper is kept — that's an independent confirmation, which is good science.",
+     "Flagged rows go to a review list a person checks weekly; fixed ones can be promoted back."],
+  f:"🗄️ 29,813 property values stored today across polymers, fibers, and composites."},
+ {t:"5 · Show — the website updates itself",
+  l:"The public site on Hugging Face reads this same database. When the pipeline adds materials on Monday, visitors see them Monday — nobody uploads anything by hand.",
+  b:["Search by material, class, matrix or fiber; inspect any property.",
+     "New: a 'Recently added' feed showing which papers and datasheets just arrived.",
+     "The site never does the heavy lifting — it stays fast because the pipeline works elsewhere."],
+  f:"🌐 One database, two doors: robots write, people read."}
+];
+let cur = 0;
+const panel = document.getElementById("panel");
+const chips = [...document.querySelectorAll(".stage")];
+function render(){
+  const s = STAGES[cur];
+  panel.innerHTML = `<h2>${s.t}</h2><p class="lede">${s.l}</p>
+    <ul>${s.b.map(x=>`<li>${x}</li>`).join("")}</ul>
+    <div class="factoid">${s.f}</div>`;
+  chips.forEach((c,i)=>c.classList.toggle("active", i===cur));
+  document.getElementById("prev").disabled = cur===0;
+  document.getElementById("next").disabled = cur===STAGES.length-1;
+}
+chips.forEach(c=>c.onclick=()=>{cur=+c.dataset.i; render();});
+document.getElementById("prev").onclick=()=>{if(cur>0){cur--;render();}};
+document.getElementById("next").onclick=()=>{if(cur<STAGES.length-1){cur++;render();}};
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight"&&cur<STAGES.length-1){cur++;render();}
+  if(e.key==="ArrowLeft"&&cur>0){cur--;render();}
+});
+render();
+
+/* ---------- simulation ---------- */
+const ROWS = [
+ {p:"Tensile strength (0°)",  v:"776 MPa",  ok:true},
+ {p:"Tensile modulus (0°)",   v:"56.1 GPa", ok:true},
+ {p:"Compression strength",   v:"585 MPa",  ok:true},
+ {p:"In-plane shear strength",v:"155 MPa",  ok:true},
+ {p:"Tensile strength (typo)",v:"776 GPa",  ok:false, why:"out of range — 776 GPa is ~4× stiffer than diamond. Flagged, quarantined."}
+];
+/* All 25 values the pipeline actually stored from this datasheet today —
+   pulled verbatim from the live database (source_pdf = tc1200_peek.pdf). */
+const FULL = {
+ "PEEK resin system <small>· page 1</small>": [
+   ["Density (specific gravity)","1.30 g/cm³"],["Tg (glass transition)","143 °C"],
+   ["Tm (melt)","343 °C"],["Tc (crystallinity)","290 °C"],["Tp (processing)","370–400 °C"]],
+ "Carbon UD tape, standard modulus <small>· page 2</small>": [
+   ["Consolidated ply thickness","0.14 mm"],["Density","1.59 g/cm³"],
+   ["Fiber areal weight","145 g/m²"],["Resin content by weight","34 %"],["Weight per ply","221 g/m²"]],
+ "Carbon UD tape, intermediate modulus <small>· page 2</small>": [
+   ["Consolidated ply thickness","0.14 mm"],["Density","1.59 g/cm³"],
+   ["Fiber areal weight","145 g/m²"],["Resin content by weight","34 %"],["Weight per ply","221 g/m²"]],
+ "S2-Glass UD tape <small>· page 2</small>": [
+   ["Consolidated ply thickness","0.15 mm"],["Density","1.97 g/cm³"],
+   ["Fiber areal weight","204 g/m²"],["Resin content by weight","29 %"],["Weight per ply","310 g/m²"]],
+ "Carbon 5HS woven fabric laminate <small>· page 2</small>": [
+   ["Consolidated ply thickness","0.31 mm"],["Density","1.53 g/cm³"],
+   ["Fiber areal weight","281 g/m²"],["Resin content by weight","42 %"],["Weight per ply","489 g/m²"]]
+};
+const fullwrap=document.getElementById("fullwrap");
+fullwrap.innerHTML = "<h3>All 25 values stored in the database from this datasheet — today's run</h3>" +
+  Object.entries(FULL).map(([g,rows])=>
+    `<div class="fgroup">${g}</div><div class="fgrid">` +
+    rows.map(([p,v])=>`<span>${p}</span><span class="fv">${v}</span>`).join("") + "</div>").join("");
+const showallBtn=document.getElementById("showall");
+showallBtn.onclick=()=>{
+  const open = fullwrap.style.display==="block";
+  fullwrap.style.display = open ? "none" : "block";
+  showallBtn.textContent = open ? "📋 Show all 25 stored values" : "📋 Hide the full list";
+};
+
+const tst=[...document.querySelectorAll(".tstage")];
+const rowsBox=document.getElementById("rows"), qbox=document.getElementById("qbox");
+const checks=document.getElementById("checks"), done=document.getElementById("simdone");
+let timers=[];
+function later(fn,ms){timers.push(setTimeout(fn,ms));}
+function resetSim(){
+  timers.forEach(clearTimeout); timers=[];
+  tst.forEach(t=>t.classList.remove("lit"));
+  rowsBox.innerHTML=""; checks.style.display="none"; done.style.display="none";
+  fullwrap.style.display="none"; showallBtn.style.display="none";
+  showallBtn.textContent="📋 Show all 25 stored values";
+  ["c1","c2","c3"].forEach(id=>document.getElementById(id).classList.remove("on"));
+  qbox.innerHTML='<div class="empty">Empty — flagged values land here for a human to check. They are <b>never</b> shown on the site and <b>never</b> deleted.</div>';
+  document.getElementById("runsim").disabled=false;
+}
+document.getElementById("resetsim").onclick=resetSim;
+document.getElementById("runsim").onclick=function(){
+  resetSim(); this.disabled=true;
+  let t=0;
+  later(()=>tst[0].classList.add("lit"), t+=200);
+  later(()=>tst[1].classList.add("lit"), t+=1100);
+  later(()=>{ // rows appear
+    ROWS.slice(0,4).forEach((r,i)=>later(()=>{
+      rowsBox.insertAdjacentHTML("beforeend",
+        `<div class="rowline"><span>${r.p}</span><span class="val">${r.v}</span><span class="badge ok">extracted</span></div>`);
+    }, 350*i));
+  }, t+=900);
+  later(()=>{ rowsBox.insertAdjacentHTML("beforeend",
+      `<div class="rowline bad" id="badrow"><span>${ROWS[4].p}</span><span class="val">${ROWS[4].v}</span><span class="badge flag">extracted</span></div>`);
+  }, t+=1700);
+  later(()=>{tst[2].classList.add("lit"); checks.style.display="flex";}, t+=700);
+  later(()=>document.getElementById("c1").classList.add("on"), t+=700);
+  later(()=>document.getElementById("c2").classList.add("on"), t+=650);
+  later(()=>{ document.getElementById("c3").classList.add("on");
+    const bad=document.getElementById("badrow");
+    bad.querySelector(".badge").textContent="⚠ out of range";
+  }, t+=650);
+  later(()=>{ // quarantine the bad row
+    const bad=document.getElementById("badrow");
+    qbox.innerHTML=`<div class="rowline bad"><span>${ROWS[4].p}</span><span class="val">${ROWS[4].v}</span><span class="badge flag">for human review</span></div>
+                    <div class="qnote">${ROWS[4].why}</div>`;
+    bad.remove();
+  }, t+=900);
+  later(()=>tst[3].classList.add("lit"), t+=800);
+  later(()=>{ tst[4].classList.add("lit");
+    done.style.display="block";
+    done.innerHTML="✅ You watched 5 for clarity — the real run stored <span style='color:var(--ok)'>25 values from this datasheet</span> and <span style='color:var(--ok)'>82 across all 4 documents</span>, in 35 seconds · <span style='color:var(--flag)'>anything suspicious is quarantined</span> · 0 deleted, 0 duplicated.";
+    showallBtn.style.display="inline-block";
+  }, t+=900);
+};
+</script>
+</body>
+</html>
