@@ -305,13 +305,17 @@ def record_source(conn, pdf_path: Path, sha1: str,
 
 
 def already_inserted(conn, table: str, row: PropertyRow) -> bool:
-    """Same dedup grain and NULL semantics as the SQLite version."""
+    """Same dedup grain and NULL semantics as the SQLite version (incl. origin;
+    note the partial unique index does not include origin yet, which is why
+    `--figures --pg` is refused — see FIGURES.md)."""
     conds = " AND ".join(f"COALESCE({c}, '') = COALESCE(%s, '')" for c in _DEDUP_COLS)
+    conds += " AND COALESCE(origin, 'text') = COALESCE(%s, 'text')"
     with conn.cursor() as cur:
         cur.execute(
             f"SELECT 1 FROM {_q(table)} WHERE {conds} LIMIT 1",
             (row.source_sha1, row.material_key, row.section,
-             row.property_name, row.test_condition, row.value_raw),
+             row.property_name, row.test_condition, row.value_raw,
+             row.origin or "text"),
         )
         return cur.fetchone() is not None
 

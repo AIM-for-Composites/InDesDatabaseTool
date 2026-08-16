@@ -53,9 +53,51 @@ EXTRA_COLUMNS: list[tuple[str, str]] = [
     # non-constant DEFAULT (datetime('now')) on ALTER TABLE ADD COLUMN, so this
     # stays a plain column rather than carrying a SQL default.
     ("extracted_at", "TEXT"),
+    # Figure-mining phase (additive): where the value came from. 'text' =
+    # grounded in the PDF text (every pre-existing row reads 'text' via the
+    # default); 'figure' = read off a plot/table image by figures.py — an
+    # estimate, status 'figure_estimate', never exported unless promoted.
+    ("origin", "TEXT DEFAULT 'text'"),
+    ("figure_id", "TEXT"),
 ]
 
 TARGET_TABLES = ("Polymers", "Fibers", "Composites_materials")
+
+# Provenance of harvested figures (figure-mining phase). One row per PNG on
+# disk; property rows point at it through figure_id. Additive; SQLite only for
+# now (see FIGURES.md for the --pg status).
+FIGURES_DDL = """
+CREATE TABLE IF NOT EXISTS figures (
+    figure_id TEXT PRIMARY KEY,
+    source_pdf TEXT,
+    source_sha1 TEXT,
+    page INTEGER,
+    bbox TEXT,
+    caption TEXT,
+    figure_kind TEXT,
+    material_key TEXT,
+    image_path TEXT,
+    image_sha256 TEXT,
+    width_px INTEGER,
+    height_px INTEGER,
+    route TEXT,
+    mining_status TEXT,
+    n_values INTEGER,
+    model TEXT,
+    figure_prompt_version TEXT,
+    extracted_at TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_figures_source_sha1 ON figures (source_sha1);
+"""
+
+
+def ensure_figures_table(conn: sqlite3.Connection) -> bool:
+    """Create the `figures` table + index if missing. Idempotent; True if created."""
+    existed = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='figures'"
+    ).fetchone() is not None
+    conn.executescript(FIGURES_DDL)
+    return not existed
 
 
 def _existing_columns(conn: sqlite3.Connection, table: str) -> set[str]:
@@ -196,6 +238,7 @@ def migrate(db_path: Path, backup: bool = True) -> dict[str, list[str]]:
             result["sources"] = ["UNIQUE(pdf_sha1) (rebuilt from UNIQUE(pdf_filename))"]
         else:
             result["sources"] = []
+        result["figures"] = ["created"] if ensure_figures_table(conn) else []
         conn.commit()
     finally:
         conn.close()
@@ -221,6 +264,8 @@ def main() -> int:
             print(f"{table}: already up to date")
         elif table == "sources":
             print(f"{table}: rebuilt -> {added[0]}")
+        elif table == "figures":
+            print(f"{table}: table created")
         else:
             print(f"{table}: added {len(added)} columns: {', '.join(added)}")
     return 0

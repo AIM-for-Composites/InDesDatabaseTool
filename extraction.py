@@ -288,6 +288,11 @@ class PropertyRow:
     # bookkeeping
     model: str = GEMINI_MODEL
     prompt_version: str = PROMPT_VERSION
+    # provenance kind (figure-mining phase): 'text' (grounded in the PDF
+    # text) or 'figure' (read off a plot/table image — an estimate; see
+    # figures.py). figure_id points at the harvested PNG.
+    origin: str = "text"
+    figure_id: str = ""
 
 
 # ---------------------------------------------------------------------------

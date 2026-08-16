@@ -69,12 +69,37 @@ def run_live(report_path: Path) -> dict[str, Any]:
 
     LAST_RUN_DIR.mkdir(exist_ok=True)
     reports: list[dict[str, Any]] = []
+    fig_reports: list[dict[str, Any]] = []
     for gold in _load_gold():
         pdf_path = GOLD_DIR / gold["pdf"]
         if not pdf_path.exists():
             print(f"  missing gold PDF: {pdf_path}", file=sys.stderr)
             continue
         pdf_bytes = pdf_path.read_bytes()
+        if gold.get("kind") == "figure":
+            # Figure case: text pass (for material context) + the figure stage;
+            # ONLY the figure-derived values are scored. Scored separately so the
+            # text aggregate stays comparable with earlier reports.
+            ext, fig_ext, stage = _run_figure_case(pdf_bytes, pdf_path, api_key)
+            (LAST_RUN_DIR / f"{pdf_path.stem}.figure_extraction.json").write_text(
+                json.dumps({"figures": [dataclasses.asdict(_strip_png(f)) for f in stage.figures],
+                            "figure_materials": dataclasses.asdict(fig_ext),
+                            "vision_calls": stage.vision.total,
+                            "harvest": dataclasses.asdict(stage.harvest)},
+                           indent=2, ensure_ascii=False, default=str),
+                encoding="utf-8",
+            )
+            rep = scoring.score_extraction(fig_ext, gold)
+            rep["kind"] = "figure"
+            rep["figures_found"] = len(stage.figures)
+            rep["figures_mined"] = stage.mined_figures
+            rep["vision_calls"] = stage.vision.total
+            rep["pred_summary"] = _pred_summary(fig_ext)
+            fig_reports.append(rep)
+            print(f"  {rep['pdf']} [figure]: figures={rep['figures_found']} mined={rep['figures_mined']} "
+                  f"prop R/P={rep['prop_recall']}/{rep['prop_precision']} "
+                  f"value_acc={rep['value_accuracy']} (vision calls {rep['vision_calls']})")
+            continue
         ext = E.extract_from_pdf(pdf_bytes, pdf_path.name, api_key)
         E.verify_against_text(ext, E.pdf_page_texts(pdf_bytes))
         # keep the evidence
@@ -89,11 +114,56 @@ def run_live(report_path: Path) -> dict[str, Any]:
               f"prop R/P={rep['prop_recall']}/{rep['prop_precision']} "
               f"value_acc={rep['value_accuracy']}")
 
-    out = {"per_pdf": reports, "aggregate": scoring.aggregate(reports)}
+    out: dict[str, Any] = {"per_pdf": reports, "aggregate": scoring.aggregate(reports)}
+    if fig_reports:
+        out["figure_per_pdf"] = fig_reports
+        out["figure_aggregate"] = scoring.aggregate(fig_reports)
     report_path.write_text(json.dumps(out, indent=2))
-    print(f"\nAggregate: {json.dumps(out['aggregate'], indent=2)}")
+    print(f"\nAggregate (text cases): {json.dumps(out['aggregate'], indent=2)}")
+    if fig_reports:
+        print(f"Aggregate (figure cases): {json.dumps(out['figure_aggregate'], indent=2)}")
     print(f"Report written to {report_path}; raw extractions in {LAST_RUN_DIR}/")
     return out
+
+
+def _strip_png(fig):
+    """Figure without the PNG bytes (for JSON dumps)."""
+    return dataclasses.replace(fig, png_bytes=b"")
+
+
+def _run_figure_case(pdf_bytes: bytes, pdf_path: Path, api_key: str):
+    """Text pass (material context) + figure stage; returns
+    (text_extraction, figure_extraction, stage). The figure_extraction holds
+    ONLY figure-derived properties, as extraction.Materials, so the standard
+    scorer applies unchanged."""
+    import figures as F
+
+    ext = E.extract_from_pdf(pdf_bytes, pdf_path.name, api_key)
+    stage = F.run_figure_stage(
+        pdf_bytes, pdf_path.name, "eval", ext.materials, api_key,
+        out_dir=LAST_RUN_DIR / "figures", max_figures=12, mine=True,
+    )
+    return ext, figure_rows_to_extraction(stage.rows), stage
+
+
+def figure_rows_to_extraction(rows) -> E.Extraction:
+    """Regroup figure PropertyRows into an Extraction (materials x properties)
+    so scoring.score_extraction can score them like a text extraction."""
+    mats: dict[str, E.Material] = {}
+    for r in rows:
+        m = mats.get(r.material_key)
+        if m is None:
+            m = E.Material(material_name=r.material_name, material_abbreviation=r.material_abbreviation,
+                           material_class=r.material_class, trade_grade=r.trade_grade)
+            mats[r.material_key] = m
+        p = E.Property(section=r.section, property_name=r.property_name, value_raw=r.value_raw,
+                       unit=r.unit, value_num=r.value_num, value_min=r.value_min,
+                       value_max=r.value_max, qualifier=r.qualifier, page=r.page,
+                       source_quote=r.source_quote)
+        p.unit_canonical, p.value_si = r.unit_canonical, r.value_si
+        p.status, p.flag_reason = r.status, r.flag_reason
+        m.properties.append(p)
+    return E.Extraction(materials=list(mats.values()))
 
 
 def gold_check() -> int:
@@ -117,6 +187,17 @@ def gold_check() -> int:
         pages = [_normalize_text(t) for t in E.pdf_page_texts(pdf_path.read_bytes())]
         text = " ".join(pages)
         case_ok = True
+        is_figure = gold.get("kind") == "figure"
+        if is_figure:
+            # Values live in the plot, not (necessarily) the text: check instead
+            # that the named figure exists — page in range and a caption block
+            # starting with the stated prefix on that page.
+            fp = int(gold.get("figure_page") or 0)
+            prefix = (gold.get("figure_caption_prefix") or "").lower()
+            if not (1 <= fp <= len(pages)):
+                print(f"  {gold['pdf']}: figure_page {fp} out of range (1..{len(pages)})"); case_ok = False
+            elif prefix and prefix not in pages[fp - 1]:
+                print(f"  {gold['pdf']}: caption prefix {prefix!r} not found on page {fp}"); case_ok = False
         for gm in gold.get("materials", []):
             names = [gm.get("material_name", "")] + list(gm.get("aliases", []))
             if not any(_normalize_text(n) and _normalize_text(n) in text for n in names):
@@ -125,8 +206,18 @@ def gold_check() -> int:
             for gp in gm.get("properties", []):
                 keys = [gp.get("property_name", "")] + list(gp.get("aliases", []))
                 if not any(_normalize_text(k) and _normalize_text(k) in text for k in keys):
-                    print(f"  {gold['pdf']}: property {gp.get('property_name')!r}: "
-                          f"no name/alias found in PDF text"); case_ok = False
+                    if is_figure:
+                        # A figure-only property (e.g. 'strain at break' read off a
+                        # curve endpoint) need not be named in the text; say so
+                        # but don't fail the case.
+                        print(f"  {gold['pdf']}: note: figure property "
+                              f"{gp.get('property_name')!r} is not named in the text "
+                              f"(fine for a plot-only value)")
+                    else:
+                        print(f"  {gold['pdf']}: property {gp.get('property_name')!r}: "
+                              f"no name/alias found in PDF text"); case_ok = False
+                if is_figure:
+                    continue      # figure values are read off the plot, not the text
                 # Try the ways a datasheet prints the number: 58 / 58.0 / 58.00,
                 # and for a range the whole 'lo-hi' token as well as endpoints.
                 def forms(n: float) -> list[str]:
@@ -197,6 +288,43 @@ def selfcheck() -> int:
     # ksi-swapped values must still match in SI -> value_accuracy should be 1.0
     if rep["value_accuracy"] != 1.0:
         ok = False; print("FAIL value_accuracy (SI unit-robust compare)", rep["value_accuracy"])
+
+    # --- figure case (offline): a synthetic figure readout that is 10% off
+    # every gold value must still score 1.0 under the wide tolerance, and one
+    # 30% off must not.
+    fig_gold = next((g for g in gold_list if g.get("kind") == "figure"), None)
+    if fig_gold is not None:
+        import figures as F
+        fake_fig = F.Figure(figure_id="selfcheck0000000", source_pdf=fig_gold["pdf"], source_sha1="x",
+                            page=fig_gold.get("figure_page", 1), bbox=(0, 0, 1, 1),
+                            caption="Figure 6. selfcheck", image_path="", image_sha256="",
+                            width_px=1, height_px=1, route="raster", figure_kind="property_plot")
+        mined = F.MinedFigure(figure=fake_fig)
+        for gm in fig_gold["materials"]:
+            for j, gp in enumerate(gm["properties"]):
+                v = gp["value_num"] * (1.10 if j == 0 else 0.90)     # +10% / -10%
+                p = E.Property(section="Mechanical", property_name=gp["property_name"],
+                               value_raw=f"~{v:g}", unit=gp.get("unit", ""), value_num=v)
+                mined.values.append((gm["material_name"], gm["material_name"], p))
+        rows = F.figure_properties_to_rows(
+            [mined], [E.Material(material_name=gm["material_name"], material_class="Composite")
+                      for gm in fig_gold["materials"]], fig_gold["pdf"], "x")
+        frep = scoring.score_extraction(figure_rows_to_extraction(rows), fig_gold)
+        print(json.dumps({k: frep[k] for k in ("pdf", "material_recall", "prop_recall",
+                                                "value_accuracy", "value_checked", "misses")}, indent=2))
+        if frep["material_recall"] != 1.0 or frep["prop_recall"] != 1.0 or frep["value_accuracy"] != 1.0:
+            ok = False; print("FAIL figure case: 10%-off readout should score 1.0 under 15% tolerance")
+        if any(r.status == "ok" for r in rows):
+            ok = False; print("FAIL figure rows must never be status ok")
+        # 30% off must miss
+        for _, _, p in mined.values:
+            p.value_num = p.value_num * 1.3
+        rows2 = F.figure_properties_to_rows(
+            [mined], [E.Material(material_name=gm["material_name"], material_class="Composite")
+                      for gm in fig_gold["materials"]], fig_gold["pdf"], "x")
+        frep2 = scoring.score_extraction(figure_rows_to_extraction(rows2), fig_gold)
+        if frep2["value_accuracy"] != 0.0:
+            ok = False; print("FAIL figure case: 30%-off readout should score 0.0", frep2["value_accuracy"])
     print("SELFCHECK", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 

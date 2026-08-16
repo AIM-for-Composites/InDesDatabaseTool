@@ -1,0 +1,27 @@
+{
+  "pdf": "pekk_pps_thermoforming_fig6.pdf",
+  "kind": "figure",
+  "notes": "Open-access paper (thermoforming of PEKK/CF and PPS/CF). Figure 6 on page 7 is a stress–strain plot ('Tensile Test', y = Stress [MPa], x = Strain) with two curves labeled PPS and PEKK. Gold values are what a reader states from the plot: the peak (ultimate tensile strength) and the endpoint strain of each curve. The paper's own text confirms the strengths ('Average tensile strength (608 MPa) ... of the PPS', 'PEKK composite (824 MPa)'), which is why this case is a good calibration for figure mining — but the values are scored against the FIGURE readout, so tolerance is deliberately wide (15%): reading plots is approximate and the eval must not pretend otherwise. Only figure-derived (origin='figure') rows are scored for this case.",
+  "figure_page": 7,
+  "figure_caption_prefix": "Figure 6",
+  "materials": [
+    {
+      "material_name": "PPS composite",
+      "aliases": ["pps"],
+      "material_class": "Composite",
+      "properties": [
+        {"property_name": "Tensile strength", "aliases": ["tensile strength", "ultimate tensile", "stress at break", "peak stress", "maximum stress"], "value_num": 608, "unit": "MPa", "tolerance_pct": 15},
+        {"property_name": "Strain at break", "aliases": ["strain at break", "elongation", "failure strain", "strain to failure", "ultimate strain"], "value_num": 2.7, "unit": "%", "tolerance_pct": 15}
+      ]
+    },
+    {
+      "material_name": "PEKK composite",
+      "aliases": ["pekk"],
+      "material_class": "Composite",
+      "properties": [
+        {"property_name": "Tensile strength", "aliases": ["tensile strength", "ultimate tensile", "stress at break", "peak stress", "maximum stress"], "value_num": 824, "unit": "MPa", "tolerance_pct": 15},
+        {"property_name": "Strain at break", "aliases": ["strain at break", "elongation", "failure strain", "strain to failure", "ultimate strain"], "value_num": 3.3, "unit": "%", "tolerance_pct": 15}
+      ]
+    }
+  ]
+}

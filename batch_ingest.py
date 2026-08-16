@@ -34,6 +34,10 @@ Usage:
     # Requires a one-time `python pg_migrate.py --apply` first (see pg_mirror.py):
     python batch_ingest.py --pg --input ./pdfs
 
+    # figure & graph mining (opt-in; SQLite only; see FIGURES.md):
+    python batch_ingest.py --figures --input ./pdfs --db ./materials_mirror.sqlite
+    python batch_ingest.py --figures --no-figure-mining --input ./pdfs   # harvest+classify only
+
 Author: Mathias Heider, ME8930 course project, May 2026.
 Extraction prompt and schema now centralized in extraction.py (was adapted from
 the live Streamlit app's page_files/categorized/Backend/upload_backend.py,
@@ -63,6 +67,7 @@ from migrate import (
     EXTRA_COLUMNS,
     backfill_material_key_grade,
     ensure_columns,
+    ensure_figures_table,
     ensure_sources_sha1_unique,
 )
 
@@ -131,6 +136,14 @@ class PdfResult:
     duplicates: int
     material_classes: list[str]
     error: Optional[str] = None
+    # figure-mining phase (all zero when --figures is off)
+    figures_found: int = 0        # harvested PNGs (after junk filters + cap)
+    figures_mined: int = 0        # plot/table figures that returned a readout
+    figure_rows: int = 0          # origin='figure' rows inserted
+    figure_duplicates: int = 0    # figure rows skipped by the dedup grain
+    vision_calls: int = 0         # classify + mining Gemini calls
+    figure_error: Optional[str] = None   # non-fatal: text rows still inserted
+    figure_filters: dict[str, int] = dataclasses.field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -149,6 +162,8 @@ def init_db(path: Path) -> sqlite3.Connection:
         backfill_material_key_grade(conn, table)
     # Legacy DBs keyed `sources` on pdf_filename; rebuild to pdf_sha1 (idempotent).
     ensure_sources_sha1_unique(conn)
+    # Figure provenance table (figure-mining phase; idempotent).
+    ensure_figures_table(conn)
     conn.commit()
     return conn
 
@@ -198,6 +213,8 @@ def _row_values(row: PropertyRow) -> tuple:
         "model": row.model,
         "prompt_version": row.prompt_version,
         "extracted_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "origin": row.origin or "text",
+        "figure_id": row.figure_id or None,
     }
     return tuple(mapping[c] for c in _INSERT_COLS)
 
@@ -212,9 +229,11 @@ def already_inserted(conn: sqlite3.Connection, table: str, row: PropertyRow) -> 
     """Source-aware dedup (Task 6).
 
     Grain = (source_sha1, material_key, section, property_name, test_condition,
-    value_raw). Skip only a true re-ingest of the *same measurement from the
-    same PDF*; the same property from a different PDF (independent repeat) is
-    kept.
+    value_raw, origin). Skip only a true re-ingest of the *same measurement
+    from the same PDF*; the same property from a different PDF (independent
+    repeat) is kept. `origin` is part of the grain on purpose: a text row and
+    a figure row reporting the same number both survive — that agreement is
+    signal, not duplication (figure-mining phase).
     """
     cur = conn.execute(
         f"SELECT 1 FROM {table} "
@@ -224,11 +243,77 @@ def already_inserted(conn: sqlite3.Connection, table: str, row: PropertyRow) -> 
         f"  AND IFNULL(property_name,'') = IFNULL(?, '') "
         f"  AND IFNULL(test_condition,'') = IFNULL(?, '') "
         f"  AND IFNULL(value_raw,'') = IFNULL(?, '') "
+        f"  AND IFNULL(origin,'text') = IFNULL(?, 'text') "
         f"LIMIT 1",
         (row.source_sha1, row.material_key, row.section,
-         row.property_name, row.test_condition, row.value_raw),
+         row.property_name, row.test_condition, row.value_raw,
+         row.origin or "text"),
     )
     return cur.fetchone() is not None
+
+
+_FIGURE_COLS = [
+    "figure_id", "source_pdf", "source_sha1", "page", "bbox", "caption",
+    "figure_kind", "material_key", "image_path", "image_sha256", "width_px",
+    "height_px", "route", "mining_status", "n_values", "model",
+    "figure_prompt_version", "extracted_at",
+]
+
+
+def upsert_figure(conn: sqlite3.Connection, fig: Any) -> None:
+    """Insert or refresh one harvested figure's provenance row (keyed on
+    figure_id = sha of the PNG, so a re-harvest is idempotent while a later
+    classify/mine pass can update kind/status)."""
+    from datetime import datetime, timezone
+
+    vals = {
+        "figure_id": fig.figure_id, "source_pdf": fig.source_pdf,
+        "source_sha1": fig.source_sha1, "page": fig.page,
+        "bbox": json.dumps(list(fig.bbox)), "caption": fig.caption,
+        "figure_kind": fig.figure_kind, "material_key": fig.material_key,
+        "image_path": fig.image_path, "image_sha256": fig.image_sha256,
+        "width_px": fig.width_px, "height_px": fig.height_px, "route": fig.route,
+        "mining_status": fig.mining_status, "n_values": fig.n_values,
+        "model": fig.model, "figure_prompt_version": fig.figure_prompt_version,
+        "extracted_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+    }
+    cols = ", ".join(_FIGURE_COLS)
+    ph = ", ".join("?" for _ in _FIGURE_COLS)
+    upd = ", ".join(f"{c}=excluded.{c}" for c in _FIGURE_COLS if c != "figure_id")
+    conn.execute(
+        f"INSERT INTO figures ({cols}) VALUES ({ph}) "
+        f"ON CONFLICT(figure_id) DO UPDATE SET {upd}",
+        tuple(vals[c] for c in _FIGURE_COLS),
+    )
+
+
+def figures_recorded_for(conn: sqlite3.Connection, sha1: str) -> int:
+    """How many figures the `figures` table already holds for this PDF."""
+    cur = conn.execute("SELECT count(*) FROM figures WHERE source_sha1 = ?", (sha1,))
+    return int(cur.fetchone()[0])
+
+
+def materials_for_source(conn: sqlite3.Connection, sha1: str) -> list["extraction.Material"]:
+    """Rebuild the text-pass material list of an already-ingested PDF from its
+    rows, so the figure stage can run on a PDF whose text pass happened in an
+    earlier run (backfill mode)."""
+    seen: dict[str, extraction.Material] = {}
+    for table in ALL_TABLES:
+        cur = conn.execute(
+            f"SELECT DISTINCT material_name, material_abbreviation, material_class, "
+            f"trade_grade, manufacturer, matrix, fiber, fiber_volume_fraction "
+            f"FROM {table} WHERE source_sha1 = ? AND IFNULL(origin,'text') = 'text'",
+            (sha1,),
+        )
+        for r in cur.fetchall():
+            m = extraction.Material(
+                material_name=r[0] or "", material_abbreviation=r[1] or "",
+                material_class=r[2] or "", trade_grade=r[3] or "",
+                manufacturer=r[4] or "", matrix=r[5] or "", fiber=r[6] or "",
+                fiber_volume_fraction=r[7] or "",
+            )
+            seen.setdefault(extraction.material_key(m), m)
+    return list(seen.values())
 
 
 def insert_row(conn: sqlite3.Connection, table: str, row: PropertyRow) -> None:
@@ -274,11 +359,69 @@ def _empty_result(pdf_path: Path, started: float, error: str) -> PdfResult:
     )
 
 
+@dataclasses.dataclass
+class FigureOptions:
+    """--figures settings handed to process_pdf (None = figure stage off)."""
+    out_dir: Path = Path("crawl_out/figures")
+    max_figures: int = 12
+    mine: bool = True          # False = harvest + classify only (cheap mode)
+
+
+def _run_figure_stage(
+    pdf_path: Path, pdf_bytes: bytes, sha1: str, text_materials: list,
+    api_key: str, conn: Any, db: Any, opts: FigureOptions, result: PdfResult,
+) -> None:
+    """harvest -> classify -> mine -> insert figure rows. NEVER raises: any
+    failure lands in result.figure_error and is counted; the PDF's text rows
+    are already committed by the time this runs."""
+    try:
+        import figures as F
+        stage = F.run_figure_stage(
+            pdf_bytes, pdf_path.name, sha1, text_materials, api_key,
+            out_dir=opts.out_dir, max_figures=opts.max_figures, mine=opts.mine,
+        )
+        result.figures_found = len(stage.figures)
+        result.figures_mined = stage.mined_figures
+        result.vision_calls = stage.vision.total
+        result.figure_filters = {
+            k: v for k, v in dataclasses.asdict(stage.harvest).items() if v
+        }
+        if stage.error:
+            result.figure_error = stage.error
+        for fig in stage.figures:
+            db.upsert_figure(conn, fig)
+        frows = fdups = 0
+        for row in stage.rows:
+            table = TABLE_FOR_CLASS.get(row.material_class, "Polymers")
+            if db.already_inserted(conn, table, row):
+                fdups += 1
+                continue
+            db.insert_row(conn, table, row)
+            frows += 1
+        result.figure_rows = frows
+        result.figure_duplicates = fdups
+        # figure rows are never 'ok' -> they all count as flagged
+        result.flagged += frows
+        result.inserted += frows
+        conn.commit()
+        if stage.vision.failed_calls and not result.figure_error:
+            result.figure_error = f"vision_calls_failed:{stage.vision.failed_calls}"
+    except Exception as exc:  # pragma: no cover - defensive; run_figure_stage already guards
+        log = logging.getLogger("batch_ingest")
+        log.exception("figure stage crashed for %s", pdf_path.name)
+        result.figure_error = f"figure_stage_error:{type(exc).__name__}:{exc}"
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+
+
 def process_pdf(
     pdf_path: Path,
     conn: Any,
     api_key: str,
     db: Any = None,
+    figure_opts: Optional[FigureOptions] = None,
 ) -> PdfResult:
     # `db` = backend module providing seen_sha1 / record_source /
     # already_inserted / insert_row. Defaults to this module (SQLite);
@@ -288,9 +431,18 @@ def process_pdf(
     pdf_bytes = pdf_path.read_bytes()
     sha1 = hashlib.sha1(pdf_bytes).hexdigest()
 
-    # Skip if we already ingested this exact file.
+    # Skip if we already ingested this exact file — unless figures are on and
+    # this PDF has none recorded yet, in which case run ONLY the figure stage
+    # (backfill for PDFs whose text pass predates --figures).
     if db.seen_sha1(conn, sha1):
-        return _empty_result(pdf_path, started, "skipped_seen_sha1")
+        result = _empty_result(pdf_path, started, "skipped_seen_sha1")
+        if figure_opts is not None and hasattr(db, "figures_recorded_for") \
+                and db.figures_recorded_for(conn, sha1) == 0:
+            mats = db.materials_for_source(conn, sha1)
+            _run_figure_stage(pdf_path, pdf_bytes, sha1, mats, api_key, conn, db,
+                              figure_opts, result)
+            result.elapsed_s = time.time() - started
+        return result
 
     try:
         extracted = extract_from_pdf(pdf_bytes, pdf_path.name, api_key)
@@ -298,7 +450,8 @@ def process_pdf(
         return _empty_result(pdf_path, started, f"gemini_error:{exc}")
 
     if extracted.doc_status == "scanned_no_text":
-        # Don't fabricate rows from an image-only PDF (Task 10).
+        # Don't fabricate rows from an image-only PDF (Task 10). Whole-page
+        # scans are not figures either — the figure stage is skipped too.
         db.record_source(conn, pdf_path, sha1, "scanned_no_text", None)
         conn.commit()
         return _empty_result(pdf_path, started, "scanned_no_text")
@@ -326,9 +479,9 @@ def process_pdf(
         inserted += 1
         if row.status != "ok":
             flagged += 1
-    conn.commit()
+    conn.commit()   # text rows are safe on disk before the figure stage runs
 
-    return PdfResult(
+    result = PdfResult(
         pdf=pdf_path.name,
         elapsed_s=time.time() - started,
         materials=len(extracted.materials),
@@ -338,6 +491,12 @@ def process_pdf(
         duplicates=duplicates,
         material_classes=sorted(set(classes)),
     )
+
+    if figure_opts is not None:
+        _run_figure_stage(pdf_path, pdf_bytes, sha1, extracted.materials, api_key,
+                          conn, db, figure_opts, result)
+        result.elapsed_s = time.time() - started
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -349,6 +508,10 @@ _REVIEW_COLUMNS = [
     "material_name", "material_key", "material_class", "section",
     "property_name", "value_raw", "value_num", "unit", "unit_canonical",
     "value_si", "test_condition", "source_quote", "comments",
+    # figure-mining phase: figure rows land here automatically (status is
+    # never 'ok'); a reviewer opens the PNG behind figure_id and --promote is
+    # how one gets blessed.
+    "origin", "figure_id",
 ]
 
 
@@ -377,9 +540,12 @@ def promote_review_queue(conn: sqlite3.Connection, path: Path) -> int:
     """Re-admit corrected rows from a review CSV as status='ok' (Task 4, optional).
 
     Matches on the full dedup grain — (table_name, source_pdf, material_key,
-    section, property_name, test_condition, value_raw) — and only touches rows
-    whose status is not already 'ok', so promoting one flagged row cannot
-    rewrite the flag_reason of an already-ok sibling in another section.
+    section, property_name, test_condition, value_raw, origin) — and only
+    touches rows whose status is not already 'ok', so promoting one flagged
+    row cannot rewrite the flag_reason of an already-ok sibling in another
+    section, and promoting a text row cannot silently bless the figure row
+    that reports the same number (or vice versa). A CSV without an `origin`
+    column (pre-figure-phase export) matches text rows only.
     Sets status='ok', flag_reason='promoted'.
     """
     import csv
@@ -396,11 +562,13 @@ def promote_review_queue(conn: sqlite3.Connection, path: Path) -> int:
                 f"  AND IFNULL(section,'')=? "
                 f"  AND IFNULL(property_name,'')=? AND IFNULL(test_condition,'')=? "
                 f"  AND IFNULL(value_raw,'')=? "
+                f"  AND IFNULL(origin,'text')=? "
                 f"  AND IFNULL(status,'ok') != 'ok'",
                 (r.get("source_pdf") or "", r.get("material_key") or "",
                  r.get("section") or "",
                  r.get("property_name") or "", r.get("test_condition") or "",
-                 r.get("value_raw") or ""),
+                 r.get("value_raw") or "",
+                 (r.get("origin") or "text").strip() or "text"),
             )
             promoted += cur.rowcount
     conn.commit()
@@ -427,6 +595,16 @@ def summarize(results: list[PdfResult]) -> dict[str, Any]:
         if r.error:
             key = r.error.split(":", 1)[0]
             error_breakdown[key] = error_breakdown.get(key, 0) + 1
+    # figure-mining phase (all PdfResults, incl. backfill on seen PDFs)
+    fig_filters: dict[str, int] = {}
+    fig_errors: dict[str, int] = {}
+    for r in results:
+        for k, v in (r.figure_filters or {}).items():
+            fig_filters[k] = fig_filters.get(k, 0) + v
+        if r.figure_error:
+            key = r.figure_error.split(":", 1)[0]
+            fig_errors[key] = fig_errors.get(key, 0) + 1
+    figure_rows = sum(r.figure_rows for r in results)
     return {
         "pdfs_seen": total_pdfs,
         "pdfs_ok": len(successes),
@@ -441,6 +619,15 @@ def summarize(results: list[PdfResult]) -> dict[str, Any]:
         "duplicate_rate": duplicates / extracted if extracted else 0.0,
         "avg_seconds_per_pdf": round(avg_elapsed, 2),
         "total_seconds": round(total_elapsed, 2),
+        "figures": {
+            "figures_found": sum(r.figures_found for r in results),
+            "figures_mined": sum(r.figures_mined for r in results),
+            "figure_rows": figure_rows,
+            "figure_rows_duplicate_skipped": sum(r.figure_duplicates for r in results),
+            "vision_calls": sum(r.vision_calls for r in results),
+            "figure_errors_by_kind": fig_errors,
+            "harvest_filters": fig_filters,
+        },
     }
 
 
@@ -463,6 +650,18 @@ def main() -> int:
     parser.add_argument("--pg", action="store_true",
                         help="Write to the shared Postgres (env DB_HOST/... or "
                              "DATABASE_URL) instead of the local SQLite mirror")
+    # --- figure-mining phase (opt-in) ---
+    parser.add_argument("--figures", action="store_true",
+                        help="Also harvest figures from each PDF, classify them with one "
+                             "vision call per PDF, and mine plots/table-images for "
+                             "property values (origin='figure', status='figure_estimate')")
+    parser.add_argument("--figures-dir", type=Path, default=Path("crawl_out/figures"),
+                        help="Where harvested figure PNGs go (<dir>/<sha1>/p<page>_<n>.png)")
+    parser.add_argument("--max-figures-per-pdf", type=int, default=12,
+                        help="Hard cap on harvested figures per PDF (bounds vision calls)")
+    parser.add_argument("--no-figure-mining", action="store_true",
+                        help="With --figures: harvest + classify only, skip the "
+                             "per-figure mining calls (cheap mode)")
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -478,6 +677,20 @@ def main() -> int:
         log.info("Postgres mode: %s", db.config_summary())
     else:
         db = sys.modules[__name__]
+
+    figure_opts: Optional[FigureOptions] = None
+    if args.figures:
+        if args.pg:
+            # Not half-supported silently: the Postgres mirror has no figures
+            # table and its dedup index does not include `origin` yet, so a
+            # figure row equal to a text row on the old grain would violate
+            # it. See FIGURES.md / FOLLOWUPS.md.
+            log.error("--figures is not yet supported with --pg (SQLite mirror only). "
+                      "Run without --pg, or see FOLLOWUPS.md for the Postgres port.")
+            return 2
+        figure_opts = FigureOptions(out_dir=args.figures_dir,
+                                    max_figures=args.max_figures_per_pdf,
+                                    mine=not args.no_figure_mining)
 
     if args.migrate:
         if args.pg:
@@ -526,7 +739,7 @@ def main() -> int:
     results: list[PdfResult] = []
     for i, pdf in enumerate(pdfs, start=1):
         log.info("[%d/%d] %s", i, len(pdfs), pdf.name)
-        result = process_pdf(pdf, conn, api_key, db=db)
+        result = process_pdf(pdf, conn, api_key, db=db, figure_opts=figure_opts)
         results.append(result)
         log.info(
             "  -> materials=%d classes=%s extracted=%d inserted=%d "
@@ -540,6 +753,12 @@ def main() -> int:
             result.elapsed_s,
             result.error,
         )
+        if figure_opts is not None:
+            log.info(
+                "  -> figures: found=%d mined=%d rows=%d dup=%d vision_calls=%d error=%s",
+                result.figures_found, result.figures_mined, result.figure_rows,
+                result.figure_duplicates, result.vision_calls, result.figure_error,
+            )
 
     n_flagged = db.export_review_queue(conn, args.review)
     summary = summarize(results)
