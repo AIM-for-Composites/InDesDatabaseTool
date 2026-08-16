@@ -1026,13 +1026,38 @@ def _normalize_text(s: str) -> str:
     s = unicodedata.normalize("NFKC", s)
     s = s.replace("–", "-").replace("—", "-").replace("−", "-")
     s = re.sub(r"\s+", " ", s)
+    # '70 - 75' and '70-75' are the same range; tighten dashes between digits
+    # so a needle written either way grounds against a PDF written either way.
+    s = re.sub(r"(?<=\d) ?- ?(?=\d)", "-", s)
     return s.lower().strip()
 
 
+_NUMERIC_NEEDLE_RE = re.compile(r"^[-+~<>=≤≥≈±.,\d\s/e]+$", re.IGNORECASE)
+
+
 def _grounded(needle: str, haystacks: list[str]) -> bool:
+    """True if `needle` occurs in any (already-normalized) haystack.
+
+    Purely numeric needles are matched on **digit boundaries**: a value of "3"
+    must not be "verified" by the "3" inside "ISO 527-3" or "23 °C", and "1.2"
+    must not match "11.25". Text needles (source_quote chunks) keep plain
+    substring matching. Haystacks are expected to be `_normalize_text` output.
+    """
     n = _normalize_text(needle)
     if not n:
         return False
+    if _NUMERIC_NEEDLE_RE.match(n):
+        # Strip qualifiers/whitespace so "<= -18.0" grounds on "-18.0" (the
+        # sign is part of the number; the qualifier may be typeset elsewhere).
+        core = re.sub(r"^[~<>=≤≥≈±\s]+", "", n).strip()
+        if not core:
+            return False
+        # Left guard: no digit/dot, and — for an unsigned needle — no '-'
+        # either, so '3' cannot match the tail of 'ISO 527-3' or '2023-3'.
+        # A signed needle ('-18.0') legitimately starts with the '-'.
+        left = r"(?<![\d.\-])" if core[0] not in "+-" else r"(?<![\d.])"
+        pat = re.compile(left + re.escape(core) + r"(?![\d.])")
+        return any(pat.search(h) for h in haystacks)
     return any(n in h for h in haystacks)
 
 
@@ -1074,10 +1099,17 @@ def verify_against_text(extraction: Extraction, page_texts: list[str]) -> Extrac
                     )
                     found = _grounded(prop.value_raw, cited or norm_pages)
                     if not found and cited:
-                        found = _grounded(prop.value_raw, norm_pages)  # fallback any page
+                        # Fallback: any page. Still grounded (the number IS in
+                        # the PDF) but the cited page was wrong — record it as
+                        # a soft reason so reviewers can see the weaker chain.
+                        found = _grounded(prop.value_raw, norm_pages)
+                        if found:
+                            reasons.append("grounded_off_page")
                     if not found and prop.source_quote:
                         chunk = prop.source_quote[:40]
                         found = _grounded(chunk, norm_pages)
+                        if found:
+                            reasons.append("grounded_via_quote")
                     if not found:
                         status = "unverified"
                         reasons.append("value_not_in_pdf_text")

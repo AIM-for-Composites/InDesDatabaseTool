@@ -121,6 +121,13 @@ Precedence when several issues apply: `empty_value` → `unverified` →
 | `out_of_range` | value implausible **after** unit conversion |
 | `empty_value` | value is blank / `n/a` / `-` / placeholder |
 
+Grounding matches purely numeric values on **digit boundaries** — a value of
+`3` is not "verified" by the `3` inside `ISO 527-3` or `23 °C` (2026-08 fix).
+An `ok` row can additionally carry a *soft* reason in `flag_reason` that does
+not change its status: `grounded_off_page` (the value is in the PDF but not on
+the cited page) or `grounded_via_quote` (only the `source_quote` was found).
+Reviewers can grep for these to inspect the weaker provenance chains.
+
 `review_queue.csv` is a `SELECT … WHERE status != 'ok'` **view** over the DB, not
 a discard pile. Corrected rows can be re-admitted with
 `python batch_ingest.py --promote review_queue.csv` (sets `status='ok'`).
