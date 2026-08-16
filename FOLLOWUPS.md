@@ -65,17 +65,49 @@ need a human step:
   local `--promote` now guards on section + status. Align before figure rows
   (which must never be blanket-promoted) land in that Space.
 
-### A4. Figure & graph mining phase (queued, verified 2026-08-15)
+### A4. Figure & graph mining phase — landed 2026-08-15 (commits 85c515e..)
 
-The phase prompt (`claude_code_figure_mining_prompt.md`) was verified against
-the repo: one correction — the app consumer to guard is the Space's
-`data_loader.py` (`load_material_data()`), not a local `page1.py`; the publish
-gate above is exactly the guard figure rows depend on. Corpus survey found
-both raster and vector figure modalities and gold-case candidates (the
-PEKK/PPS thermoforming paper's Fig. 6 has in-text ground truth). Explicitly
-out of scope for that phase, to be tracked when it lands: full curve
-digitization (WebPlotDigitizer territory), the OCR route (still A2), and the
-HF Space port.
+`figures.py` + `batch_ingest.py --figures` (see `FIGURES.md`). Verified
+against the repo before building: the app consumer to guard is the Space's
+`data_loader.py` (`load_material_data()`), not a local `page1.py`; its
+publish gate (`status='ok'`) plus the insert-time invariant "a figure row is
+never `ok`" is the export guard. Human steps:
+
+- **Run it with a key** — the offline suite proves the plumbing end to end
+  with a scripted Gemini (harvest on the real corpus, classify/mine/rows/dedup/
+  review/promote/backfill/failure modes), but the live acceptance run
+  (`python batch_ingest.py --figures --input crawl_out/pdfs --limit 3 --db
+  <local>`), the stress–strain → canonicalized strength row, and `python -m
+  eval` (figure case scored under `figure_aggregate`) need `GEMINI_API_KEY`.
+- **First `--figures` run on an already-ingested mirror** does a figure-only
+  backfill for those PDFs (0 text calls) — expected.
+
+### A5. Figure mining — deliberately out of scope, still open
+
+- **Full curve digitization** (point-by-point tracing of stress–strain
+  curves, WebPlotDigitizer territory). The mining prompt asks for salient
+  scalars only. A future route: render → axis calibration → trace → emit a
+  `series` blob; would need its own status/origin (`figure_trace`).
+- **OCR route** for `scanned_no_text` PDFs (still A2) — whole-page scans are
+  not figures and stay skipped by both passes.
+- **Postgres port**: `pg_migrate.py --apply` will add `origin`/`figure_id`
+  columns automatically (they are in `EXTRA_COLUMNS`), but there is no
+  `figures` table on Postgres and the partial unique dedup index
+  (`ix_<table>_pipeline_dedup`) does not include `origin`, so `--figures
+  --pg` refuses to run. To lift: add `origin` to the index (new index name,
+  drop the old), create `figures`, port `upsert_figure` /
+  `figures_recorded_for` / `materials_for_source` to `pg_mirror.py`,
+  and mirror the export-guard downgrade (already in `_row_values`, shared).
+- **HF Space port**: the review queue page should show the PNG behind
+  `figure_id`; the agent Space's per-PDF blanket promote must exclude
+  `origin='figure'` (figure rows are promoted one at a time, on inspection).
+  Not part of `hf_agent_deploy/aim_agent_space.zip` yet.
+- Vector-route coverage: on this corpus most journal plots are embedded
+  rasters; genuine vector plots are caught (review-paper cure-cycle and
+  tensile charts) but the text-table skip (`VECTOR_TEXT_DENSITY_SKIP`) is a
+  corpus-measured heuristic — re-check it if a new source's plots are
+  text-heavy (dense legends) and start being skipped (`skipped_text_table`
+  in the run report).
 
 ---
 

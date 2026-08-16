@@ -56,6 +56,15 @@ each PDF and scores:
 |------|-------------------|
 | `tc920_pc_abs` | **3 materials in one datasheet** (fiberglass UD tape, carbon UD tape, neat resin) — multi-material separation + no cross-contamination; ksi/Msi vs MPa/GPa; Tg range 70–75 °C |
 | `tc910_pa6` | single composite (carbon/PA6); ksi/Msi → MPa/GPa normalization |
+| `tc1200_peek` | carbon 5HS woven / PEEK laminate; 0° RTD values; ISO/AITM methods |
+| `tc1100_pps` | carbon 5HS woven / PPS laminate; EN 2597 method (different matrix/standard) |
+| `pekk_pps_thermoforming_fig6` | **`"kind": "figure"`** — a journal paper's Figure 6 stress–strain plot (PPS vs PEKK): peak stress + strain at break read off the curves, **±15 %**; scores only `origin='figure'` rows, reported under `figure_aggregate` |
+
+Figure cases add `"kind": "figure"`, `"figure_page"` and
+`"figure_caption_prefix"` at the top level; the harness runs the text pass
+(for material context) + `figures.run_figure_stage` and scores the mined rows
+with the same scorer. Keep their `tolerance_pct` wide (10–15) — reading a
+plot is approximate and the eval must not pretend otherwise.
 
 ## Adding a case
 

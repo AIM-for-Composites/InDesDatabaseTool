@@ -11,18 +11,28 @@ database. Built for the ME8930 course project.
  pdf_crawler.py / matweb_discovery.py     1. discover + download source PDFs
             │
             ▼
- extraction.py  (Gemini structured output)  2. PDF → typed materials + properties
+ extraction.py  (Gemini structured output)  2. PDF text → typed materials + properties
             │   • grounds every value in the PDF text
             │   • unit-normalizes (pint) → value_si / unit_canonical
+            ├──────────────────────────────┐
+            │                              ▼
+            │              figures.py  (--figures, opt-in)   2b. PDF figures → estimates
+            │                • harvest: rasters + vector plots → PNGs (+ caption, page, bbox)
+            │                • ONE vision call/PDF classifies; one call/plot mines salient values
+            │                • origin='figure', status='figure_estimate' — never 'ok' unpromoted
+            ▼                              │
+ batch_ingest.py  ◄────────────────────────┘ 3. validate → dedup (grain + origin) → SQLite mirror
+            │                                  flagged rows kept with a status; figures table
             ▼
- batch_ingest.py                            3. validate → dedup → SQLite mirror
-            │                                  flagged rows kept with a status
-            ▼
- review_queue.csv  (SELECT WHERE status != 'ok')   +   run_report.json
+ review_queue.csv  (SELECT WHERE status != 'ok', incl. every figure row)   +   run_report.json
+            │
+            └─ --promote  (the only path from figure_estimate to ok)
 ```
 
 See **[EXTRACTION.md](EXTRACTION.md)** for the extraction schema, per-row
-statuses, unit handling, and DB columns.
+statuses, unit handling, and DB columns, and **[FIGURES.md](FIGURES.md)** for
+figure harvesting, classification, mining, the `figures` table and the cost
+model.
 
 ## Components
 
@@ -33,7 +43,8 @@ statuses, unit handling, and DB columns.
 | `generate_queries.py` | Build the search-query set |
 | `crawler_ui.py` | Streamlit UI for the crawler |
 | `extraction.py` | **Single source of truth** for the Gemini prompt/schema + all post-extraction processing (grounding, unit normalization, classification, dedup) |
-| `batch_ingest.py` | Batch driver: PDFs → extraction → validation → SQLite mirror + review queue |
+| `figures.py` | **Single source of truth for figures**: PyMuPDF harvest (raster + vector, captions, junk filters), one-call-per-PDF vision classification, per-plot mining → `origin='figure'` estimate rows |
+| `batch_ingest.py` | Batch driver: PDFs → extraction (→ `--figures` stage) → validation → SQLite mirror + review queue |
 | `migrate.py` | Non-destructive DB migration (also `batch_ingest.py --migrate`): hardening columns + `sources` re-key on `pdf_sha1` |
 | `pg_mirror.py` / `pg_migrate.py` | Postgres backend for `--pg` (the DB the HF Space reads) + its dry-run-default migration |
 | `eval/` | Eval harness scoring extraction against hand-labeled gold PDFs (`python -m eval`; `--selfcheck` and `--gold-check` run offline) |
@@ -58,6 +69,10 @@ python pdf_crawler.py                 # writes crawl_out/pdfs/
 # 2. ingest into the SQLite mirror
 python batch_ingest.py --input crawl_out/pdfs --db materials_mirror.sqlite \
     --review review_queue.csv --report run_report.json
+
+# 2b. also mine figures (plots / table images) — estimates, quarantined until promoted
+python batch_ingest.py --figures --input crawl_out/pdfs --db materials_mirror.sqlite
+python batch_ingest.py --figures --no-figure-mining --input crawl_out/pdfs   # harvest+classify only
 
 # migrate an existing DB to the latest columns (backs up .sqlite first)
 python batch_ingest.py --migrate --db materials_mirror.sqlite

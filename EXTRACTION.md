@@ -131,6 +131,12 @@ Precedence when several issues apply: `empty_value` → `unverified` →
 | `unit_review` | unit missing or dimensionally wrong for the property family |
 | `out_of_range` | value implausible **after** unit conversion |
 | `empty_value` | value is blank / `n/a` / `-` / placeholder |
+| `figure_estimate` | read off a plot / table image by `figures.py` (`origin='figure'`); unit sane, value in range, but an **estimate** — never `ok` unless a human promotes it (see FIGURES.md) |
+
+Figure rows use the precedence `empty_value` → `unit_review` → `out_of_range`
+→ `figure_estimate` (no grounding step: by definition the value is not in the
+text) and carry `origin='figure'` + `figure_id`; text rows carry
+`origin='text'`.
 
 Grounding matches purely numeric values on **digit boundaries** — a value of
 `3` is not "verified" by the `3` inside `ISO 527-3` or `23 °C`, `200` not by
@@ -199,8 +205,11 @@ Added (additively) to `Polymers` / `Fibers` / `Composites_materials` by
 material_key, material_class, trade_grade, manufacturer, matrix, fiber,
 fiber_volume_fraction, value_raw, value_num, value_min, value_max, qualifier,
 unit_canonical, value_si, source_pdf, source_sha1, page, source_quote,
-status, flag_reason, model, prompt_version, extracted_at
+status, flag_reason, model, prompt_version, extracted_at,
+origin ('text' | 'figure'), figure_id
 ```
+
+Plus the `figures` provenance table (figure-mining phase; see FIGURES.md).
 
 `migrate.py` backs up the `.sqlite` to `<name>.sqlite.bak` first and is
 idempotent (re-running adds nothing). A fresh DB created by `batch_ingest` gets

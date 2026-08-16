@@ -29,7 +29,7 @@ team/**/transcript.jsonl
 # (gitignore only treats '#' as a comment at the START of a line — never
 #  put a comment after a pattern, it becomes part of the pattern.)
 crawl_out/
-# raw per-case extractions from the last `python -m eval`
+# raw per-case extractions (and harvested figure PNGs) from the last `python -m eval`
 eval/last_run/
 *.sqlite
 *.sqlite.bak
