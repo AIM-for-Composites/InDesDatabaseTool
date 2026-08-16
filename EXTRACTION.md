@@ -89,8 +89,23 @@ unit can't be parsed or is dimensionally wrong for the family, the row gets
 Families with plausibility ranges (canonical units): tensile/flexural/shear/
 storage modulus (GPa), tensile/flexural/compressive/shear strength (MPa), glass
 transition / melting / crystallization / decomposition / HDT (°C), CTE
-(ppm/°C), density (g/cm³), elongation (%). Properties outside these families are
-stored as-is with no range check.
+(ppm/°C), density (g/cm³), specific gravity (dimensionless), elongation (%).
+Properties outside these families are stored as-is with no range check.
+
+Matching rules (2026-08 fixes):
+
+- Short keywords (`tg`, `tm`, `hdt`, `cte`, `young`…) match on **token
+  boundaries** — `tm` no longer hits "AS**TM**", `tg` no longer hits
+  "ou**tg**assing".
+- Dielectric / impact / tear strength are **passthrough** families that shield
+  the generic word "strength" from the MPa families (unit passed through, no SI
+  conversion, no range check).
+- The raw families (CTE, elongation, specific gravity) honor the **printed
+  unit** via an accepted-spelling map: `2.3e-5 1/K` → 23 ppm/°C, `13 ppm/°F` →
+  23.4 ppm/°C, elongation `0.024` (bare/`mm/mm`) → 2.4 %. Anything not in the
+  map is `unit_review:unexpected_unit`, never a silent default factor.
+- `_preprocess_unit` treats any letter+2/3 as a power, so `N/mm2`, `kN/mm2`,
+  `lb/in3` parse (the standard European MPa spelling used to fail).
 
 ## Per-row status (Task 4 — nothing is dropped)
 

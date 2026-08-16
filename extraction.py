@@ -732,14 +732,87 @@ class _Family:
     display: str            # human-facing unit label
     lo: float               # plausibility low, in `display` units
     hi: float               # plausibility high, in `display` units
-    kind: str               # "physical" | "temperature" | "raw"
-    si_factor: float = 1.0  # for "raw" families: value_si = value * si_factor
+    kind: str               # "physical" | "temperature" | "raw" | "passthrough"
+    si_factor: float = 1.0  # for "raw" families: value_si = value_in_display * si_factor
+    # For "raw" families: accepted printed-unit spellings (normalized via
+    # _norm_unit_key) -> factor that converts the printed value into `display`
+    # units. '' may be present to accept a bare number. Anything else is a
+    # unit_review, never a silent default. Populated below.
+    unit_map: dict[str, float] = dataclasses.field(default_factory=dict)
+
+
+# Keyword matching. Multi-word keywords match as substrings ("tensile modulus"
+# in "Tensile modulus (0°)"). SHORT tokens (tg, tm, hdt, cte) must match on
+# token boundaries — bare substring matching made 'tm' hit "ASTM" (so every
+# property citing an ASTM standard became a melting temperature) and 'tg' hit
+# "outgassing". Boundary = anything that isn't a letter/digit.
+_SHORT_TOKENS = frozenset({"tg", "tm", "tc", "hdt", "cte", "clte", "young", "young's", "youngs"})
+_KEYWORD_RE_CACHE: dict[str, "re.Pattern[str]"] = {}
+
+
+def _keyword_matches(kw: str, name: str) -> bool:
+    if kw not in _SHORT_TOKENS:
+        return kw in name
+    pat = _KEYWORD_RE_CACHE.get(kw)
+    if pat is None:
+        pat = re.compile(r"(?<![a-z0-9])" + re.escape(kw) + r"(?![a-z0-9])")
+        _KEYWORD_RE_CACHE[kw] = pat
+    return pat.search(name) is not None
+
+
+# Accepted printed spellings for the raw families. Keys are normalized by
+# _norm_unit_key() (lowercased, NFKC, whitespace/µ/degree-sign folded).
+_CTE_UNIT_MAP: dict[str, float] = {
+    # -> ppm/°C
+    "": 1.0,                       # datasheets print CTE bare, ppm/°C implied
+    "ppm/c": 1.0, "ppm/k": 1.0, "ppm/degc": 1.0, "ppm/°c": 1.0,
+    "um/m/c": 1.0, "um/m/k": 1.0, "um/m/degc": 1.0, "um/m/°c": 1.0,
+    "um/(m*c)": 1.0, "um/(m*k)": 1.0, "um/(m·c)": 1.0, "um/(m·k)": 1.0,
+    "um/m·c": 1.0, "um/m·k": 1.0, "um/m°c": 1.0, "um/mk": 1.0,
+    "10^-6/c": 1.0, "10^-6/k": 1.0, "10^-6/degc": 1.0, "10^-6/°c": 1.0,
+    "10-6/c": 1.0, "10-6/k": 1.0, "10-6/°c": 1.0,
+    "x10^-6/c": 1.0, "x10^-6/k": 1.0, "x10^-6/°c": 1.0,
+    "x10-6/c": 1.0, "x10-6/k": 1.0, "x10-6/°c": 1.0,
+    "e-6/c": 1.0, "e-6/k": 1.0, "e-6/°c": 1.0,
+    "1e-6/c": 1.0, "1e-6/k": 1.0, "1e-6/°c": 1.0,
+    "uin/in/f": 1.8, "uin/in/°f": 1.8, "uin/in/degf": 1.8, "ppm/f": 1.8,
+    "ppm/degf": 1.8, "ppm/°f": 1.8, "10^-6/f": 1.8, "10^-6/°f": 1.8,
+    "10-6/f": 1.8, "10-6/°f": 1.8, "x10^-6/f": 1.8, "x10^-6/°f": 1.8,
+    "1/c": 1e6, "1/k": 1e6, "1/degc": 1e6, "1/°c": 1e6, "/c": 1e6, "/k": 1e6,
+    "/degc": 1e6, "/°c": 1e6, "m/m/c": 1e6, "m/m/k": 1e6, "m/m/°c": 1e6,
+    "m/(m*k)": 1e6, "m/(m·k)": 1e6, "mm/mm/c": 1e6, "mm/mm/k": 1e6, "mm/mm/°c": 1e6,
+    "1/f": 1.8e6, "1/degf": 1.8e6, "1/°f": 1.8e6, "/f": 1.8e6, "/°f": 1.8e6,
+    "in/in/f": 1.8e6, "in/in/°f": 1.8e6,
+}
+_ELONGATION_UNIT_MAP: dict[str, float] = {
+    # -> %
+    "%": 1.0, "percent": 1.0, "pct": 1.0,
+    # A bare number or an explicit ratio is a strain FRACTION (0.024 = 2.4 %).
+    "": 100.0, "mm/mm": 100.0, "m/m": 100.0, "in/in": 100.0, "-": 100.0,
+    "ratio": 100.0, "strain": 100.0, "fraction": 100.0,
+}
+_SPECIFIC_GRAVITY_UNIT_MAP: dict[str, float] = {
+    # dimensionless by definition; tolerate g/cm³ spellings (SG ≈ density in g/cm³)
+    "": 1.0, "-": 1.0, "g/cm3": 1.0, "g/cm³": 1.0, "g/cc": 1.0, "g/ml": 1.0,
+}
 
 
 # Ordered: specific keywords before generic ones (first match wins).
+# "passthrough" families exist to *shield* generic keywords: e.g. dielectric,
+# impact and tear strength are not pressures, so they must not fall into the
+# MPa families below them. They carry no unit check and no plausibility range.
 PROPERTY_FAMILIES: list[_Family] = [
+    _Family("dielectric_strength", ("dielectric strength", "breakdown strength",
+                                    "breakdown voltage"),
+            "", "", 0.0, 0.0, "passthrough"),
+    _Family("impact_strength", ("impact strength", "impact resistance", "izod",
+                                "charpy", "impact energy"),
+            "", "", 0.0, 0.0, "passthrough"),
+    _Family("tear_strength", ("tear strength", "tear resistance"),
+            "", "", 0.0, 0.0, "passthrough"),
     _Family("tensile_modulus",
-            ("tensile modulus", "modulus of elasticity", "young", "elastic modulus"),
+            ("tensile modulus", "modulus of elasticity", "young", "young's",
+             "youngs", "elastic modulus"),
             "GPa", "GPa", 0.01, 1000.0, "physical"),
     _Family("flexural_modulus", ("flexural modulus", "bending modulus"),
             "GPa", "GPa", 0.01, 800.0, "physical"),
@@ -755,7 +828,9 @@ PROPERTY_FAMILIES: list[_Family] = [
             "MPa", "MPa", 0.5, 4000.0, "physical"),
     _Family("compressive_strength", ("compressive strength", "compression strength"),
             "MPa", "MPa", 0.5, 6000.0, "physical"),
-    _Family("shear_strength", ("shear strength", "strength"),
+    # Bare "strength" was removed from this family: it captured dielectric /
+    # impact / tear strength (see passthrough guards above) into an MPa check.
+    _Family("shear_strength", ("shear strength", "ilss", "interlaminar shear"),
             "MPa", "MPa", 0.5, 4000.0, "physical"),
     _Family("glass_transition", ("glass transition", "tg"),
             "degC", "°C", -150.0, 600.0, "temperature"),
@@ -768,12 +843,20 @@ PROPERTY_FAMILIES: list[_Family] = [
     _Family("hdt", ("heat deflection", "deflection temperature", "hdt",
                     "heat distortion"),
             "degC", "°C", 0.0, 600.0, "temperature"),
-    _Family("cte", ("thermal expansion", "cte", "expansion coefficient"),
-            "ppm/degC", "ppm/°C", -50.0, 500.0, "raw", si_factor=1e-6),
-    _Family("density", ("density", "specific gravity"),
+    _Family("cte", ("thermal expansion", "cte", "clte", "expansion coefficient"),
+            "ppm/degC", "ppm/°C", -50.0, 500.0, "raw", si_factor=1e-6,
+            unit_map=_CTE_UNIT_MAP),
+    # Specific gravity is dimensionless by definition; keep it OUT of the pint
+    # density family or every SG row is false-flagged missing_unit.
+    _Family("specific_gravity", ("specific gravity", "relative density"),
+            "", "", 0.1, 12.0, "raw", si_factor=1.0,
+            unit_map=_SPECIFIC_GRAVITY_UNIT_MAP),
+    _Family("density", ("density",),
             "g/cm**3", "g/cm³", 0.1, 12.0, "physical"),
-    _Family("elongation", ("elongation", "strain at break"),
-            "%", "%", 0.001, 2000.0, "raw", si_factor=0.01),
+    _Family("elongation", ("elongation", "strain at break", "strain to failure",
+                           "failure strain", "ultimate strain"),
+            "%", "%", 0.001, 2000.0, "raw", si_factor=0.01,
+            unit_map=_ELONGATION_UNIT_MAP),
 ]
 
 
@@ -781,9 +864,35 @@ def _match_family(prop: Property) -> Optional[_Family]:
     name = prop.property_name.lower()
     for fam in PROPERTY_FAMILIES:
         for kw in fam.keywords:
-            if kw in name:
+            if _keyword_matches(kw, name):
                 return fam
     return None
+
+
+def _norm_unit_key(unit: str) -> str:
+    """Normalize a printed unit into a lookup key for the raw-family unit maps."""
+    u = unicodedata.normalize("NFKC", unit).strip().lower()
+    u = u.replace("µ", "u").replace("μ", "u").replace("−", "-")
+    u = u.replace(" ", "").replace("(", "").replace(")", "")
+    u = u.replace("**", "^").replace("×", "x").replace("*10", "x10").replace("e-06", "e-6")
+    return u
+
+
+def _raw_factor(fam: _Family, unit: str) -> Optional[float]:
+    """Factor converting a printed raw-family value into `fam.display` units, or None."""
+    key = _norm_unit_key(unit)
+    if key in fam.unit_map:
+        return fam.unit_map[key]
+    # tolerate '°c' vs 'c' vs 'degc' interchangeably
+    for a, b in (("°c", "c"), ("degc", "c"), ("°f", "f"), ("degf", "f"),
+                 ("°k", "k"), ("degk", "k")):
+        alt = key.replace(a, b)
+        if alt in fam.unit_map:
+            return fam.unit_map[alt]
+    return None
+
+
+_UNIT_POWER_RE = re.compile(r"(?<=[A-Za-z])([23])(?![0-9])")
 
 
 def _preprocess_unit(unit: str) -> str:
@@ -792,8 +901,11 @@ def _preprocess_unit(unit: str) -> str:
     u = u.replace("³", "**3").replace("²", "**2")
     u = u.replace("µ", "u").replace("μ", "u")
     u = u.replace("^", "**")
-    u = u.replace("cm3", "cm**3").replace("cm2", "cm**2").replace("m3", "m**3")
     u = u.replace("g/cc", "g/cm**3")
+    # Any letter immediately followed by 2/3 is a power: cm3, mm2, m3, in2, ft3…
+    # (was a hardcoded list that missed 'mm2' — the standard European MPa
+    # spelling 'N/mm2' failed to parse and landed in unit_review).
+    u = _UNIT_POWER_RE.sub(r"**\1", u)
     return u
 
 
@@ -812,14 +924,20 @@ def canonicalize(prop: Property) -> tuple[str, Optional[float], Optional[str]]:
     """
     fam = _match_family(prop)
     rep = _representative_value(prop)
-    if fam is None:
-        # No known family: pass the unit through, no SI conversion, no check.
+    if fam is None or fam.kind == "passthrough":
+        # No known family (or a shield family): pass the unit through, no SI
+        # conversion, no check.
         return (prop.unit, None, None)
     if rep is None:
         return (fam.display, None, None)
 
     if fam.kind == "raw":
-        return (fam.display, rep * fam.si_factor, None)
+        # Never apply si_factor blindly: CTE '2.3e-5 1/K' is 23 ppm/°C, not
+        # 2.3e-11; elongation '0.024' (a strain fraction) is 2.4 %, not 0.024 %.
+        factor = _raw_factor(fam, prop.unit)
+        if factor is None:
+            return (fam.display, None, f"unit_review:unexpected_unit:{prop.unit}!~{fam.display}")
+        return (fam.display, rep * factor * fam.si_factor, None)
 
     if _UREG is None:  # pragma: no cover
         return (fam.display, None, None)
@@ -854,8 +972,11 @@ def _canonical_value(prop: Property, fam: _Family) -> Optional[float]:
     rep = _representative_value(prop)
     if rep is None:
         return None
+    if fam.kind == "passthrough":
+        return None
     if fam.kind == "raw":
-        return rep
+        factor = _raw_factor(fam, prop.unit)
+        return None if factor is None else rep * factor
     if _UREG is None:  # pragma: no cover
         return rep
     try:
@@ -879,7 +1000,7 @@ def _canonical_value(prop: Property, fam: _Family) -> Optional[float]:
 def plausibility_problem(prop: Property) -> Optional[str]:
     """Range-check the value *after* unit conversion. Returns reason or None."""
     fam = _match_family(prop)
-    if fam is None:
+    if fam is None or fam.kind == "passthrough":
         return None
     cval = _canonical_value(prop, fam)
     if cval is None:
