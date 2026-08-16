@@ -618,7 +618,10 @@ _QUALIFIER_MAP = [
     ("~", "~"), ("±", "±"),
 ]
 _NUM_RE = re.compile(r"[-+]?\d{1,3}(?:,\d{3})+(?:\.\d+)?|[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?")
-_RANGE_SEP_RE = re.compile(r"\s*(?:–|—|−|-|to|…|\.\.\.)\s*")
+# Plus/minus built from _NUM_RE so both operands accept thousands separators and
+# scientific notation ('1,200 ± 100', '1e-3 ± 2e-4') — a plain \d*\.?\d+ operand
+# used to anchor after the comma and read '1,200 ± 100' as 200 ± 100.
+_PM_RE = re.compile(rf"({_NUM_RE.pattern})\s*(?:±|\+/-|\+-)\s*({_NUM_RE.pattern})")
 
 
 def _clean_number(tok: str) -> Optional[float]:
@@ -637,6 +640,10 @@ def parse_value_raw(value_raw: str) -> tuple[Optional[float], Optional[float], O
     if not value_raw:
         return None, None, None, ""
     s = unicodedata.normalize("NFKC", value_raw).strip()
+    # NFKC does NOT fold the typographic minus (U+2212) or dashes to '-'. PDFs
+    # typeset negatives and ranges with them, so without this a Tg of '−60 °C'
+    # parses as +60 and '20−30' loses its range. Same folding as _normalize_text.
+    s = s.replace("−", "-").replace("–", "-").replace("—", "-")
 
     qualifier = ""
     for needle, canon in _QUALIFIER_MAP:
@@ -645,22 +652,24 @@ def parse_value_raw(value_raw: str) -> tuple[Optional[float], Optional[float], O
             break
 
     # plus/minus -> midpoint value with min/max
-    pm = re.search(r"([-+]?\d*\.?\d+)\s*(?:±|\+/-|\+-)\s*(\d*\.?\d+)", s)
+    pm = _PM_RE.search(s)
     if pm:
         base = _clean_number(pm.group(1))
         delta = _clean_number(pm.group(2))
         if base is not None and delta is not None:
+            delta = abs(delta)
             return base, base - delta, base + delta, "±"
 
-    # Range: two numbers separated by a dash/"to". Guard against a leading sign
-    # being misread as a separator by working on the sign-stripped remainder.
+    # Range: two numbers separated by a dash/"to" (all dash variants were folded
+    # to '-' above). Guard against a leading sign being misread as a separator
+    # by working on the sign-stripped remainder.
     body = s
     lead_sign = ""
     if body[:1] in "+-":
         lead_sign, body = body[0], body[1:]
     range_match = re.match(
         r"\s*(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d*\.?\d+(?:[eE][-+]?\d+)?)"
-        r"\s*(?:–|—|-|to)\s*"
+        r"\s*(?:-|to|\.\.\.|…)\s*"
         r"([-+]?\d{1,3}(?:,\d{3})+(?:\.\d+)?|[-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)",
         body,
     )
