@@ -305,6 +305,54 @@ def _retry_after(resp: requests.Response) -> Optional[float]:
         return None
 
 
+def _request_with_retry(
+    method: str,
+    url: str,
+    *,
+    what: str = "Gemini",
+    timeout: int = REQUEST_TIMEOUT_S,
+    _sleep=time.sleep,
+    **kw: Any,
+) -> Optional[requests.Response]:
+    """Issue one HTTP request, retrying 429/5xx and connection errors.
+
+    Shared policy for every Gemini endpoint (generateContent, File API start /
+    upload / status poll): bounded retries with exponential backoff, honoring
+    a Retry-After header. Returns the 200 Response, or None if retries are
+    exhausted / the status is non-retryable (after raise_for_status).
+    """
+    for attempt in range(MAX_RETRIES + 1):
+        try:
+            resp = requests.request(method, url, timeout=timeout, **kw)
+        except requests.RequestException as exc:
+            if attempt < MAX_RETRIES:
+                delay = BACKOFF_BASE * (2 ** attempt)
+                log.warning("%s request failed: %s; retry %d/%d in %.1fs",
+                            what, exc, attempt + 1, MAX_RETRIES, delay)
+                _sleep(delay)
+                continue
+            raise
+        if resp.status_code == 200:
+            return resp
+        if resp.status_code in RETRY_STATUS and attempt < MAX_RETRIES:
+            delay = _retry_after(resp) or BACKOFF_BASE * (2 ** attempt)
+            log.warning(
+                "%s -> %s; retry %d/%d in %.1fs",
+                what, resp.status_code, attempt + 1, MAX_RETRIES, delay,
+            )
+            _sleep(delay)
+            continue
+        # Non-retryable (4xx) or retries exhausted: fail loudly, once. This
+        # raise deliberately sits OUTSIDE the try above — HTTPError is a
+        # RequestException, and raising it inside used to be caught by the
+        # connection-error branch and retried, so a 400/401/403 (bad key,
+        # invalid schema) burned MAX_RETRIES backoffs before surfacing.
+        log.error("%s -> %s: %s", what, resp.status_code, resp.text[:300])
+        resp.raise_for_status()
+        return None
+    return None
+
+
 def gemini_request(
     url: str,
     payload: dict[str, Any],
@@ -318,42 +366,30 @@ def gemini_request(
     backoff, honoring a Retry-After header. Returns the 200 Response, or None
     if retries are exhausted / the status is non-retryable.
     """
-    for attempt in range(MAX_RETRIES + 1):
-        try:
-            resp = requests.post(url, json=payload, timeout=timeout)
-            if resp.status_code == 200:
-                return resp
-            if resp.status_code in RETRY_STATUS and attempt < MAX_RETRIES:
-                delay = _retry_after(resp) or BACKOFF_BASE * (2 ** attempt)
-                log.warning(
-                    "Gemini -> %s; retry %d/%d in %.1fs",
-                    resp.status_code, attempt + 1, MAX_RETRIES, delay,
-                )
-                _sleep(delay)
-                continue
-            log.error("Gemini -> %s: %s", resp.status_code, resp.text[:300])
-            resp.raise_for_status()
-            return None
-        except requests.RequestException as exc:
-            if attempt < MAX_RETRIES:
-                delay = BACKOFF_BASE * (2 ** attempt)
-                log.warning("Gemini request failed: %s; retry %d/%d in %.1fs",
-                            exc, attempt + 1, MAX_RETRIES, delay)
-                _sleep(delay)
-                continue
-            raise
-    return None
+    return _request_with_retry("POST", url, json=payload, timeout=timeout, _sleep=_sleep)
 
 
-def _upload_pdf_file(pdf_bytes: bytes, filename: str, api_key: str) -> Optional[str]:
+# File API processing wait: exponential poll (1, 2, 4, 8, ... capped at 15 s)
+# up to this many seconds. Was a fixed 30 x 1 s, so a large PDF that took
+# longer than 30 s to process came back None -> empty_extraction and was
+# re-uploaded from scratch on every run.
+FILE_ACTIVE_WAIT_S = 180
+FILE_POLL_CAP_S = 15.0
+
+
+def _upload_pdf_file(
+    pdf_bytes: bytes, filename: str, api_key: str, *, _sleep=time.sleep
+) -> Optional[str]:
     """Upload a PDF via the Gemini File API (resumable protocol); return file URI.
 
     Used for large/long PDFs (Task 10) where base64 inlining would blow the
-    generateContent request-size limit.
+    generateContent request-size limit. Every hop (start, upload, status poll)
+    goes through the same retry/backoff policy as generateContent — a single
+    free-tier 429 used to fail the whole PDF.
     """
     start_url = GEMINI_UPLOAD_URL.format(key=api_key)
-    start = requests.post(
-        start_url,
+    start = _request_with_retry(
+        "POST", start_url, what="File API start",
         headers={
             "X-Goog-Upload-Protocol": "resumable",
             "X-Goog-Upload-Command": "start",
@@ -362,47 +398,57 @@ def _upload_pdf_file(pdf_bytes: bytes, filename: str, api_key: str) -> Optional[
             "Content-Type": "application/json",
         },
         json={"file": {"display_name": filename}},
-        timeout=REQUEST_TIMEOUT_S,
+        _sleep=_sleep,
     )
-    start.raise_for_status()
+    if start is None:
+        return None
     upload_url = start.headers.get("X-Goog-Upload-URL")
     if not upload_url:
         log.error("File API did not return an upload URL")
         return None
 
-    up = requests.post(
-        upload_url,
+    up = _request_with_retry(
+        "POST", upload_url, what="File API upload",
         headers={
             "X-Goog-Upload-Offset": "0",
             "X-Goog-Upload-Command": "upload, finalize",
             "Content-Length": str(len(pdf_bytes)),
         },
         data=pdf_bytes,
-        timeout=REQUEST_TIMEOUT_S,
+        _sleep=_sleep,
     )
-    up.raise_for_status()
+    if up is None:
+        return None
     info = up.json().get("file", {})
     name = info.get("name")
     uri = info.get("uri")
     state = info.get("state")
 
     # Wait for the file to become ACTIVE before referencing it.
-    for _ in range(30):
+    waited = 0.0
+    delay = 1.0
+    while True:
         if state == "ACTIVE":
             return uri
         if state == "FAILED":
             log.error("File API processing failed for %s", filename)
             return None
-        time.sleep(1.0)
-        poll = requests.get(
-            GEMINI_FILE_STATUS_URL.format(name=name, key=api_key),
-            timeout=REQUEST_TIMEOUT_S,
+        if waited >= FILE_ACTIVE_WAIT_S or not name:
+            log.error("File API: %s not ACTIVE after %.0fs (state=%s)",
+                      filename, waited, state)
+            return None
+        _sleep(delay)
+        waited += delay
+        delay = min(delay * 2, FILE_POLL_CAP_S)
+        poll = _request_with_retry(
+            "GET", GEMINI_FILE_STATUS_URL.format(name=name, key=api_key),
+            what="File API status", _sleep=_sleep,
         )
-        poll.raise_for_status()
+        if poll is None:
+            return None
         info = poll.json()
         state = info.get("state")
         uri = info.get("uri", uri)
-    return uri if state == "ACTIVE" else None
 
 
 def _parse_extraction_json(resp: requests.Response) -> Optional[dict[str, Any]]:
