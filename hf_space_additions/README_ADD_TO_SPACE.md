@@ -116,6 +116,12 @@ with 🆕 dates.
 - Counts only `status='ok'` (verified) properties — quarantined rows are
   excluded, matching the pipeline's publish rules.
 - Cached for 5 minutes per load, so it adds no meaningful DB load.
-- Optional same-visit cleanup (coordinate with Abhijit): in `data_loader.py`,
-  add `WHERE COALESCE(status,'ok') = 'ok'` to the SELECT in
-  `load_material_data()` so flagged rows never appear in search results either.
+- **Required, not optional** (coordinate with Abhijit): the `data_loader.py`
+  in this folder adds `WHERE COALESCE(status,'ok') = 'ok'` to the SELECT in
+  `load_material_data()`. This is the publish gate — without it, every row the
+  ingester quarantines (`unverified` / `unit_review` / `out_of_range` /
+  `empty_value`, and figure-derived estimates from the figure-mining phase)
+  appears in Categorized Search as if it were a datasheet fact. Legacy rows
+  have `status` NULL and read as `ok`. If the DB were somehow unmigrated (no
+  `status` column) the loader logs a warning and falls back to the unfiltered
+  SELECT rather than blanking the page.
