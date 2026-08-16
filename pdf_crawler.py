@@ -21,7 +21,9 @@ Downloader.py, Discovery.py).
 Output:
   <out>/pdfs/*.pdf       downloaded, verified (%PDF magic), sha256-deduped
   <out>/sources.csv      provenance: filename, title, doi, url, year, source, sha256, query
-  <out>/state.json       seen URL/hash sets — reruns resume without re-downloading
+  <out>/state.json       seen URL/hash sets + transient-failure retry counts —
+                         reruns resume without re-downloading, and re-attempt
+                         URLs that failed transiently (5xx/timeout/bot-block)
 
 The pdfs/ folder feeds directly into batch_ingest.py --input.
 
@@ -101,12 +103,17 @@ MIN_SCORE = 4
 
 # Best-effort manufacturer/datasheet seed pages (depth-1: fetch page, harvest
 # links to PDFs and to same-domain pages that look like datasheet listings).
+# Live-checked 2026-08-15 with this crawler's User-Agent (status / ~PDF links
+# on the page): victrex 200/228, hexcel 200/138, toraytac 200/39,
+# avient advanced-composites 200/7, ensinger 200/1 (JS-rendered finder).
+# Dropped: solvay.com composites (404 — the business moved to syensqo.com,
+# which answers 406 to non-browser clients, so it can't be seeded here).
 DEFAULT_SEED_URLS = [
     "https://www.victrex.com/en/datasheets",
-    "https://www.ensingerplastics.com/en/shapes/plastic-material-selection",
-    "https://www.toraytac.com/products",
-    "https://www.solvay.com/en/chemical-categories/composite-materials",
-    "https://www.avient.com/products",
+    "https://www.hexcel.com/Resources/DataSheets",
+    "https://www.toraytac.com/products/thermoplastic",
+    "https://www.avient.com/advanced-composites",
+    "https://www.ensingerplastics.com/en/plastic-material-selection",
 ]
 
 MAX_PDF_BYTES = 40 * 1024 * 1024     # skip anything larger than 40 MB
@@ -147,25 +154,59 @@ class Candidate:
     abstract: str = ""
 
 
+# A URL whose download failed for a *transient* reason (5xx, timeout, momentary
+# bot-block) is retried on later runs up to this many attempts before it is
+# given up on. Deterministic rejections (not a PDF, too large, duplicate
+# content, saved OK) go straight into seen_urls and are never retried.
+MAX_URL_ATTEMPTS = 3
+
+
 class CrawlerState:
-    """Persisted seen-set so reruns are incremental."""
+    """Persisted seen-set so reruns are incremental.
+
+    ``seen_urls``   URLs with a *final* outcome (saved, or deterministically
+                    rejected) — never fetched again.
+    ``seen_hashes`` sha256 of saved PDF bytes — content dedup.
+    ``failed``      {url: attempts} for transient failures; retried on the next
+                    run until MAX_URL_ATTEMPTS, then moved to seen_urls. (URLs
+                    used to be marked seen *before* the download was attempted,
+                    so a ten-minute vendor 503 permanently blacklisted every
+                    PDF hit in that window.)
+    """
 
     def __init__(self, path: Path):
         self.path = path
         self.seen_urls: set[str] = set()
         self.seen_hashes: set[str] = set()
+        self.failed: dict[str, int] = {}
         if path.exists():
             try:
                 data = json.loads(path.read_text())
                 self.seen_urls = set(data.get("seen_urls", []))
                 self.seen_hashes = set(data.get("seen_hashes", []))
+                self.failed = {str(k): int(v) for k, v in (data.get("failed") or {}).items()}
             except Exception:
                 log.warning("Could not parse state file; starting fresh.")
+
+    def mark_final(self, url: str) -> None:
+        """Record a final outcome for `url` (saved or deterministically rejected)."""
+        self.seen_urls.add(url)
+        self.failed.pop(url, None)
+
+    def mark_transient_failure(self, url: str) -> None:
+        """Count a transient failure; give up (mark seen) after MAX_URL_ATTEMPTS."""
+        n = self.failed.get(url, 0) + 1
+        if n >= MAX_URL_ATTEMPTS:
+            log.info("Giving up on %s after %d attempts", url, n)
+            self.mark_final(url)
+        else:
+            self.failed[url] = n
 
     def save(self) -> None:
         self.path.write_text(json.dumps({
             "seen_urls": sorted(self.seen_urls),
             "seen_hashes": sorted(self.seen_hashes),
+            "failed": dict(sorted(self.failed.items())),
         }, indent=1))
 
 
@@ -363,8 +404,11 @@ ARXIV_NS = {"a": "http://www.w3.org/2005/Atom"}
 
 def search_arxiv(query: str, limit: int) -> Iterable[Candidate]:
     q = urllib.parse.quote(f'all:"{query}"' if " " in query else f"all:{query}")
+    # Over-fetch like OpenAlex/S2 do: the relevance gate and junk-URL filter in
+    # main() discard a good share of hits, so asking for exactly `limit` left
+    # arXiv under-yielding ~3x relative to the other lanes.
     url = (f"https://export.arxiv.org/api/query?search_query={q}"
-           f"&max_results={limit}&sortBy=relevance")
+           f"&max_results={min(limit * 3, 50)}&sortBy=relevance")
     r = http_get(url)
     if r is None:
         log.warning("arXiv unreachable for query %r", query)
@@ -373,7 +417,10 @@ def search_arxiv(query: str, limit: int) -> Iterable[Candidate]:
         root = ET.fromstring(r.text)
     except ET.ParseError:
         return
+    n = 0
     for entry in root.findall("a:entry", ARXIV_NS):
+        if n >= limit:
+            break
         title = re.sub(r"\s+", " ", entry.findtext("a:title", "", ARXIV_NS)).strip()
         abstract = re.sub(r"\s+", " ", entry.findtext("a:summary", "", ARXIV_NS)).strip()
         year = (entry.findtext("a:published", "", ARXIV_NS) or "")[:4]
@@ -384,6 +431,7 @@ def search_arxiv(query: str, limit: int) -> Iterable[Candidate]:
         if pdf_url:
             yield Candidate(title=title, pdf_url=pdf_url, source="arxiv",
                             query=query, year=year, abstract=abstract)
+            n += 1
 
 
 # ---------------------------------------------------------------------------
@@ -492,40 +540,71 @@ def looks_like_junk(url: str) -> bool:
     return any(p in u for p in JUNK_URL_PATTERNS)
 
 
-def head_precheck(url: str) -> bool:
+# head_precheck outcomes
+PRECHECK_OK = "ok"                # go ahead and GET
+PRECHECK_REJECT = "reject"        # deterministic: not a PDF / wrong size / gone
+PRECHECK_TRANSIENT = "transient"  # blocked or errored right now; worth a retry later
+
+
+def head_precheck(url: str) -> str:
     """HEAD request before download (agentic-branch Downloader idea): reject
     blocked / wrong-type / wrong-sized URLs without spending bandwidth on a
-    GET. Permissive on errors — many servers mishandle HEAD."""
+    GET. Permissive on errors — many servers mishandle HEAD.
+
+    Returns PRECHECK_OK / PRECHECK_REJECT / PRECHECK_TRANSIENT so the caller
+    can tell "never a PDF" (mark seen) from "blocked right now" (retry later).
+    """
     try:
         THROTTLE.wait(url)
         h = SESSION.head(url, timeout=10, allow_redirects=True)
-        if h.status_code in (401, 403, 404, 410):
+        if h.status_code in (404, 410):
+            log.debug("HEAD %s missing: %s", h.status_code, url)
+            return PRECHECK_REJECT
+        if h.status_code in (401, 403, 429) or h.status_code >= 500:
             # Paywalled or bot-blocked (MDPI/SAGE/Wiley/Hindawi do this); the
-            # GET would return the same block page, so don't bother.
-            log.debug("HEAD %s blocked/missing: %s", h.status_code, url)
-            return False
+            # GET would return the same block page right now, so don't bother
+            # — but blocks and 5xx are often momentary, so don't blacklist.
+            log.debug("HEAD %s blocked/unavailable: %s", h.status_code, url)
+            return PRECHECK_TRANSIENT
         ctype = (h.headers.get("Content-Type") or "").lower()
         if ctype.startswith("text/html"):
             log.debug("HEAD content-type %s, not a PDF: %s", ctype, url)
-            return False
+            return PRECHECK_REJECT
         size = int(h.headers.get("Content-Length") or 0)
         if size and not (MIN_PDF_BYTES <= size <= MAX_PDF_BYTES):
             log.debug("HEAD size %d out of range: %s", size, url)
-            return False
+            return PRECHECK_REJECT
     except (requests.RequestException, ValueError):
         pass
-    return True
+    return PRECHECK_OK
 
 
 def download_pdf(cand: Candidate, pdf_dir: Path, state: CrawlerState) -> Optional[dict]:
-    if cand.pdf_url in state.seen_urls:
-        return None
-    state.seen_urls.add(cand.pdf_url)
+    """Fetch, validate and save one candidate; return its provenance row or None.
 
-    if not head_precheck(cand.pdf_url):
+    Outcome bookkeeping (see CrawlerState): a save or a deterministic rejection
+    is *final* (URL goes to seen_urls); a transient failure is counted in
+    state.failed and the URL is retried on a later run.
+    """
+    url = cand.pdf_url
+    if url in state.seen_urls:
         return None
-    r = http_get(cand.pdf_url, stream=True, allow_redirects=True)
+
+    pre = head_precheck(url)
+    if pre == PRECHECK_REJECT:
+        state.mark_final(url)
+        return None
+    if pre == PRECHECK_TRANSIENT:
+        state.mark_transient_failure(url)
+        return None
+
+    r = http_get(url, stream=True, allow_redirects=True)
     if r is None:
+        # http_get already retried 429/5xx/connection errors; a None here is
+        # either exhausted retries (transient) or a non-retryable status. Treat
+        # 4xx-that-isn't-a-block as final via the HEAD path above; anything
+        # that reached here is worth another run.
+        state.mark_transient_failure(url)
         return None
     chunks, size = [], 0
     try:
@@ -533,13 +612,16 @@ def download_pdf(cand: Candidate, pdf_dir: Path, state: CrawlerState) -> Optiona
             chunks.append(chunk)
             size += len(chunk)
             if size > MAX_PDF_BYTES:
-                log.info("Too large, skipping: %s", cand.pdf_url)
+                log.info("Too large, skipping: %s", url)
+                state.mark_final(url)
                 return None
     except requests.RequestException:
+        state.mark_transient_failure(url)
         return None
     data = b"".join(chunks)
     if len(data) < MIN_PDF_BYTES:
-        log.debug("Too small (%d B), skipping: %s", len(data), cand.pdf_url)
+        log.debug("Too small (%d B), skipping: %s", len(data), url)
+        state.mark_final(url)
         return None
     # Reject anything that isn't a real PDF. Require a "%PDF-" header within the
     # first bytes (tolerating a leading BOM/whitespace), and — when PyMuPDF is
@@ -547,22 +629,26 @@ def download_pdf(cand: Candidate, pdf_dir: Path, state: CrawlerState) -> Optiona
     # This catches paywall/login/CAPTCHA HTML mis-served as application/pdf, which
     # a Content-Type check alone would save and then extract into garbage rows.
     if b"%PDF-" not in data[:1024]:
-        log.debug("Not a PDF (no %%PDF- magic): %s", cand.pdf_url)
+        log.debug("Not a PDF (no %%PDF- magic): %s", url)
+        state.mark_final(url)
         return None
     if fitz is not None:
         try:
             doc = fitz.open(stream=data, filetype="pdf")
             try:
                 if doc.needs_pass or doc.page_count < 1:
-                    log.debug("Rejected (encrypted/zero-page PDF): %s", cand.pdf_url)
+                    log.debug("Rejected (encrypted/zero-page PDF): %s", url)
+                    state.mark_final(url)
                     return None
             finally:
                 doc.close()
         except Exception as exc:
-            log.debug("Rejected (PyMuPDF cannot open: %s): %s", exc, cand.pdf_url)
+            log.debug("Rejected (PyMuPDF cannot open: %s): %s", exc, url)
+            state.mark_final(url)
             return None
 
     sha = hashlib.sha256(data).hexdigest()
+    state.mark_final(url)
     if sha in state.seen_hashes:
         log.info("Duplicate content, skipping: %s", cand.title[:60])
         return None
@@ -573,7 +659,7 @@ def download_pdf(cand: Candidate, pdf_dir: Path, state: CrawlerState) -> Optiona
     log.info("Saved [%s] %s  (%.1f kB)", cand.source, fname, size / 1024)
     return {
         "filename": fname, "title": cand.title, "doi": cand.doi,
-        "url": cand.pdf_url, "year": cand.year, "source": cand.source,
+        "url": url, "year": cand.year, "source": cand.source,
         "sha256": sha, "query": cand.query, "bytes": size,
     }
 

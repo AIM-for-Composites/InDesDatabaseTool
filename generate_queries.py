@@ -9,10 +9,10 @@ non-overlapping queries about thermoplastic composites — spanning matrices
 (PEEK/PEKK/PPS/PEI/PA/PP/PC/LCP…), fiber types, and property kinds — that
 avoid the ones already built in to pdf_crawler.
 
-It reuses the same Gemini REST setup as batch_ingest.py (model, URL template,
-structured-output config) so behavior matches the rest of the project, and it
-pulls the existing query list straight from pdf_crawler so the "avoid these"
-set never drifts out of sync.
+It reuses the same Gemini REST setup as the extraction pipeline (extraction.py:
+model, URL template, retry/backoff, structured-output config) so behavior
+matches the rest of the project, and it pulls the existing query list straight
+from pdf_crawler so the "avoid these" set never drifts out of sync.
 
 Usage:
     set GEMINI_API_KEY=...                       (Windows)   /  export … (bash)
@@ -40,8 +40,10 @@ from pathlib import Path
 import requests
 
 # Reuse the project's existing Gemini config and query list — single source of
-# truth, so this script tracks any changes made there.
-from batch_ingest import GEMINI_MODEL, GEMINI_URL_TEMPLATE, REQUEST_TIMEOUT_S
+# truth, so this script tracks any changes made there. (These constants live in
+# extraction.py since the hardening phase; importing them from batch_ingest
+# raised ImportError and made this script unrunnable.)
+from extraction import GEMINI_MODEL, GEMINI_URL_TEMPLATE, REQUEST_TIMEOUT_S, gemini_request
 from pdf_crawler import DEFAULT_QUERIES
 
 # Structured-output schema: force a clean JSON list of query strings.
@@ -93,8 +95,9 @@ def generate_queries(n: int, focus: str, api_key: str, model: str) -> list[str]:
         },
     }
     url = GEMINI_URL_TEMPLATE.format(model=model, key=api_key)
-    resp = requests.post(url, json=payload, timeout=REQUEST_TIMEOUT_S)
-    resp.raise_for_status()
+    resp = gemini_request(url, payload, timeout=REQUEST_TIMEOUT_S)  # retry/backoff
+    if resp is None:
+        return []
     data = resp.json()
     candidates = data.get("candidates", [])
     if not candidates:
