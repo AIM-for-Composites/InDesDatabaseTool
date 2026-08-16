@@ -1186,12 +1186,23 @@ def _autoabbr(name: str) -> str:
 
 
 def material_key(material: Material) -> str:
-    """Stable material identity: normalized lowercased name, fallback abbr (Task 6)."""
+    """Stable material identity (Task 6): normalized name, plus the trade grade.
+
+    ``<name>`` when no trade grade is known, else ``<name>|<trade_grade>``. The
+    grade is part of the identity: a datasheet describing PEEK 150G and PEEK
+    450G yields two materials named "PEEK", and without the grade in the key
+    any property both grades share (density, Tg, ...) dedup-collapsed into
+    one row and the other was silently dropped. Falls back to the
+    abbreviation when the name is empty.
+    """
     name = (material.material_name or "").strip().lower()
     name = re.sub(r"\s+", " ", name)
-    if name:
-        return name
-    return (material.material_abbreviation or "unknown").strip().lower()
+    if not name:
+        name = (material.material_abbreviation or "unknown").strip().lower()
+    grade = re.sub(r"\s+", " ", (material.trade_grade or "").strip().lower())
+    if grade and grade != name and grade not in name:
+        return f"{name}|{grade}"
+    return name
 
 
 # ---------------------------------------------------------------------------

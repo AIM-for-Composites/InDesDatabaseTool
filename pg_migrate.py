@@ -7,7 +7,9 @@ What --apply does (all additive, nothing dropped or rewritten):
   2. ALTER TABLE ADD COLUMN IF NOT EXISTS for each hardening column
      (migrate.EXTRA_COLUMNS: provenance, structured values, status, ...)
   3. Partial unique dedup index per table (ignores legacy rows)
-  4. CREATE TABLE IF NOT EXISTS sources (doc-level bookkeeping)
+  4. CREATE TABLE IF NOT EXISTS sources (doc-level bookkeeping), keyed on
+     pdf_sha1; a legacy sources table keyed on pdf_filename is re-keyed in
+     place (drop the filename UNIQUE, add a unique index on pdf_sha1)
 
 Legacy note: `status text DEFAULT 'ok'` backfills existing rows with 'ok'
 (instant in Postgres ≥ 11) — so the ~30k pre-existing InDeS rows read
@@ -61,8 +63,12 @@ def main() -> int:
             print(f"  {table}: {n} rows, {len(have)} columns "
                   f"({len(missing)} hardening columns missing, "
                   f"dedup index {'present' if idx else 'missing'})")
-        print(f"  sources table: "
-              f"{'present' if pg_mirror.sources_table_exists(conn) else 'missing'}")
+        if pg_mirror.sources_table_exists(conn):
+            keyed = pg_mirror.sources_sha1_index_exists(conn)
+            print(f"  sources table: present (keyed on "
+                  f"{'pdf_sha1' if keyed else 'pdf_filename — legacy'})")
+        else:
+            print("  sources table: missing")
 
         # ---------- plan ----------
         print("\n=== Plan ===")
@@ -83,7 +89,13 @@ def main() -> int:
                       f"(partial, legacy rows unaffected)")
         if not pg_mirror.sources_table_exists(conn):
             any_change = True
-            print("  CREATE TABLE sources")
+            print("  CREATE TABLE sources (keyed on pdf_sha1)")
+        elif not pg_mirror.sources_sha1_index_exists(conn):
+            any_change = True
+            print("  sources: DROP UNIQUE(pdf_filename), CREATE UNIQUE INDEX "
+                  f"{pg_mirror.SOURCES_SHA1_INDEX} ON (pdf_sha1) — content hash is "
+                  "the doc identity; same-basename PDFs no longer collide "
+                  "(batch_ingest --pg refuses to run until this is applied)")
         if not any_change:
             print("  Nothing to do — schema already migrated.")
 

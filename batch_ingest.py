@@ -59,7 +59,7 @@ import requests
 
 import extraction
 from extraction import Extraction, PropertyRow, extract_from_pdf, to_rows, verify_against_text
-from migrate import EXTRA_COLUMNS, ensure_columns
+from migrate import EXTRA_COLUMNS, ensure_columns, ensure_sources_sha1_unique
 
 
 # ---------------------------------------------------------------------------
@@ -89,13 +89,18 @@ CREATE TABLE IF NOT EXISTS Composites_materials (
 );
 CREATE TABLE IF NOT EXISTS sources (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    pdf_filename TEXT UNIQUE,
-    pdf_sha1 TEXT,
+    pdf_filename TEXT,
+    pdf_sha1 TEXT UNIQUE,
     ingested_at TEXT,
     material_class TEXT,
     material_abbreviation TEXT
 );
 """
+# `sources` identity is the content hash, not the basename: two different PDFs
+# that share a filename (vendorA/datasheet.pdf vs vendorB/datasheet.pdf — likely,
+# since --input is rglob'd) used to collide on a `pdf_filename UNIQUE` +
+# INSERT OR IGNORE, so the second was never recorded and got re-sent to Gemini
+# on every run. migrate.ensure_sources_sha1_unique() rebuilds legacy tables.
 
 TABLE_FOR_CLASS = {
     "Polymer": "Polymers",
@@ -134,6 +139,8 @@ def init_db(path: Path) -> sqlite3.Connection:
     # Add the hardening-phase columns if they aren't there yet (idempotent).
     for table in ALL_TABLES:
         ensure_columns(conn, table)
+    # Legacy DBs keyed `sources` on pdf_filename; rebuild to pdf_sha1 (idempotent).
+    ensure_sources_sha1_unique(conn)
     conn.commit()
     return conn
 
@@ -361,8 +368,11 @@ def export_review_queue(conn: sqlite3.Connection, path: Path) -> int:
 def promote_review_queue(conn: sqlite3.Connection, path: Path) -> int:
     """Re-admit corrected rows from a review CSV as status='ok' (Task 4, optional).
 
-    Matches on (table_name, source_pdf, material_key, property_name,
-    test_condition, value_raw) and sets status='ok', flag_reason='promoted'.
+    Matches on the full dedup grain — (table_name, source_pdf, material_key,
+    section, property_name, test_condition, value_raw) — and only touches rows
+    whose status is not already 'ok', so promoting one flagged row cannot
+    rewrite the flag_reason of an already-ok sibling in another section.
+    Sets status='ok', flag_reason='promoted'.
     """
     import csv
 
@@ -375,11 +385,14 @@ def promote_review_queue(conn: sqlite3.Connection, path: Path) -> int:
             cur = conn.execute(
                 f"UPDATE {table} SET status='ok', flag_reason='promoted' "
                 f"WHERE IFNULL(source_pdf,'')=? AND IFNULL(material_key,'')=? "
+                f"  AND IFNULL(section,'')=? "
                 f"  AND IFNULL(property_name,'')=? AND IFNULL(test_condition,'')=? "
-                f"  AND IFNULL(value_raw,'')=?",
-                (r.get("source_pdf", ""), r.get("material_key", ""),
-                 r.get("property_name", ""), r.get("test_condition", ""),
-                 r.get("value_raw", "")),
+                f"  AND IFNULL(value_raw,'')=? "
+                f"  AND IFNULL(status,'ok') != 'ok'",
+                (r.get("source_pdf") or "", r.get("material_key") or "",
+                 r.get("section") or "",
+                 r.get("property_name") or "", r.get("test_condition") or "",
+                 r.get("value_raw") or ""),
             )
             promoted += cur.rowcount
     conn.commit()

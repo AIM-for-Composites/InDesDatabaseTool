@@ -155,8 +155,19 @@ Every property row carries `source_pdf`, `source_sha1`, `page`, and
 ```
 
 `material_key` is the normalized lowercased `material_name` (fallback:
-abbreviation). Re-ingesting the same PDF adds 0 rows; the same property measured
-in a *different* PDF is kept as an independent repeat.
+abbreviation) **plus the trade grade** when one is known — `peek|150g` vs
+`peek|450g` — so two grades from one datasheet that share a value (density,
+Tg…) are two rows, not one row and one silent "duplicate" (2026-08 fix).
+Re-ingesting the same PDF adds 0 rows; the same property measured in a
+*different* PDF is kept as an independent repeat.
+
+The `sources` logbook is keyed on `pdf_sha1` (content), not the basename — two
+different PDFs called `datasheet.pdf` under different vendor folders are two
+sources. `--migrate` rebuilds a legacy filename-keyed table in place.
+
+`--promote` matches on the **full** grain (incl. `section`) and only touches
+rows whose status is not already `ok`, so blessing one flagged row cannot
+rewrite an already-ok sibling.
 
 ## New / changed DB columns
 

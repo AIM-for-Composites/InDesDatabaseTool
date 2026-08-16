@@ -82,6 +82,57 @@ def ensure_columns(conn: sqlite3.Connection, table: str) -> list[str]:
     return added
 
 
+def _sources_unique_column(conn: sqlite3.Connection) -> str | None:
+    """Which column carries the UNIQUE constraint on `sources` (None if no table)."""
+    row = conn.execute(
+        "SELECT sql FROM sqlite_master WHERE type='table' AND name='sources'"
+    ).fetchone()
+    if not row or not row[0]:
+        return None
+    ddl = row[0].lower()
+    if "pdf_sha1 text unique" in ddl:
+        return "pdf_sha1"
+    if "pdf_filename text unique" in ddl:
+        return "pdf_filename"
+    return ""
+
+
+def ensure_sources_sha1_unique(conn: sqlite3.Connection) -> bool:
+    """Rebuild `sources` so its UNIQUE key is `pdf_sha1`, not `pdf_filename`.
+
+    Legacy DBs keyed the doc logbook on the basename. Two different PDFs that
+    share a filename (likely — --input is rglob'd across vendor folders) then
+    collided: `INSERT OR IGNORE` dropped the second, `seen_sha1()` never saw
+    it, and it was re-sent to Gemini on every run. Content hash is the real
+    identity. SQLite cannot alter a UNIQUE constraint in place, so this is a
+    copy-rebuild; it keeps the earliest row per sha1 if duplicates exist.
+    Idempotent — returns True only when a rebuild happened.
+    """
+    key = _sources_unique_column(conn)
+    if key in (None, "pdf_sha1"):
+        return False
+    conn.executescript(
+        """
+        CREATE TABLE sources__new (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            pdf_filename TEXT,
+            pdf_sha1 TEXT UNIQUE,
+            ingested_at TEXT,
+            material_class TEXT,
+            material_abbreviation TEXT
+        );
+        INSERT INTO sources__new
+            (id, pdf_filename, pdf_sha1, ingested_at, material_class, material_abbreviation)
+        SELECT id, pdf_filename, pdf_sha1, ingested_at, material_class, material_abbreviation
+        FROM sources
+        WHERE id IN (SELECT MIN(id) FROM sources GROUP BY IFNULL(pdf_sha1, '__null__' || id));
+        DROP TABLE sources;
+        ALTER TABLE sources__new RENAME TO sources;
+        """
+    )
+    return True
+
+
 def migrate(db_path: Path, backup: bool = True) -> dict[str, list[str]]:
     if backup and db_path.exists():
         bak = db_path.with_suffix(db_path.suffix + ".bak")
@@ -94,6 +145,10 @@ def migrate(db_path: Path, backup: bool = True) -> dict[str, list[str]]:
         for table in TARGET_TABLES:
             added = ensure_columns(conn, table)
             result[table] = added
+        if ensure_sources_sha1_unique(conn):
+            result["sources"] = ["UNIQUE(pdf_sha1) (rebuilt from UNIQUE(pdf_filename))"]
+        else:
+            result["sources"] = []
         conn.commit()
     finally:
         conn.close()
@@ -115,10 +170,12 @@ def main() -> int:
 
     result = migrate(args.db, backup=not args.no_backup)
     for table, added in result.items():
-        if added:
-            print(f"{table}: added {len(added)} columns: {', '.join(added)}")
-        else:
+        if not added:
             print(f"{table}: already up to date")
+        elif table == "sources":
+            print(f"{table}: rebuilt -> {added[0]}")
+        else:
+            print(f"{table}: added {len(added)} columns: {', '.join(added)}")
     return 0
 
 
