@@ -190,8 +190,15 @@ that goes wrong lands in `PdfResult.figure_error` and is counted
 text rows. `scanned_no_text` PDFs stay skipped entirely (whole-page scans are
 not figures; OCR remains FOLLOWUPS A2). A PDF ingested *before* `--figures`
 existed gets a figure-only **backfill** pass on the next `--figures` run
-(materials rebuilt from its rows); a PDF with figures already recorded is
-skipped without any call.
+(materials rebuilt from its rows).
+
+**Outage recovery**: figures whose `mining_status` is `classify_failed`,
+`mining_failed` (or `not_mined` after a `--no-figure-mining` run) are
+*pending*; the next `--figures` run retries **only those** — figures already
+`mined` / `skipped_kind` are excluded from the vision calls
+(`done_figure_ids`) and keep their stored status. A PDF with nothing pending
+costs 0 calls (a PDF that genuinely has zero figures is re-harvested locally,
+~0.2 s, no calls).
 
 `run_report.json["figures"]`: `figures_found`, `figures_mined`, `figure_rows`,
 `figure_rows_duplicate_skipped`, `vision_calls`, `figure_errors_by_kind`,

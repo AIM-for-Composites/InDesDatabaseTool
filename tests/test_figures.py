@@ -563,3 +563,52 @@ def test_space_data_loader_gate_hides_figure_rows_until_promoted(tmp_path, fake_
                  "(SELECT id FROM Composites_materials WHERE origin='figure' AND status='figure_estimate' LIMIT 1)")
     vis = conn.execute(f"SELECT count(*) FROM Composites_materials {gate} AND origin='figure'").fetchone()[0]
     assert vis == 1
+
+
+# ---------------------------------------------------------------------------
+# outage recovery: a rerun retries ONLY the failed / pending figures
+# ---------------------------------------------------------------------------
+
+def test_rerun_after_vision_outage_retries_only_failed_figures(tmp_path, fake_gemini):
+    fg = fake_gemini(fail_vision=True)
+    pdf = _synthetic_pdf(tmp_path)
+    conn = bi.init_db(tmp_path / "m.sqlite")
+    opts = bi.FigureOptions(out_dir=tmp_path / "figs", max_figures=12, mine=True)
+    r1 = bi.process_pdf(pdf, conn, "k", figure_opts=opts)
+    assert r1.figure_error and r1.figure_rows == 0
+    n_fig = conn.execute("SELECT count(*) FROM figures").fetchone()[0]
+    assert n_fig >= 2
+    assert bi.figures_pending_for(conn, res_sha(tmp_path), True) == n_fig
+    # Gemini healthy again: rerun retries them (skipped_seen_sha1 for the text pass)
+    fg.fail_vision = False
+    r2 = bi.process_pdf(pdf, conn, "k", figure_opts=opts)
+    assert r2.error == "skipped_seen_sha1"
+    assert r2.vision_calls >= 1 and r2.figure_rows >= 1 and r2.figure_error is None
+    assert bi.figures_pending_for(conn, res_sha(tmp_path), True) == 0
+    # third run: nothing pending -> no calls, no harvest of vision
+    calls_before = len(fg.calls)
+    r3 = bi.process_pdf(pdf, conn, "k", figure_opts=opts)
+    assert r3.vision_calls == 0 and len(fg.calls) == calls_before
+
+
+def test_partial_retry_spends_only_on_pending_figures(tmp_path, fake_gemini):
+    """Simulate one figure mined + one still failed: the rerun must classify
+    /mine ONLY the pending one (call count proves it) and keep the mined
+    figure's stored status."""
+    fg = fake_gemini()
+    pdf = _synthetic_pdf(tmp_path)
+    conn = bi.init_db(tmp_path / "m.sqlite")
+    opts = bi.FigureOptions(out_dir=tmp_path / "figs", max_figures=12, mine=True)
+    bi.process_pdf(pdf, conn, "k", figure_opts=opts)
+    ids = [r[0] for r in conn.execute("SELECT figure_id FROM figures ORDER BY page")]
+    assert len(ids) >= 2
+    # knock one figure back to 'mining_failed' by hand
+    conn.execute("UPDATE figures SET mining_status='mining_failed', figure_kind='property_plot' WHERE figure_id=?", (ids[-1],))
+    conn.commit()
+    fg.calls.clear()
+    r = bi.process_pdf(pdf, conn, "k", figure_opts=opts)
+    # 1 classify (batched over the pending figure only) + 1 mine
+    assert fg.calls == ["classify", "mine"], fg.calls
+    assert r.vision_calls == 2
+    st = dict(conn.execute("SELECT figure_id, mining_status FROM figures").fetchall())
+    assert st[ids[-1]] == "mined" and st[ids[0]] in ("mined", "skipped_kind")

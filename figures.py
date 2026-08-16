@@ -898,22 +898,37 @@ def run_figure_stage(
     max_figures: int = DEFAULT_MAX_FIGURES,
     mine: bool = True,
     model: str = GEMINI_MODEL,
+    done_figure_ids: Optional[set[str]] = None,
 ) -> FigureStageResult:
     """harvest -> classify -> mine -> rows. Never raises; errors are recorded
-    in ``.error`` so a figure-stage failure cannot kill a PDF's text rows."""
+    in ``.error`` so a figure-stage failure cannot kill a PDF's text rows.
+
+    ``done_figure_ids``: figures already classified+mined (or classified as
+    non-mineable) in an earlier run. They are harvested (so ``.figures`` is
+    complete for bookkeeping) but excluded from the vision calls — a rerun
+    after an outage retries only the figures that failed / were left
+    ``not_mined``, and spends nothing on the ones already done. Such figures
+    come back with ``mining_status='already_done'`` so the caller knows not
+    to overwrite their stored status.
+    """
     hs, vs = HarvestStats(), VisionStats()
     res = FigureStageResult(figures=[], rows=[], harvest=hs, vision=vs)
+    done = done_figure_ids or set()
     try:
         figs = harvest_figures(pdf_bytes, source_pdf, source_sha1, out_dir, max_figures, stats=hs)
         res.figures = figs
-        if not figs:
+        todo = [f for f in figs if f.figure_id not in done]
+        for f in figs:
+            if f.figure_id in done:
+                f.mining_status = "already_done"
+        if not todo:
             return res
         names = [n for m in text_materials for n in (m.material_name, m.material_abbreviation) if n]
-        classify_figures(figs, names, api_key, model=model, stats=vs)
+        classify_figures(todo, names, api_key, model=model, stats=vs)
         if not mine:
             return res
         mined: list[MinedFigure] = []
-        for f in figs:
+        for f in todo:
             if f.figure_kind in MINEABLE_KINDS and f.mining_status != "classify_failed":
                 mf = mine_figure(f, names, api_key, model=model, stats=vs)
                 if mf is not None:

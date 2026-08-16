@@ -305,6 +305,28 @@ def figures_recorded_for(conn: sqlite3.Connection, sha1: str) -> int:
     return int(cur.fetchone()[0])
 
 
+# Terminal figure states: nothing more to spend on these. Everything else
+# (classify_failed / mining_failed / not_mined) is retried on the next --figures
+# run — but only those, so an outage costs exactly the failed calls.
+_FIGURE_DONE_STATES = ("mined", "skipped_kind")
+
+
+def figures_done_for(conn: sqlite3.Connection, sha1: str, mine: bool) -> set[str]:
+    """figure_ids of this PDF that need no further vision calls."""
+    states = _FIGURE_DONE_STATES if mine else _FIGURE_DONE_STATES + ("not_mined",)
+    q = ", ".join("?" for _ in states)
+    cur = conn.execute(
+        f"SELECT figure_id FROM figures WHERE source_sha1 = ? AND mining_status IN ({q})",
+        (sha1, *states),
+    )
+    return {r[0] for r in cur.fetchall()}
+
+
+def figures_pending_for(conn: sqlite3.Connection, sha1: str, mine: bool) -> int:
+    """Figures recorded for this PDF that are NOT done (a rerun should retry them)."""
+    return figures_recorded_for(conn, sha1) - len(figures_done_for(conn, sha1, mine))
+
+
 def materials_for_source(conn: sqlite3.Connection, sha1: str) -> list["extraction.Material"]:
     """Rebuild the text-pass material list of an already-ingested PDF from its
     rows, so the figure stage can run on a PDF whose text pass happened in an
@@ -388,9 +410,11 @@ def _run_figure_stage(
     are already committed by the time this runs."""
     try:
         import figures as F
+        done = db.figures_done_for(conn, sha1, opts.mine) if hasattr(db, "figures_done_for") else set()
         stage = F.run_figure_stage(
             pdf_bytes, pdf_path.name, sha1, text_materials, api_key,
             out_dir=opts.out_dir, max_figures=opts.max_figures, mine=opts.mine,
+            done_figure_ids=done,
         )
         result.figures_found = len(stage.figures)
         result.figures_mined = stage.mined_figures
@@ -401,6 +425,8 @@ def _run_figure_stage(
         if stage.error:
             result.figure_error = stage.error
         for fig in stage.figures:
+            if fig.mining_status == "already_done":
+                continue        # keep the stored kind/status from the earlier run
             db.upsert_figure(conn, fig)
         frows = fdups = 0
         for row in stage.rows:
@@ -444,12 +470,15 @@ def process_pdf(
     sha1 = hashlib.sha1(pdf_bytes).hexdigest()
 
     # Skip if we already ingested this exact file — unless figures are on and
-    # this PDF has none recorded yet, in which case run ONLY the figure stage
-    # (backfill for PDFs whose text pass predates --figures).
+    # this PDF has no figures recorded yet (backfill for PDFs whose text pass
+    # predates --figures) or has figures still pending (classify/mining
+    # failed or --no-figure-mining last time): then run ONLY the figure stage,
+    # and only for the pending figures.
     if db.seen_sha1(conn, sha1):
         result = _empty_result(pdf_path, started, "skipped_seen_sha1")
-        if figure_opts is not None and hasattr(db, "figures_recorded_for") \
-                and db.figures_recorded_for(conn, sha1) == 0:
+        if figure_opts is not None and hasattr(db, "figures_recorded_for") and (
+                db.figures_recorded_for(conn, sha1) == 0
+                or db.figures_pending_for(conn, sha1, figure_opts.mine) > 0):
             mats = db.materials_for_source(conn, sha1)
             _run_figure_stage(pdf_path, pdf_bytes, sha1, mats, api_key, conn, db,
                               figure_opts, result)
