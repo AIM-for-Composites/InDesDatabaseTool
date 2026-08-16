@@ -180,6 +180,18 @@ _INSERT_COLS = _LEGACY_COLS + [name for name, _type in EXTRA_COLUMNS]
 def _row_values(row: PropertyRow) -> tuple:
     from datetime import datetime, timezone
 
+    # Export guard (figure-mining phase). Every consumer that shows rows to
+    # the app filters on status='ok', so status is the publish gate. A figure
+    # row must therefore never be INSERTED as 'ok' — only --promote may set
+    # that, after a human looked at the PNG. Enforced here, the single point
+    # both the SQLite and Postgres insert paths go through.
+    status, flag_reason = row.status, row.flag_reason
+    if (row.origin or "text") == "figure" and status == "ok":
+        status = "figure_estimate"
+        flag_reason = ("figure row inserted with status=ok; downgraded — only "
+                       "--promote may publish a figure reading"
+                       + (f"; {row.flag_reason}" if row.flag_reason else ""))
+
     mapping = {
         "material_name": row.material_name,
         "material_abbreviation": row.material_abbreviation,
@@ -208,8 +220,8 @@ def _row_values(row: PropertyRow) -> tuple:
         "source_sha1": row.source_sha1,
         "page": row.page,
         "source_quote": row.source_quote,
-        "status": row.status,
-        "flag_reason": row.flag_reason,
+        "status": status,
+        "flag_reason": flag_reason,
         "model": row.model,
         "prompt_version": row.prompt_version,
         "extracted_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),

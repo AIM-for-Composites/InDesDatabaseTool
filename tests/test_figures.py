@@ -522,3 +522,44 @@ def test_summarize_reports_figures_and_vision_calls():
                             "figure_rows_duplicate_skipped": 0, "vision_calls": 3,
                             "figure_errors_by_kind": {"vision_calls_failed": 1},
                             "harvest_filters": {"skipped_small": 5}}
+
+
+# ---------------------------------------------------------------------------
+# Task 6 — export guard invariant: a figure row can never be inserted as 'ok'
+# ---------------------------------------------------------------------------
+
+def test_figure_row_can_never_be_inserted_as_ok(tmp_path):
+    conn = bi.init_db(tmp_path / "g.sqlite")
+    row = E.PropertyRow(material_name="X", material_abbreviation="X", material_key="x",
+                        material_class="Polymer", section="Mechanical", property_name="Tensile strength",
+                        value="1", unit="MPa", english="", test_condition="", comments="", value_raw="1",
+                        source_sha1="s", status="ok", origin="figure", figure_id="f")
+    bi.insert_row(conn, "Polymers", row)
+    st, fr = conn.execute("SELECT status, flag_reason FROM Polymers").fetchone()
+    assert st == "figure_estimate" and "downgraded" in fr
+    # a text row inserted as ok stays ok
+    row2 = dataclasses_replace(row, origin="text", figure_id="", value_raw="2")
+    bi.insert_row(conn, "Polymers", row2)
+    assert conn.execute("SELECT status FROM Polymers WHERE value_raw='2'").fetchone() == ("ok",)
+
+
+def dataclasses_replace(row, **kw):
+    import dataclasses
+    return dataclasses.replace(row, **kw)
+
+
+def test_space_data_loader_gate_hides_figure_rows_until_promoted(tmp_path, fake_gemini):
+    """The Space's data_loader publish gate is WHERE COALESCE(status,'ok')='ok';
+    run that exact predicate against a mirror with figure rows."""
+    fake_gemini()
+    conn, res = _run(tmp_path)
+    gate = "WHERE COALESCE(status, 'ok') = 'ok'"
+    src = (ROOT / "hf_space_additions" / "data_loader.py").read_text(encoding="utf-8")
+    assert gate in src
+    vis = conn.execute(f"SELECT count(*) FROM Composites_materials {gate} AND origin='figure'").fetchone()[0]
+    assert vis == 0 and res.figure_rows > 0
+    # promote exactly one figure row (the way --promote would)
+    conn.execute("UPDATE Composites_materials SET status='ok', flag_reason='promoted' WHERE id = "
+                 "(SELECT id FROM Composites_materials WHERE origin='figure' AND status='figure_estimate' LIMIT 1)")
+    vis = conn.execute(f"SELECT count(*) FROM Composites_materials {gate} AND origin='figure'").fetchone()[0]
+    assert vis == 1
