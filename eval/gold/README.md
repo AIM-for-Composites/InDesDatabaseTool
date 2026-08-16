@@ -62,5 +62,18 @@ each PDF and scores:
 1. Drop the PDF in this folder.
 2. Open it, read the values, and write `<name>.json` (label only values you can
    see verbatim — the harness rewards grounded, correct values, not volume).
-3. Re-run `python -m eval`. Aim for 3–5 cases spanning polymer / fiber /
-   composite and at least one multi-material and one range-valued sheet.
+3. Run `python -m eval --gold-check` (offline, no key): proves every material
+   alias, property alias and number in your JSON actually occurs in the PDF
+   text, so a typo or a value read from the wrong table is caught before it
+   silently drags the live score down.
+4. Re-run `python -m eval`. Aim for 8–10 cases (RUNBOOK P2.12) spanning polymer
+   / fiber / composite and at least one multi-material and one range-valued
+   sheet.
+
+## Diagnosing a surprising score
+
+A live run keeps its evidence: `eval/last_run/<case>.extraction.json` holds the
+full model output per case (gitignored), and each `per_pdf` entry in the report
+carries a `pred_summary` (predicted material names + property names). If a
+case passes `--gold-check` but scores 0.0 live, the problem is on the
+extraction side — open the dump and look at what came back.

@@ -27,3 +27,9 @@ team/**/transcript.jsonl
 
 # --- project-specific ---
 crawl_out/
+eval/last_run/          # raw per-case extractions from the last `python -m eval`
+*.sqlite
+*.sqlite.bak
+run_report.json
+review_queue.csv
+pg_backup_*/            # regenerable CSV dumps written by pg_migrate.py --apply
