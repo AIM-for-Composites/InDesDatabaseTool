@@ -29,6 +29,54 @@ the Fiber class; a journal paper with ranges). See `eval/gold/README.md`.
 - OCR route (`ocrmypdf`/`pytesseract`) for scanned PDFs — currently they are
   detected and skipped as `scanned_no_text` rather than OCR'd.
 
+### A3. After the 2026-08-15 bugfix batch (commits 4e9a4cf..401783f)
+
+Eight verified defects were fixed (value parser U+2212/±, unit-family keyword
+collisions + raw-unit maps, grounding digit boundaries, `material_key` grade
+identity, `sources` keyed on sha1, File-API retry, crawler seen-set ordering,
+Space publish gate) with 176 regression tests in `tests/`. Consequences that
+need a human step:
+
+- **Re-run `python pg_migrate.py` (dry-run) then `--apply` against the shared
+  Postgres** before the next `batch_ingest --pg`. `check_schema()` now refuses
+  to ingest until `sources` is re-keyed on `pdf_sha1` (the dry-run prints the
+  exact change). Additive and idempotent, like the July migration.
+- **Re-ingest multi-grade datasheets** once, to recover the rows the old
+  `material_key` collapsed. The migration re-keys existing rows to
+  `<name>|<grade>` (so the re-ingest dedups against them and only the missing
+  rows are added), but `process_pdf` skips any sha1 already in `sources` — to
+  re-ingest a specific PDF, `DELETE FROM sources WHERE pdf_sha1='…'` first
+  (its property rows stay; only the logbook entry is removed).
+- **Deploy `hf_agent_deploy/aim_agent_space.zip` and `hf_space_patch.zip`
+  from their regenerated state** — both were regenerated in this batch
+  (agent zip: current pipeline files + `agdb.py` round-trips the crawler's
+  `failed` map; Space patch: `data_loader` publish gate). Do **not** deploy
+  an older `pg_mirror.py` after `pg_migrate.py --apply` has re-keyed
+  `sources`: its `record_source` conflicts on `pdf_filename`, whose UNIQUE
+  constraint the migration drops.
+- **`review_queue.csv` re-export**: a large share of the July flags were false
+  positives from the fixed families (dielectric/impact strength, specific
+  gravity, `N/mm2`, ASTM→`tm`); regenerate before anyone reviews it.
+- **Run `python -m eval`** with a key: `--gold-check` proves all 4 gold cases
+  are answerable from their PDFs, so tc1100's July `0.0/0.0` is an
+  extraction-side miss; the harness now keeps `eval/last_run/*.extraction.json`
+  so the next run explains it. Then grow gold to 8–10 (RUNBOOK P2.12).
+- The agent-space `Review_Queue.py` promote is per-PDF, all-or-nothing; the
+  local `--promote` now guards on section + status. Align before figure rows
+  (which must never be blanket-promoted) land in that Space.
+
+### A4. Figure & graph mining phase (queued, verified 2026-08-15)
+
+The phase prompt (`claude_code_figure_mining_prompt.md`) was verified against
+the repo: one correction — the app consumer to guard is the Space's
+`data_loader.py` (`load_material_data()`), not a local `page1.py`; the publish
+gate above is exactly the guard figure rows depend on. Corpus survey found
+both raster and vector figure modalities and gold-case candidates (the
+PEKK/PPS thermoforming paper's Fig. 6 has in-text ground truth). Explicitly
+out of scope for that phase, to be tracked when it lands: full curve
+digitization (WebPlotDigitizer territory), the OCR route (still A2), and the
+HF Space port.
+
 ---
 
 ## B. InDeS agentic repo (`InDesDatabaseTool`, branch `agentic_code`)

@@ -791,8 +791,12 @@ class _Family:
 # in "Tensile modulus (0°)"). SHORT tokens (tg, tm, hdt, cte) must match on
 # token boundaries — bare substring matching made 'tm' hit "ASTM" (so every
 # property citing an ASTM standard became a melting temperature) and 'tg' hit
-# "outgassing". Boundary = anything that isn't a letter/digit.
-_SHORT_TOKENS = frozenset({"tg", "tm", "tc", "hdt", "cte", "clte", "young", "young's", "youngs"})
+# "outgassing". Left boundary = not a letter/digit; right boundary = not a
+# LETTER (a trailing digit is allowed: 'Tg2', 'CTE1', 'HDT1.8' are how DSC/DMA
+# reports and laminate datasheets label second-heating Tg and the two CTE
+# regimes).
+_SHORT_TOKENS = frozenset({"tg", "tm", "tc", "hdt", "cte", "clte", "cai", "sbs",
+                           "young", "young's", "youngs"})
 _KEYWORD_RE_CACHE: dict[str, "re.Pattern[str]"] = {}
 
 
@@ -801,20 +805,22 @@ def _keyword_matches(kw: str, name: str) -> bool:
         return kw in name
     pat = _KEYWORD_RE_CACHE.get(kw)
     if pat is None:
-        pat = re.compile(r"(?<![a-z0-9])" + re.escape(kw) + r"(?![a-z0-9])")
+        pat = re.compile(r"(?<![a-z0-9])" + re.escape(kw) + r"(?![a-z])")
         _KEYWORD_RE_CACHE[kw] = pat
     return pat.search(name) is not None
 
 
 # Accepted printed spellings for the raw families. Keys are normalized by
-# _norm_unit_key() (lowercased, NFKC, whitespace/µ/degree-sign folded).
+# _norm_unit_key() (lowercased, NFKC, whitespace/µ/degree-sign folded,
+# 'x⁻¹'/'x^-1' suffixes rewritten to '/x').
 _CTE_UNIT_MAP: dict[str, float] = {
     # -> ppm/°C
-    "": 1.0,                       # datasheets print CTE bare, ppm/°C implied
-    "ppm/c": 1.0, "ppm/k": 1.0, "ppm/degc": 1.0, "ppm/°c": 1.0,
+    "": 1.0,                       # bare: see _bare_value_factor (ppm vs 1/K by magnitude)
+    "ppm/c": 1.0, "ppm/k": 1.0, "ppm/degc": 1.0, "ppm/°c": 1.0, "ppm": 1.0,
     "um/m/c": 1.0, "um/m/k": 1.0, "um/m/degc": 1.0, "um/m/°c": 1.0,
     "um/(m*c)": 1.0, "um/(m*k)": 1.0, "um/(m·c)": 1.0, "um/(m·k)": 1.0,
-    "um/m·c": 1.0, "um/m·k": 1.0, "um/m°c": 1.0, "um/mk": 1.0,
+    "um/m·c": 1.0, "um/m·k": 1.0, "um/m°c": 1.0, "um/mk": 1.0, "um/m*c": 1.0, "um/m*k": 1.0,
+    "um·/m/k": 1.0, "um/m/m/k": 1.0,
     "10^-6/c": 1.0, "10^-6/k": 1.0, "10^-6/degc": 1.0, "10^-6/°c": 1.0,
     "10-6/c": 1.0, "10-6/k": 1.0, "10-6/°c": 1.0,
     "x10^-6/c": 1.0, "x10^-6/k": 1.0, "x10^-6/°c": 1.0,
@@ -824,6 +830,7 @@ _CTE_UNIT_MAP: dict[str, float] = {
     "uin/in/f": 1.8, "uin/in/°f": 1.8, "uin/in/degf": 1.8, "ppm/f": 1.8,
     "ppm/degf": 1.8, "ppm/°f": 1.8, "10^-6/f": 1.8, "10^-6/°f": 1.8,
     "10-6/f": 1.8, "10-6/°f": 1.8, "x10^-6/f": 1.8, "x10^-6/°f": 1.8,
+    "10^-6in/in/f": 1.8, "10^-6in/in/°f": 1.8, "10-6in/in/f": 1.8, "10-6in/in/°f": 1.8,
     "1/c": 1e6, "1/k": 1e6, "1/degc": 1e6, "1/°c": 1e6, "/c": 1e6, "/k": 1e6,
     "/degc": 1e6, "/°c": 1e6, "m/m/c": 1e6, "m/m/k": 1e6, "m/m/°c": 1e6,
     "m/(m*k)": 1e6, "m/(m·k)": 1e6, "mm/mm/c": 1e6, "mm/mm/k": 1e6, "mm/mm/°c": 1e6,
@@ -833,21 +840,55 @@ _CTE_UNIT_MAP: dict[str, float] = {
 _ELONGATION_UNIT_MAP: dict[str, float] = {
     # -> %
     "%": 1.0, "percent": 1.0, "pct": 1.0,
-    # A bare number or an explicit ratio is a strain FRACTION (0.024 = 2.4 %).
-    "": 100.0, "mm/mm": 100.0, "m/m": 100.0, "in/in": 100.0, "-": 100.0,
+    # bare / ratio: see _bare_value_factor — a strain FRACTION (0.024) or a
+    # percent printed without its unit (2.4), decided by magnitude.
+    "": 1.0, "-": 1.0, "mm/mm": 100.0, "m/m": 100.0, "in/in": 100.0,
     "ratio": 100.0, "strain": 100.0, "fraction": 100.0,
 }
 _SPECIFIC_GRAVITY_UNIT_MAP: dict[str, float] = {
     # dimensionless by definition; tolerate g/cm³ spellings (SG ≈ density in g/cm³)
-    "": 1.0, "-": 1.0, "g/cm3": 1.0, "g/cm³": 1.0, "g/cc": 1.0, "g/ml": 1.0,
+    "": 1.0, "-": 1.0, "g/cm3": 1.0, "g/cm^3": 1.0, "g/cc": 1.0, "g/ml": 1.0,
+    "g/l": 0.001, "kg/m3": 0.001, "kg/m^3": 0.001, "kg/dm3": 1.0, "kg/dm^3": 1.0,
+    "kg/l": 1.0,
 }
+
+
+def _bare_value_factor(fam: _Family, rep: float, value_raw: str) -> Optional[float]:
+    """Factor for a raw-family value printed with NO unit (or a lone dash).
+
+    The bare case is genuinely ambiguous, so decide by what the number can be:
+
+    * elongation: '%' inside value_raw wins (a datasheet cell "2.4 %" the model
+      copied whole) -> percent. Otherwise |v| < 0.5 is a strain fraction
+      (0.024 = 2.4 %; no thermoplastic composite fails below 0.5 % strain);
+      |v| >= 0.5 is a percent printed without its unit (2.4 -> 2.4 %). The
+      x100 rule used to apply to every bare number and turned "2.4 %"/'' into
+      240 % with status ok.
+    * cte: |v| < 1e-3 is a 1/K fraction (2.3e-5 -> 23 ppm/°C), else ppm/°C.
+    * specific gravity: dimensionless, factor 1.
+    Returns None to say "don't know" -> unit_review.
+    """
+    if fam.name == "elongation":
+        if "%" in value_raw:
+            return 1.0
+        return 100.0 if abs(rep) < 0.5 else 1.0
+    if fam.name == "cte":
+        return 1e6 if 0 < abs(rep) < 1e-3 else 1.0
+    if fam.name == "specific_gravity":
+        return 1.0
+    return None
 
 
 # Ordered: specific keywords before generic ones (first match wins).
 # "passthrough" families exist to *shield* generic keywords: e.g. dielectric,
 # impact and tear strength are not pressures, so they must not fall into the
 # MPa families below them. They carry no unit check and no plausibility range.
+# Compression-after-impact (CAI) is a real MPa strength and must be caught
+# BEFORE the impact shield.
 PROPERTY_FAMILIES: list[_Family] = [
+    _Family("cai_strength", ("compression after impact", "compression-after-impact",
+                             "cai"),
+            "MPa", "MPa", 0.5, 6000.0, "physical"),
     _Family("dielectric_strength", ("dielectric strength", "breakdown strength",
                                     "breakdown voltage"),
             "", "", 0.0, 0.0, "passthrough"),
@@ -855,6 +896,9 @@ PROPERTY_FAMILIES: list[_Family] = [
                                 "charpy", "impact energy"),
             "", "", 0.0, 0.0, "passthrough"),
     _Family("tear_strength", ("tear strength", "tear resistance"),
+            "", "", 0.0, 0.0, "passthrough"),
+    _Family("peel_strength", ("peel strength", "peel resistance", "bond strength",
+                              "adhesion strength", "adhesive strength", "weld strength"),
             "", "", 0.0, 0.0, "passthrough"),
     _Family("tensile_modulus",
             ("tensile modulus", "modulus of elasticity", "young", "young's",
@@ -903,6 +947,16 @@ PROPERTY_FAMILIES: list[_Family] = [
                            "failure strain", "ultimate strain"),
             "%", "%", 0.001, 2000.0, "raw", si_factor=0.01,
             unit_map=_ELONGATION_UNIT_MAP),
+    # Generic composite strengths that are real pressures (MPa). Kept LAST so
+    # every shield / specific family above wins first; the bare "strength"
+    # keyword is safe here because dielectric / impact / tear / peel are
+    # already routed to passthrough families.
+    _Family("other_strength",
+            ("short beam", "short-beam", "sbs", "bearing strength", "open hole",
+             "open-hole", "filled hole", "filled-hole", "notched tensile",
+             "unnotched", "interlaminar strength", "transverse strength",
+             "strength"),
+            "MPa", "MPa", 0.5, 10000.0, "physical"),
 ]
 
 
@@ -915,18 +969,39 @@ def _match_family(prop: Property) -> Optional[_Family]:
     return None
 
 
+# 'X⁻¹' / 'X^-1' / 'X-1' suffix -> '/X' so 'K⁻¹', '10⁻⁶ K⁻¹', 'µm·m⁻¹·K⁻¹'
+# collapse onto the '/k' spellings already in the maps.
+_INVERSE_SUFFIX_RE = re.compile(r"([a-z°]+)\^?-1")
+
+
 def _norm_unit_key(unit: str) -> str:
     """Normalize a printed unit into a lookup key for the raw-family unit maps."""
-    u = unicodedata.normalize("NFKC", unit).strip().lower()
-    u = u.replace("µ", "u").replace("μ", "u").replace("−", "-")
+    u = unit.strip()
+    # BEFORE NFKC: it folds 'º' (masculine ordinal, often typed for a degree
+    # sign) to 'o' and superscripts to plain digits, so handle those first.
+    u = u.replace("º", "°").replace("˚", "°")
+    u = u.replace("⁻", "-").replace("⁺", "+")
+    u = u.translate(str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹", "0123456789"))
+    u = unicodedata.normalize("NFKC", u).lower()
+    u = u.replace("µ", "u").replace("μ", "u")
+    u = u.replace("−", "-").replace("–", "-").replace("—", "-")
     u = u.replace(" ", "").replace("(", "").replace(")", "")
     u = u.replace("**", "^").replace("×", "x").replace("*10", "x10").replace("e-06", "e-6")
+    u = u.replace("·", "*")
+    # 'x⁻¹' style: 'k^-1' -> '/k'; 'um*m-1*k-1' -> 'um/m/k'
+    u = _INVERSE_SUFFIX_RE.sub(r"/\1", u)
+    u = u.replace("*/", "/").replace("//", "/")
+    if u.startswith("*"):
+        u = u[1:]
     return u
 
 
-def _raw_factor(fam: _Family, unit: str) -> Optional[float]:
+def _raw_factor(fam: _Family, unit: str, rep: Optional[float] = None,
+                value_raw: str = "") -> Optional[float]:
     """Factor converting a printed raw-family value into `fam.display` units, or None."""
     key = _norm_unit_key(unit)
+    if key in ("", "-") and rep is not None:
+        return _bare_value_factor(fam, rep, value_raw)
     if key in fam.unit_map:
         return fam.unit_map[key]
     # tolerate '°c' vs 'c' vs 'degc' interchangeably
@@ -938,13 +1013,20 @@ def _raw_factor(fam: _Family, unit: str) -> Optional[float]:
     return None
 
 
-_UNIT_POWER_RE = re.compile(r"(?<=[A-Za-z])([23])(?![0-9])")
+# A letter followed by 2/3 is a power (cm3, mm2, in2, ft3, kJ/m2 ...) — but NOT
+# the exponent marker of scientific notation ('1e3 psi', '10E3 psi').
+_UNIT_POWER_RE = re.compile(r"(?<=[A-Za-z])(?<![0-9.][eE])([23])(?![0-9])")
+_SUPERSCRIPT_RE = re.compile(r"([⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+)")
+_SUP_TRANS = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺", "0123456789-+")
 
 
 def _preprocess_unit(unit: str) -> str:
-    u = unicodedata.normalize("NFKC", unit).strip()
+    # Superscripts FIRST: NFKC folds '³' to a plain '3', so '10³ psi' became
+    # '103 psi' (a silent 10x error on the standard US spelling of ksi) and
+    # the later '³' replace was dead code.
+    u = _SUPERSCRIPT_RE.sub(lambda m: "**" + m.group(1).translate(_SUP_TRANS), unit.strip())
+    u = unicodedata.normalize("NFKC", u)
     u = u.replace("·", "*").replace("−", "-")
-    u = u.replace("³", "**3").replace("²", "**2")
     u = u.replace("µ", "u").replace("μ", "u")
     u = u.replace("^", "**")
     u = u.replace("g/cc", "g/cm**3")
@@ -980,7 +1062,7 @@ def canonicalize(prop: Property) -> tuple[str, Optional[float], Optional[str]]:
     if fam.kind == "raw":
         # Never apply si_factor blindly: CTE '2.3e-5 1/K' is 23 ppm/°C, not
         # 2.3e-11; elongation '0.024' (a strain fraction) is 2.4 %, not 0.024 %.
-        factor = _raw_factor(fam, prop.unit)
+        factor = _raw_factor(fam, prop.unit, rep, prop.value_raw)
         if factor is None:
             return (fam.display, None, f"unit_review:unexpected_unit:{prop.unit}!~{fam.display}")
         return (fam.display, rep * factor * fam.si_factor, None)
@@ -1021,7 +1103,7 @@ def _canonical_value(prop: Property, fam: _Family) -> Optional[float]:
     if fam.kind == "passthrough":
         return None
     if fam.kind == "raw":
-        factor = _raw_factor(fam, prop.unit)
+        factor = _raw_factor(fam, prop.unit, rep, prop.value_raw)
         return None if factor is None else rep * factor
     if _UREG is None:  # pragma: no cover
         return rep
@@ -1056,25 +1138,33 @@ def plausibility_problem(prop: Property) -> Optional[str]:
     return None
 
 
-_PLACEHOLDER_VALUES = {"", "n/a", "na", "-", "--", "n.a.", "none", "tbd"}
+_PLACEHOLDER_VALUES = {"", "n/a", "na", "-", "--", "n.a.", "none", "tbd", "…", "..."}
 
 
 def _empty_value(prop: Property) -> bool:
-    return prop.value_raw.strip().lower() in _PLACEHOLDER_VALUES
+    # Fold the typographic dashes a table cell is actually printed with ('–',
+    # '—', '−') before the lookup — a verbatim '–' cell used to pass as a
+    # value and even ground (its folded '-' matched any hyphen on the page).
+    v = prop.value_raw.strip().lower()
+    v = v.replace("–", "-").replace("—", "-").replace("−", "-")
+    return v in _PLACEHOLDER_VALUES
 
 
 # ---------------------------------------------------------------------------
 # Text grounding (Task 1)
 # ---------------------------------------------------------------------------
 
+_SUPERSCRIPT_CHARS_RE = re.compile(r"[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻₀₁₂₃₄₅₆₇₈₉]+")
+
 
 def _normalize_text(s: str) -> str:
+    # Superscript/subscript digits are footnote markers or degree signs glued
+    # to a value ('776¹', '0⁰/45⁰/90⁰'); NFKC would fold them into the number
+    # ('7761'). Replace them with a space BEFORE normalizing.
+    s = _SUPERSCRIPT_CHARS_RE.sub(" ", s)
     s = unicodedata.normalize("NFKC", s)
     s = s.replace("–", "-").replace("—", "-").replace("−", "-")
     s = re.sub(r"\s+", " ", s)
-    # '70 - 75' and '70-75' are the same range; tighten dashes between digits
-    # so a needle written either way grounds against a PDF written either way.
-    s = re.sub(r"(?<=\d) ?- ?(?=\d)", "-", s)
     return s.lower().strip()
 
 
@@ -1085,9 +1175,10 @@ def _grounded(needle: str, haystacks: list[str]) -> bool:
     """True if `needle` occurs in any (already-normalized) haystack.
 
     Purely numeric needles are matched on **digit boundaries**: a value of "3"
-    must not be "verified" by the "3" inside "ISO 527-3" or "23 °C", and "1.2"
-    must not match "11.25". Text needles (source_quote chunks) keep plain
-    substring matching. Haystacks are expected to be `_normalize_text` output.
+    must not be "verified" by the "3" inside "ISO 527-3" or "23 °C", "1.2"
+    must not match "11.25", and "200" must not match "1,200". Text needles
+    (source_quote chunks) keep plain substring matching. Haystacks are
+    expected to be `_normalize_text` output.
     """
     n = _normalize_text(needle)
     if not n:
@@ -1096,13 +1187,24 @@ def _grounded(needle: str, haystacks: list[str]) -> bool:
         # Strip qualifiers/whitespace so "<= -18.0" grounds on "-18.0" (the
         # sign is part of the number; the qualifier may be typeset elsewhere).
         core = re.sub(r"^[~<>=≤≥≈±\s]+", "", n).strip()
-        if not core:
-            return False
-        # Left guard: no digit/dot, and — for an unsigned needle — no '-'
-        # either, so '3' cannot match the tail of 'ISO 527-3' or '2023-3'.
+        if not core or not re.search(r"\d", core):
+            return False   # '-', '.', 'e', '/' alone can never ground
+        # Tighten the needle's own range dash ('70 - 75' -> '70-75'); the
+        # haystack side is handled by the tolerant body pattern below.
+        core = re.sub(r"(?<=\d) ?- ?(?=\d)", "-", core)
+        # Left guard: no digit/dot/thousands-comma, and — for an unsigned
+        # needle — no '-' either, so '3' cannot match the tail of 'ISO 527-3'.
         # A signed needle ('-18.0') legitimately starts with the '-'.
-        left = r"(?<![\d.\-])" if core[0] not in "+-" else r"(?<![\d.])"
-        pat = re.compile(left + re.escape(core) + r"(?![\d.])")
+        left = r"(?<![\d.\-])(?<!\d,)" if core[0] not in "+-" else r"(?<![\d.])(?<!\d,)"
+        # Right guard: no digit, no '.digit' (11.25), no ',digit' (1,200) — a
+        # sentence-ending '.' or a list ', ' is a boundary.
+        right = r"(?!\d|\.\d|,\d)"
+        # Inside the needle, a range/minus dash may be typeset with spaces on
+        # the page ('70 – 75', '2818 -0.46'); tolerate optional spaces around
+        # a digit-dash-digit instead of rewriting the haystack, so a value
+        # after a placeholder dash ('– 2250') still grounds.
+        body = re.sub(r"(?<=\d)\\-(?=\d)", r"\\s?-\\s?", re.escape(core))
+        pat = re.compile(left + body + right)
         return any(pat.search(h) for h in haystacks)
     return any(n in h for h in haystacks)
 
@@ -1138,12 +1240,16 @@ def verify_against_text(extraction: Extraction, page_texts: list[str]) -> Extrac
                 # grounding
                 if norm_pages:
                     page_idx = (prop.page - 1) if prop.page else None
-                    cited = (
-                        [norm_pages[page_idx]]
-                        if page_idx is not None and 0 <= page_idx < len(norm_pages)
-                        else []
-                    )
-                    found = _grounded(prop.value_raw, cited or norm_pages)
+                    page_in_range = page_idx is not None and 0 <= page_idx < len(norm_pages)
+                    cited = [norm_pages[page_idx]] if page_in_range else []
+                    if page_idx is not None and not page_in_range:
+                        # A cited page that doesn't exist is a wrong page too:
+                        # ground anywhere, but say so.
+                        found = _grounded(prop.value_raw, norm_pages)
+                        if found:
+                            reasons.append("grounded_off_page")
+                    else:
+                        found = _grounded(prop.value_raw, cited or norm_pages)
                     if not found and cited:
                         # Fallback: any page. Still grounded (the number IS in
                         # the PDF) but the cited page was wrong — record it as

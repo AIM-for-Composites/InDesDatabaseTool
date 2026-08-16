@@ -104,6 +104,17 @@ Both repos are PUBLIC; assume the keys are already scraped.
 - **L2 — Expanded the eval gold set** to 4 cases (`tc920_pc_abs` 3 materials,
   `tc910_pa6`, `tc1200_peek`, `tc1100_pps`) toward the 8–10 target for a
   meaningful precision/recall baseline.
+- **L3 — 2026-08-15 bugfix batch** (commits `4e9a4cf..401783f`, see
+  `FOLLOWUPS.md` A3 for the human steps it triggers): value parser (U+2212
+  minus flipped signs; `±` mangled `1,200 ± 100`), unit families (`tm` matched
+  "AS**TM**"; bare `strength` swallowed dielectric/impact strength; CTE and
+  elongation ignored the printed unit; `N/mm2` unparseable; specific gravity
+  false-flagged), grounding (short numbers verified against `ISO 527-3`),
+  identity (`material_key` ignored `trade_grade` → multi-grade rows silently
+  dropped), `sources` keyed on basename (same-name PDFs re-extracted forever),
+  `--promote` over-matching, File-API path without retry + a 4xx retried 3×,
+  crawler blacklisting transient failures, `generate_queries.py` ImportError,
+  and the Space `data_loader` publish gate. 176 regression tests in `tests/`.
 
 ## What only you can do (needs consoles / the InDeS repo)
 

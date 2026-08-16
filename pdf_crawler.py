@@ -179,6 +179,11 @@ class CrawlerState:
         self.seen_urls: set[str] = set()
         self.seen_hashes: set[str] = set()
         self.failed: dict[str, int] = {}
+        # Per-run only (not persisted): URLs already attempted in THIS process.
+        # The same pdf_url surfaces several times per run (overlapping queries,
+        # several lanes); without this a single outage would burn all
+        # MAX_URL_ATTEMPTS in one run and blacklist the URL after all.
+        self.attempted: set[str] = set()
         if path.exists():
             try:
                 data = json.loads(path.read_text())
@@ -297,6 +302,19 @@ def relevance_score(text: str) -> int:
     return sum(w for k, w in MATERIAL_KEYWORDS.items() if k in t)
 
 
+def _passes_gate(title: str, abstract: str, pdf_url: str, min_score: int) -> bool:
+    """The junk-URL + relevance gate, applied INSIDE each search lane.
+
+    The lanes over-fetch (min(limit*3, 50)) precisely because this gate
+    discards a good share of hits; counting toward `limit` before applying it
+    made the over-fetch a no-op (the first `limit` entries were yielded and
+    then filtered in main(), exactly as if nothing had been over-fetched).
+    """
+    if looks_like_junk(pdf_url):
+        return False
+    return relevance_score(title + " " + abstract) >= min_score
+
+
 def slugify(title: str, maxlen: int = 70) -> str:
     s = re.sub(r"[^a-zA-Z0-9]+", "_", title).strip("_").lower()
     return s[:maxlen] or "untitled"
@@ -306,7 +324,7 @@ def slugify(title: str, maxlen: int = 70) -> str:
 # Source 1: OpenAlex
 # ---------------------------------------------------------------------------
 
-def search_openalex(query: str, limit: int) -> Iterable[Candidate]:
+def search_openalex(query: str, limit: int, min_score: int = MIN_SCORE) -> Iterable[Candidate]:
     url = (
         "https://api.openalex.org/works"
         f"?search={urllib.parse.quote(query)}"
@@ -335,12 +353,16 @@ def search_openalex(query: str, limit: int) -> Iterable[Candidate]:
                 for i in idxs:
                     pos[i] = word
             abstract = " ".join(pos[i] for i in sorted(pos))[:2000]
+        # Gate on relevance BEFORE the (network) Unpaywall lookup and before
+        # counting toward `limit`.
+        if relevance_score(title + " " + abstract) < min_score:
+            continue
         if not pdf_url and doi:
             pdf_url = unpaywall_pdf_url(doi)
             src = "unpaywall"
         else:
             src = "openalex"
-        if not pdf_url:
+        if not pdf_url or looks_like_junk(pdf_url):
             continue
         yield Candidate(
             title=title, pdf_url=pdf_url, source=src, query=query,
@@ -368,7 +390,7 @@ S2_FIELDS = "title,abstract,year,externalIds,openAccessPdf"
 # gives a dedicated quota; set S2_API_KEY in the env or pass --s2-api-key.
 S2_API_KEY = os.environ.get("S2_API_KEY") or os.environ.get("SEMANTIC_SCHOLAR_API_KEY") or ""
 
-def search_semantic_scholar(query: str, limit: int) -> Iterable[Candidate]:
+def search_semantic_scholar(query: str, limit: int, min_score: int = MIN_SCORE) -> Iterable[Candidate]:
     headers = {"x-api-key": S2_API_KEY} if S2_API_KEY else None
     r = http_get(S2_API, params={"query": query, "limit": min(limit * 3, 50),
                                  "fields": S2_FIELDS}, headers=headers)
@@ -387,11 +409,15 @@ def search_semantic_scholar(query: str, limit: int) -> Iterable[Candidate]:
         pdf_url = oa.get("url")
         if not pdf_url:
             continue
+        title = p.get("title") or ""
+        abstract = (p.get("abstract") or "")[:2000]
+        if not _passes_gate(title, abstract, pdf_url, min_score):
+            continue
         yield Candidate(
-            title=p.get("title") or "", pdf_url=pdf_url,
+            title=title, pdf_url=pdf_url,
             source="semanticscholar", query=query,
             doi=str(ext.get("DOI") or ""), year=str(p.get("year") or ""),
-            abstract=(p.get("abstract") or "")[:2000],
+            abstract=abstract,
         )
         n += 1
 
@@ -402,11 +428,11 @@ def search_semantic_scholar(query: str, limit: int) -> Iterable[Candidate]:
 
 ARXIV_NS = {"a": "http://www.w3.org/2005/Atom"}
 
-def search_arxiv(query: str, limit: int) -> Iterable[Candidate]:
+def search_arxiv(query: str, limit: int, min_score: int = MIN_SCORE) -> Iterable[Candidate]:
     q = urllib.parse.quote(f'all:"{query}"' if " " in query else f"all:{query}")
-    # Over-fetch like OpenAlex/S2 do: the relevance gate and junk-URL filter in
-    # main() discard a good share of hits, so asking for exactly `limit` left
-    # arXiv under-yielding ~3x relative to the other lanes.
+    # Over-fetch like OpenAlex/S2 do and apply the relevance gate INSIDE the
+    # loop (see _passes_gate) so `limit` counts relevant candidates, not raw
+    # entries — asking for exactly `limit` left arXiv under-yielding ~3x.
     url = (f"https://export.arxiv.org/api/query?search_query={q}"
            f"&max_results={min(limit * 3, 50)}&sortBy=relevance")
     r = http_get(url)
@@ -428,7 +454,7 @@ def search_arxiv(query: str, limit: int) -> Iterable[Candidate]:
         for link in entry.findall("a:link", ARXIV_NS):
             if link.get("title") == "pdf" or link.get("type") == "application/pdf":
                 pdf_url = link.get("href", "")
-        if pdf_url:
+        if pdf_url and _passes_gate(title, abstract, pdf_url, min_score):
             yield Candidate(title=title, pdf_url=pdf_url, source="arxiv",
                             query=query, year=year, abstract=abstract)
             n += 1
@@ -587,8 +613,9 @@ def download_pdf(cand: Candidate, pdf_dir: Path, state: CrawlerState) -> Optiona
     state.failed and the URL is retried on a later run.
     """
     url = cand.pdf_url
-    if url in state.seen_urls:
+    if url in state.seen_urls or url in state.attempted:
         return None
+    state.attempted.add(url)
 
     pre = head_precheck(url)
     if pre == PRECHECK_REJECT:
@@ -762,9 +789,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         if not args.skip_academic:
             for q in queries:
                 log.info("=== query: %s ===", q)
-                cands = list(search_openalex(q, args.max_per_query))
-                cands += list(search_semantic_scholar(q, args.max_per_query))
-                cands += list(search_arxiv(q, args.max_per_query))
+                cands = list(search_openalex(q, args.max_per_query, args.min_score))
+                cands += list(search_semantic_scholar(q, args.max_per_query, args.min_score))
+                cands += list(search_arxiv(q, args.max_per_query, args.min_score))
                 for c in cands:
                     if looks_like_junk(c.pdf_url):
                         log.debug("Junk URL filter: %s", c.pdf_url)

@@ -26,10 +26,14 @@ Desktop.ini
 team/**/transcript.jsonl
 
 # --- project-specific ---
+# (gitignore only treats '#' as a comment at the START of a line — never
+#  put a comment after a pattern, it becomes part of the pattern.)
 crawl_out/
-eval/last_run/          # raw per-case extractions from the last `python -m eval`
+# raw per-case extractions from the last `python -m eval`
+eval/last_run/
 *.sqlite
 *.sqlite.bak
 run_report.json
 review_queue.csv
-pg_backup_*/            # regenerable CSV dumps written by pg_migrate.py --apply
+# regenerable CSV dumps written by pg_migrate.py --apply
+pg_backup_*/

@@ -191,6 +191,20 @@ def ensure_schema(conn) -> dict[str, list[str]]:
                 f"CREATE UNIQUE INDEX IF NOT EXISTS {dedup_index_name(table)} "
                 f"ON {_q(table)} ({exprs}) WHERE source_sha1 IS NOT NULL"
             )
+            # Re-key rows written before trade_grade joined material_key
+            # ('<name>' -> '<name>|<grade>', same rule as
+            # extraction.material_key / migrate.backfill_material_key_grade),
+            # so a re-ingest dedups against them. Idempotent (skips keys that
+            # already contain '|').
+            cur.execute(
+                f"UPDATE {_q(table)} SET material_key = material_key || '|' || s.g "
+                f"FROM (SELECT id AS _id, regexp_replace(lower(trim(trade_grade)), '\\s+', ' ', 'g') AS g "
+                f"      FROM {_q(table)}) s "
+                f"WHERE {_q(table)}.id = s._id "
+                f"  AND source_sha1 IS NOT NULL AND COALESCE(trade_grade,'') <> '' "
+                f"  AND COALESCE(material_key,'') <> '' AND material_key NOT LIKE '%|%' "
+                f"  AND s.g <> material_key AND position(s.g IN material_key) = 0"
+            )
 
         # Doc-level bookkeeping table (mirrors the SQLite `sources` table).
         # Identity is the content hash (pdf_sha1), NOT the basename — see

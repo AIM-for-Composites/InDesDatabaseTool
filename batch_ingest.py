@@ -59,7 +59,12 @@ import requests
 
 import extraction
 from extraction import Extraction, PropertyRow, extract_from_pdf, to_rows, verify_against_text
-from migrate import EXTRA_COLUMNS, ensure_columns, ensure_sources_sha1_unique
+from migrate import (
+    EXTRA_COLUMNS,
+    backfill_material_key_grade,
+    ensure_columns,
+    ensure_sources_sha1_unique,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -139,6 +144,9 @@ def init_db(path: Path) -> sqlite3.Connection:
     # Add the hardening-phase columns if they aren't there yet (idempotent).
     for table in ALL_TABLES:
         ensure_columns(conn, table)
+        # Rows written before trade_grade joined material_key get re-keyed
+        # once, so a re-ingest dedups against them instead of doubling them.
+        backfill_material_key_grade(conn, table)
     # Legacy DBs keyed `sources` on pdf_filename; rebuild to pdf_sha1 (idempotent).
     ensure_sources_sha1_unique(conn)
     conn.commit()

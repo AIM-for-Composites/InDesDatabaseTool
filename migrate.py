@@ -111,8 +111,16 @@ def ensure_sources_sha1_unique(conn: sqlite3.Connection) -> bool:
     key = _sources_unique_column(conn)
     if key in (None, "pdf_sha1"):
         return False
+    # One transaction: Python's sqlite3 executescript() autocommits each
+    # statement otherwise, and a crash between the CREATE and the RENAME left
+    # every later init_db() failing on "sources__new already exists" (or, after
+    # the DROP, silently orphaned the whole logbook). DDL is transactional in
+    # SQLite, so BEGIN/COMMIT makes the rebuild all-or-nothing; the leading
+    # DROP IF EXISTS makes a retry after a crash self-healing.
     conn.executescript(
         """
+        BEGIN;
+        DROP TABLE IF EXISTS sources__new;
         CREATE TABLE sources__new (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             pdf_filename TEXT,
@@ -128,9 +136,45 @@ def ensure_sources_sha1_unique(conn: sqlite3.Connection) -> bool:
         WHERE id IN (SELECT MIN(id) FROM sources GROUP BY IFNULL(pdf_sha1, '__null__' || id));
         DROP TABLE sources;
         ALTER TABLE sources__new RENAME TO sources;
+        COMMIT;
         """
     )
     return True
+
+
+def backfill_material_key_grade(conn: sqlite3.Connection, table: str) -> int:
+    """Re-key pipeline rows written before trade_grade became part of material_key.
+
+    Rows ingested before 2026-08 carry ``material_key = <name>`` while their
+    ``trade_grade`` column is populated; the current rule is
+    ``<name>|<grade>`` (see extraction.material_key). Without this backfill a
+    re-ingest of the same PDF would not dedup against the old rows and would
+    insert every graded row a second time. Only touches pipeline rows
+    (``source_sha1`` set) whose key has no ``|`` yet. Idempotent. Returns the
+    number of rows updated. Computed in Python so it is byte-identical to
+    what extraction.material_key() produces.
+    """
+    import re as _re
+    info = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name=?", (table,)
+    ).fetchone()
+    if not info:
+        return 0
+    have = _existing_columns(conn, table)
+    if not {"material_key", "trade_grade", "source_sha1"} <= have:
+        return 0
+    rows = conn.execute(
+        f"SELECT id, material_key, trade_grade FROM {table} "
+        f"WHERE source_sha1 IS NOT NULL AND IFNULL(trade_grade,'') <> '' "
+        f"  AND IFNULL(material_key,'') <> '' AND material_key NOT LIKE '%|%'"
+    ).fetchall()
+    n = 0
+    for rid, key, grade in rows:
+        g = _re.sub(r"\s+", " ", (grade or "").strip().lower())
+        if g and g != key and g not in key:
+            conn.execute(f"UPDATE {table} SET material_key=? WHERE id=?", (f"{key}|{g}", rid))
+            n += 1
+    return n
 
 
 def migrate(db_path: Path, backup: bool = True) -> dict[str, list[str]]:
@@ -144,6 +188,9 @@ def migrate(db_path: Path, backup: bool = True) -> dict[str, list[str]]:
         result: dict[str, list[str]] = {}
         for table in TARGET_TABLES:
             added = ensure_columns(conn, table)
+            n = backfill_material_key_grade(conn, table)
+            if n:
+                added = added + [f"(re-keyed {n} rows: material_key += '|trade_grade')"]
             result[table] = added
         if ensure_sources_sha1_unique(conn):
             result["sources"] = ["UNIQUE(pdf_sha1) (rebuilt from UNIQUE(pdf_filename))"]

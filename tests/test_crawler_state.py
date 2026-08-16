@@ -89,26 +89,45 @@ def test_transient_head_block_is_not_blacklisted(env):
     assert st.failed[env["cand"].pdf_url] == 1
 
 
+def _next_run(state: C.CrawlerState) -> C.CrawlerState:
+    """Simulate a fresh crawler process: persisted state survives, the
+    per-run `attempted` set does not."""
+    state.save()
+    return C.CrawlerState(state.path)
+
+
 def test_transient_get_failure_counts_then_succeeds_next_run(env):
     url = env["cand"].pdf_url
     env["script"]["get"] = None                        # http_get exhausted retries
     C.download_pdf(env["cand"], env["pdf_dir"], env["state"])
     assert env["state"].failed[url] == 1
     # "next run": server is back
+    st = _next_run(env["state"])
     env["script"]["get"] = _Get(_real_pdf_bytes())
-    row = C.download_pdf(env["cand"], env["pdf_dir"], env["state"])
+    row = C.download_pdf(env["cand"], env["pdf_dir"], st)
     assert row is not None and row["url"] == url
-    assert url in env["state"].seen_urls
-    assert url not in env["state"].failed
+    assert url in st.seen_urls
+    assert url not in st.failed
 
 
 def test_gives_up_after_max_attempts(env):
     url = env["cand"].pdf_url
     env["script"]["get"] = None
+    st = env["state"]
     for _ in range(C.MAX_URL_ATTEMPTS):
+        C.download_pdf(env["cand"], env["pdf_dir"], st)
+        st = _next_run(st)                              # one attempt per RUN
+    assert url in st.seen_urls
+    assert url not in st.failed
+
+
+def test_same_url_twice_in_one_run_is_one_attempt(env):
+    url = env["cand"].pdf_url
+    env["script"]["get"] = None
+    for _ in range(4):
         C.download_pdf(env["cand"], env["pdf_dir"], env["state"])
-    assert url in env["state"].seen_urls
-    assert url not in env["state"].failed
+    assert env["state"].failed[url] == 1
+    assert url not in env["state"].seen_urls
 
 
 def test_deterministic_rejections_are_final(env):

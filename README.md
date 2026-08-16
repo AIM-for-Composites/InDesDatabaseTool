@@ -34,8 +34,10 @@ statuses, unit handling, and DB columns.
 | `crawler_ui.py` | Streamlit UI for the crawler |
 | `extraction.py` | **Single source of truth** for the Gemini prompt/schema + all post-extraction processing (grounding, unit normalization, classification, dedup) |
 | `batch_ingest.py` | Batch driver: PDFs → extraction → validation → SQLite mirror + review queue |
-| `migrate.py` | Non-destructive DB column migration (also `batch_ingest.py --migrate`) |
-| `eval/` | Eval harness scoring extraction against hand-labeled gold PDFs (`python -m eval`) |
+| `migrate.py` | Non-destructive DB migration (also `batch_ingest.py --migrate`): hardening columns + `sources` re-key on `pdf_sha1` |
+| `pg_mirror.py` / `pg_migrate.py` | Postgres backend for `--pg` (the DB the HF Space reads) + its dry-run-default migration |
+| `eval/` | Eval harness scoring extraction against hand-labeled gold PDFs (`python -m eval`; `--selfcheck` and `--gold-check` run offline) |
+| `tests/` | pytest regression suite over the pure logic (value parsing, unit families, grounding, dedup/migration, transport, crawler state) — `python -m pytest tests/` |
 
 ## Setup
 
@@ -62,7 +64,11 @@ python batch_ingest.py --migrate --db materials_mirror.sqlite
 
 # 3. score extraction quality against the gold set
 python -m eval --report eval_report.json
-python -m eval --selfcheck            # offline check, no API key needed
+python -m eval --selfcheck            # offline check of the scorer, no API key needed
+python -m eval --gold-check           # offline: every gold value/alias is in its PDF text
+
+# 4. regression tests (offline, ~2 s)
+python -m pytest tests/
 ```
 
 ### Postgres mode (feed the HF Space's database)

@@ -97,15 +97,26 @@ Matching rules (2026-08 fixes):
 - Short keywords (`tg`, `tm`, `hdt`, `cte`, `young`…) match on **token
   boundaries** — `tm` no longer hits "AS**TM**", `tg` no longer hits
   "ou**tg**assing".
-- Dielectric / impact / tear strength are **passthrough** families that shield
-  the generic word "strength" from the MPa families (unit passed through, no SI
-  conversion, no range check).
+- Dielectric / impact / tear / peel strength are **passthrough** families that
+  shield the generic word "strength" from the MPa families (unit passed
+  through, no SI conversion, no range check). Compression-after-impact (CAI)
+  is caught *before* the impact shield; short-beam / bearing / open-hole /
+  filled-hole and any other "…strength" fall to a generic MPa family at the
+  **end** of the list.
 - The raw families (CTE, elongation, specific gravity) honor the **printed
-  unit** via an accepted-spelling map: `2.3e-5 1/K` → 23 ppm/°C, `13 ppm/°F` →
-  23.4 ppm/°C, elongation `0.024` (bare/`mm/mm`) → 2.4 %. Anything not in the
-  map is `unit_review:unexpected_unit`, never a silent default factor.
-- `_preprocess_unit` treats any letter+2/3 as a power, so `N/mm2`, `kN/mm2`,
-  `lb/in3` parse (the standard European MPa spelling used to fail).
+  unit** via an accepted-spelling map (dashes, `º`, and `X⁻¹` suffixes are
+  folded): `2.3e-5 1/K` → 23 ppm/°C, `13 ppm/°F` → 23.4 ppm/°C, elongation
+  `0.024 mm/mm` → 2.4 %. A value printed with **no unit** is decided by
+  magnitude: elongation with `%` inside `value_raw` is percent; otherwise
+  |v| < 0.5 is a strain fraction (×100), |v| ≥ 0.5 a percent; CTE |v| < 1e-3
+  is 1/K (×10⁶), else ppm/°C. Anything else not in the map is
+  `unit_review:unexpected_unit`, never a silent default factor.
+- `_preprocess_unit` rewrites superscripts *before* NFKC (`10³ psi` → `10**3
+  psi`, i.e. ksi; NFKC alone turned it into `103 psi`) and treats any
+  letter+2/3 as a power except the `e` of scientific notation, so `N/mm2`,
+  `kN/mm2`, `lb/in3`, `1e3 psi` all parse.
+- Short keywords tolerate a trailing digit (`Tg2`, `CTE1`, `HDT1.8`) but not a
+  trailing letter.
 
 ## Per-row status (Task 4 — nothing is dropped)
 
@@ -122,11 +133,17 @@ Precedence when several issues apply: `empty_value` → `unverified` →
 | `empty_value` | value is blank / `n/a` / `-` / placeholder |
 
 Grounding matches purely numeric values on **digit boundaries** — a value of
-`3` is not "verified" by the `3` inside `ISO 527-3` or `23 °C` (2026-08 fix).
-An `ok` row can additionally carry a *soft* reason in `flag_reason` that does
-not change its status: `grounded_off_page` (the value is in the PDF but not on
-the cited page) or `grounded_via_quote` (only the `source_quote` was found).
-Reviewers can grep for these to inspect the weaker provenance chains.
+`3` is not "verified" by the `3` inside `ISO 527-3` or `23 °C`, `200` not by
+`1,200`, `1.2` not by `11.25` (2026-08 fix). Range/minus dashes may be spaced
+on the page (`70 – 75`, `– 2250`, `2818 -0.46`) — the needle tolerates that;
+superscript footnote digits (`776¹`) and a sentence-ending `.` are boundaries;
+a needle with no digit (`–`, `.`, `e`) never grounds, and a lone typographic
+dash in `value_raw` is an `empty_value`. An `ok` row can additionally carry a
+*soft* reason in `flag_reason` that does not change its status:
+`grounded_off_page` (the value is in the PDF but not on the cited page — or
+the cited page number doesn't exist) or `grounded_via_quote` (only the
+`source_quote` was found). Reviewers can grep for these to inspect the weaker
+provenance chains.
 
 `review_queue.csv` is a `SELECT … WHERE status != 'ok'` **view** over the DB, not
 a discard pile. Corrected rows can be re-admitted with
@@ -158,8 +175,10 @@ Every property row carries `source_pdf`, `source_sha1`, `page`, and
 abbreviation) **plus the trade grade** when one is known — `peek|150g` vs
 `peek|450g` — so two grades from one datasheet that share a value (density,
 Tg…) are two rows, not one row and one silent "duplicate" (2026-08 fix).
-Re-ingesting the same PDF adds 0 rows; the same property measured in a
-*different* PDF is kept as an independent repeat.
+`--migrate` / `pg_migrate.py --apply` re-key rows written before this rule
+(`peek` + `trade_grade=150G` → `peek|150g`) so a re-ingest dedups against
+them instead of doubling them. Re-ingesting the same PDF adds 0 rows; the
+same property measured in a *different* PDF is kept as an independent repeat.
 
 The `sources` logbook is keyed on `pdf_sha1` (content), not the basename — two
 different PDFs called `datasheet.pdf` under different vendor folders are two

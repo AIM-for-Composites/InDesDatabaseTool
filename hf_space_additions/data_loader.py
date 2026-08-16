@@ -14,6 +14,10 @@ EMPTY_MATERIAL_COLUMNS = [
     "extracted_at",
 ]
 
+# Publish gate (see load_material_data). Kept as one constant so the
+# unmigrated-DB fallback's replace() can never drift from the SQL.
+_STATUS_FILTER = "WHERE COALESCE(status, 'ok') = 'ok'"
+
 def load_material_data(material_type: str) -> pd.DataFrame:
     table_map = {
         "Polymers": "Polymers",
@@ -43,26 +47,43 @@ def load_material_data(material_type: str) -> pd.DataFrame:
             comments,
             extracted_at
         FROM "{table}"
-        WHERE COALESCE(status, 'ok') = 'ok'
+        {_STATUS_FILTER}
     """
 
     try:
         rows = fetch_all(query)
-    except Exception:
-        # Most likely cause: the DB was never migrated (no `status` column).
-        # Degrade to the unfiltered SELECT rather than blanking the whole
-        # search page — but say so, loudly, in the Space logs.
-        import logging
-        logging.getLogger("data_loader").warning(
-            "status-filtered SELECT on %s failed; falling back to UNFILTERED "
-            "rows. Run `python pg_migrate.py --apply` so quarantined rows are "
-            "hidden from search.", table, exc_info=True,
-        )
-        try:
-            rows = fetch_all(query.replace("WHERE COALESCE(status, 'ok') = 'ok'", ""))
-        except Exception:
+    except Exception as exc:
+        # Degrade to the unfiltered SELECT ONLY when the failure is the one
+        # schema case this filter can cause — the DB was never migrated and
+        # has no `status` column (Postgres SQLSTATE 42703 "undefined column").
+        # Any other error (connection reset, timeout, pool exhausted) keeps
+        # the previous behavior — an empty frame — because the caller wraps
+        # this in st.cache_data with no TTL, and one transient hiccup must
+        # not publish quarantined rows for the life of the process.
+        if _is_undefined_column(exc, "status"):
+            import logging
+            logging.getLogger("data_loader").warning(
+                "%s has no `status` column; falling back to the UNFILTERED "
+                "SELECT. Run `python pg_migrate.py --apply` so quarantined "
+                "rows are hidden from search.", table,
+            )
+            try:
+                rows = fetch_all(query.replace(_STATUS_FILTER, ""))
+            except Exception:
+                return pd.DataFrame(columns=EMPTY_MATERIAL_COLUMNS)
+        else:
             return pd.DataFrame(columns=EMPTY_MATERIAL_COLUMNS)
     return pd.DataFrame(rows, columns=EMPTY_MATERIAL_COLUMNS)
+
+
+def _is_undefined_column(exc: Exception, column: str) -> bool:
+    """True iff `exc` is Postgres 'column ... does not exist' for `column`."""
+    sqlstate = getattr(exc, "sqlstate", None) or getattr(
+        getattr(exc, "diag", None), "sqlstate", None) or getattr(exc, "pgcode", None)
+    msg = str(exc).lower()
+    if sqlstate == "42703":
+        return column in msg
+    return ("does not exist" in msg or "undefined column" in msg) and column in msg
 
 def get_all_sections():
     all_data = pd.concat([
