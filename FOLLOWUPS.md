@@ -73,6 +73,10 @@ against the repo before building: the app consumer to guard is the Space's
 publish gate (`status='ok'`) plus the insert-time invariant "a figure row is
 never `ok`" is the export guard. Human steps:
 
+- **Re-run `python pg_migrate.py` then `--apply` before the next
+  `batch_ingest --pg`** — even a text-only one: `origin`/`figure_id` joined
+  `EXTRA_COLUMNS`, and `check_schema()` refuses to ingest (or `--promote`)
+  until they exist. The dry-run shows exactly the two ADD COLUMNs.
 - **Run it with a key** — the offline suite proves the plumbing end to end
   with a scripted Gemini (harvest on the real corpus, classify/mine/rows/dedup/
   review/promote/backfill/failure modes), but the live acceptance run

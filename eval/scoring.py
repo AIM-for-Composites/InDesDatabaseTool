@@ -59,6 +59,20 @@ def _gold_si(gold_prop: dict[str, Any]) -> Optional[float]:
     return E._representative_value(p)
 
 
+def _pred_si_under_gold_name(pred: E.Property, gold_prop: dict[str, Any]) -> Optional[float]:
+    p = E.Property(
+        section="",
+        property_name=gold_prop.get("property_name", ""),
+        value_raw=pred.value_raw,
+        unit=pred.unit,
+        value_num=pred.value_num,
+        value_min=pred.value_min,
+        value_max=pred.value_max,
+    )
+    _, value_si, _ = E.canonicalize(p)
+    return value_si
+
+
 def _value_within_tol(pred: E.Property, gold_prop: dict[str, Any]) -> Optional[bool]:
     """True/False if comparable, None if the gold has no numeric target."""
     gold_si = _gold_si(gold_prop)
@@ -67,7 +81,15 @@ def _value_within_tol(pred: E.Property, gold_prop: dict[str, Any]) -> Optional[b
     if pred.value_si is not None:
         pred_val = pred.value_si
     else:
-        pred_val = E._representative_value(pred)
+        # The prediction matched this gold property by alias but its own name
+        # hit no unit family (e.g. 'Peak stress' for gold 'Tensile strength'),
+        # so it has no value_si. Re-canonicalize it UNDER THE GOLD NAME so the
+        # comparison happens in the same units the gold was converted to —
+        # otherwise a raw 610 (MPa) was compared against 608e6 (Pa) and an
+        # exact hit scored as 'value off'.
+        pred_val = _pred_si_under_gold_name(pred, gold_prop)
+        if pred_val is None:
+            pred_val = E._representative_value(pred)
     if pred_val is None:
         return False
     tol = float(gold_prop.get("tolerance_pct", 5)) / 100.0

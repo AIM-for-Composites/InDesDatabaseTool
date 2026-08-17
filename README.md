@@ -104,7 +104,9 @@ python batch_ingest.py --pg --input crawl_out/pdfs   # ingest straight to Postgr
 
 `pg_migrate.py` is additive only (new columns, a partial dedup index, a
 `sources` table); `batch_ingest.py --pg` refuses to run until the migration has
-been applied. See `pg_mirror.py` for details.
+been applied — re-run it after pulling a change that extends
+`migrate.EXTRA_COLUMNS` (the figure-mining phase added `origin`/`figure_id`).
+See `pg_mirror.py` for details.
 
 ## Notes
 

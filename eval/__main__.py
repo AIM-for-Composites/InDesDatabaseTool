@@ -138,11 +138,12 @@ def _run_figure_case(pdf_bytes: bytes, pdf_path: Path, api_key: str):
     scorer applies unchanged."""
     import figures as F
 
+    import hashlib
     ext = E.extract_from_pdf(pdf_bytes, pdf_path.name, api_key)
     stage = F.run_figure_stage(
-        pdf_bytes, pdf_path.name, "eval", ext.materials, api_key,
+        pdf_bytes, pdf_path.name, hashlib.sha1(pdf_bytes).hexdigest(), ext.materials, api_key,
         out_dir=LAST_RUN_DIR / "figures", max_figures=12, mine=True,
-    )
+    )   # per-case sha1 dir, so two figure cases never overwrite each other's PNGs
     return ext, figure_rows_to_extraction(stage.rows), stage
 
 

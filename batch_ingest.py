@@ -322,6 +322,14 @@ def figures_done_for(conn: sqlite3.Connection, sha1: str, mine: bool) -> set[str
     return {r[0] for r in cur.fetchall()}
 
 
+def source_status(conn: sqlite3.Connection, sha1: str) -> Optional[str]:
+    """material_class recorded in `sources` for this PDF ('scanned_no_text' marks
+    an image-only PDF the text pass refused)."""
+    cur = conn.execute("SELECT material_class FROM sources WHERE pdf_sha1 = ? LIMIT 1", (sha1,))
+    r = cur.fetchone()
+    return r[0] if r else None
+
+
 def figures_pending_for(conn: sqlite3.Connection, sha1: str, mine: bool) -> int:
     """Figures recorded for this PDF that are NOT done (a rerun should retry them)."""
     return figures_recorded_for(conn, sha1) - len(figures_done_for(conn, sha1, mine))
@@ -438,12 +446,14 @@ def _run_figure_stage(
             frows += 1
         result.figure_rows = frows
         result.figure_duplicates = fdups
-        # figure rows are never 'ok' -> they all count as flagged
-        result.flagged += frows
-        result.inserted += frows
+        # The top-level rows_* metrics stay TEXT-only (insert_rate = inserted /
+        # extracted must stay <= 1); figure counts live under result.figure_*
+        # and run_report.json["figures"].
         conn.commit()
         if stage.vision.failed_calls and not result.figure_error:
             result.figure_error = f"vision_calls_failed:{stage.vision.failed_calls}"
+        elif stage.vision.incomplete_calls and not result.figure_error:
+            result.figure_error = f"classify_incomplete:{stage.vision.incomplete_calls}"
     except Exception as exc:  # pragma: no cover - defensive; run_figure_stage already guards
         log = logging.getLogger("batch_ingest")
         log.exception("figure stage crashed for %s", pdf_path.name)
@@ -476,7 +486,11 @@ def process_pdf(
     # and only for the pending figures.
     if db.seen_sha1(conn, sha1):
         result = _empty_result(pdf_path, started, "skipped_seen_sha1")
-        if figure_opts is not None and hasattr(db, "figures_recorded_for") and (
+        # Whole-page scans are not figures: a PDF the text pass refused as
+        # scanned_no_text stays skipped on reruns too (it used to be backfilled
+        # — spending vision calls on page scans with zero text context).
+        scanned = hasattr(db, "source_status") and db.source_status(conn, sha1) == "scanned_no_text"
+        if figure_opts is not None and not scanned and hasattr(db, "figures_recorded_for") and (
                 db.figures_recorded_for(conn, sha1) == 0
                 or db.figures_pending_for(conn, sha1, figure_opts.mine) > 0):
             mats = db.materials_for_source(conn, sha1)

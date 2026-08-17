@@ -106,8 +106,14 @@ CLUSTER_OVERLAP_SKIP = 0.60      # cluster mostly covered by a harvested raster 
 # vision call to produce figure_estimate duplicates of ok rows. Measured on the
 # corpus: datasheet tables 5-12 chars/kpt² with 1-5 objects; vector plots
 # <2 chars/kpt² with 26-500+ objects. Set the density to 0 to disable.
-VECTOR_TEXT_DENSITY_SKIP = 4.0   # chars per 1000 pt²
-VECTOR_TEXT_TABLE_MAX_DRAWINGS = 20
+VECTOR_TEXT_DENSITY_SKIP = 3.5   # chars per 1000 pt²: above this an UNCAPTIONED cluster is a text table
+TABLE_CAPTION_ABOVE_PT = 40.0    # a 'Table N' block this close above a cluster marks a table
+# Measured on the corpus: every uncaptioned vector cluster above 3.5 chars/kpt²
+# is a live-text table (Toray 4.9-12, Polystrand 4.2, Avient 3.8); the only
+# real uncaptioned vector figure sits at 0.4; plots strongly paired with a
+# 'Figure N' caption are exempt (a bar chart with dense tick labels ran 4.2).
+# A 'Table N' caption directly ABOVE a cluster (tables are captioned above,
+# figures below) marks a table even when a Figure caption is nearby.
 
 CAPTION_RE = re.compile(r"^\s*(Fig(?:ure)?\.?|FIG\.?)\s*\d+", re.IGNORECASE)
 CAPTION_MAX_CHARS = 600
@@ -148,8 +154,9 @@ class Figure:
     n_values: int = 0
     model: str = GEMINI_MODEL
     figure_prompt_version: str = FIGURE_PROMPT_VERSION
-    # not persisted: raw PNG bytes for the vision calls
+    # not persisted: raw PNG bytes (on-disk artifact) + the JPEG copy sent to Gemini
     png_bytes: bytes = dataclasses.field(default=b"", repr=False, compare=False)
+    jpeg_bytes: bytes = dataclasses.field(default=b"", repr=False, compare=False)
 
     @property
     def label(self) -> str:
@@ -190,6 +197,7 @@ class VisionStats:
     classify_calls: int = 0
     mining_calls: int = 0
     failed_calls: int = 0
+    incomplete_calls: int = 0     # classify responses that skipped some indices
 
     @property
     def total(self) -> int:
@@ -199,6 +207,7 @@ class VisionStats:
         self.classify_calls += other.classify_calls
         self.mining_calls += other.mining_calls
         self.failed_calls += other.failed_calls
+        self.incomplete_calls += other.incomplete_calls
 
 
 @dataclasses.dataclass
@@ -238,15 +247,66 @@ def _expand(rect: "fitz.Rect", page_rect: "fitz.Rect") -> "fitz.Rect":
     return fitz.Rect(rect.x0 - m, rect.y0 - m, rect.x1 + m, rect.y1 + m) & page_rect
 
 
+def _render_rect(rect: "fitz.Rect", page: "fitz.Page") -> "fitz.Rect":
+    """The region to render for a figure whose geometry came from
+    get_image_rects / cluster_drawings / get_text — those are UNROTATED page
+    coordinates, while get_pixmap's clip (and page.rect) are ROTATED display
+    coordinates. On a /Rotate 90|270 page the two differ and rendering the
+    raw rect produced a mostly-blank PNG. Map through page.rotation_matrix
+    (identity on unrotated pages), then expand and clip."""
+    try:
+        r = fitz.Rect(rect) * page.rotation_matrix
+    except Exception:
+        r = fitz.Rect(rect)
+    return _expand(r, page.rect)
+
+
+TABLE_CAPTION_RE = re.compile(r"^\s*(Table|TABLE|Tab\.)\s*\d+", re.IGNORECASE)
+CAPTION_TEXT_TOL_PT = 15.0        # caption block may start this far ABOVE the figure bottom
+CAPTION_BESIDE_MAX_WIDTH_FRAC = 0.32   # a margin caption is narrower than a text column
+
+
 def _caption_blocks(page: "fitz.Page") -> list[tuple["fitz.Rect", str]]:
+    """(rect, text) for every block that starts a FIGURE caption.
+
+    The rect is trimmed to the first non-blank line: Word-generated PDFs put
+    leading blank lines into the caption block, so the raw block y0 sat above
+    the figure's bottom and the caption was rejected (and a farther one, or a
+    body sentence, was picked — captions swapped on real corpus pages)."""
     out: list[tuple[fitz.Rect, str]] = []
-    for b in page.get_text("blocks"):
-        if len(b) < 5 or b[-1] != 0:      # block_type 0 = text
+    try:
+        d = page.get_text("dict")
+    except Exception:
+        d = {"blocks": []}
+    for b in d.get("blocks", []):
+        if b.get("type") != 0:
             continue
-        text = b[4]
-        if CAPTION_RE.match(text):
-            clean = re.sub(r"\s+", " ", text).strip()[:CAPTION_MAX_CHARS]
-            out.append((fitz.Rect(b[0], b[1], b[2], b[3]), clean))
+        lines = b.get("lines") or []
+        text = "\n".join("".join(s.get("text", "") for s in ln.get("spans", [])) for ln in lines)
+        if not CAPTION_RE.match(text.lstrip()):
+            continue
+        # first non-blank line's bbox defines where the caption really starts
+        y0 = None
+        for ln in lines:
+            if "".join(s.get("text", "") for s in ln.get("spans", [])).strip():
+                y0 = ln["bbox"][1]
+                break
+        x0, by0, x1, y1 = b["bbox"]
+        rect = fitz.Rect(x0, y0 if y0 is not None else by0, x1, y1)
+        clean = re.sub(r"\s+", " ", text).strip()[:CAPTION_MAX_CHARS]
+        out.append((rect, clean))
+    return out
+
+
+def _table_caption_blocks(page: "fitz.Page") -> list["fitz.Rect"]:
+    """Rects of blocks that start a TABLE caption ('Table 1 …') — used as a
+    text-table signal for vector clusters."""
+    out: list[fitz.Rect] = []
+    for b in page.get_text("blocks"):
+        if len(b) < 5 or b[-1] != 0:
+            continue
+        if TABLE_CAPTION_RE.match(b[4].lstrip()):
+            out.append(fitz.Rect(b[0], b[1], b[2], b[3]))
     return out
 
 
@@ -258,38 +318,70 @@ def _v_overlap(a: "fitz.Rect", b: "fitz.Rect") -> float:
     return max(0.0, min(a.y1, b.y1) - max(a.y0, b.y0))
 
 
-def _pair_caption(rect: "fitz.Rect", caps: list[tuple["fitz.Rect", str]]) -> str:
-    """Nearest caption below the region (journal convention), else beside it
-    (margin captions), else above, else the page's only caption. '' if none."""
+def _pair_caption(rect: "fitz.Rect", caps: list[tuple["fitz.Rect", str]],
+                  page_width: float = 595.0) -> str:
+    """Caption text for a region — see _pair_caption_ex."""
+    return _pair_caption_ex(rect, caps, page_width)[0]
+
+
+def _pair_caption_ex(rect: "fitz.Rect", caps: list[tuple["fitz.Rect", str]],
+                     page_width: float = 595.0) -> tuple[str, bool]:
+    """(caption, strong). Nearest caption below the region (journal
+    convention), else beside it (margin captions), else above — those are
+    STRONG pairings. Else the page's only caption (weak: best-effort
+    provenance, but it must not exempt the region from the junk filters — a
+    gridded text table used to inherit the page's lone 'Fig. 1' caption and
+    then dodge the text-table rule). ('', False) if none."""
     if not caps:
-        return ""
+        return "", False
     best: Optional[tuple[float, str]] = None
     for crect, text in caps:                       # below
         gap = crect.y0 - rect.y1
-        if -5.0 <= gap <= CAPTION_GAP_BELOW_PT and _h_overlap(rect, crect) > 0:
+        if -CAPTION_TEXT_TOL_PT <= gap <= CAPTION_GAP_BELOW_PT and _h_overlap(rect, crect) > 0:
             if best is None or gap < best[0]:
                 best = (gap, text)
     if best:
-        return best[1]
+        return best[1], True
     for crect, text in caps:                       # beside (left or right margin)
         if _v_overlap(rect, crect) <= 0:
             continue
+        if crect.width > CAPTION_BESIDE_MAX_WIDTH_FRAC * page_width:
+            continue                               # an adjacent COLUMN, not a margin caption
         gap = max(rect.x0 - crect.x1, crect.x0 - rect.x1)   # horizontal gap
         if 0.0 <= gap <= CAPTION_GAP_BESIDE_PT:
             if best is None or gap < best[0]:
                 best = (gap, text)
     if best:
-        return best[1]
-    for crect, text in caps:                       # above
+        return best[1], True
+    for crect, text in caps:                       # above (weak: figures are captioned below)
         gap = rect.y0 - crect.y1
         if -5.0 <= gap <= CAPTION_GAP_ABOVE_PT and _h_overlap(rect, crect) > 0:
             if best is None or gap < best[0]:
                 best = (gap, text)
     if best:
-        return best[1]
+        return best[1], False
     if len(caps) == 1:
-        return caps[0][1]
-    return ""
+        return caps[0][1], False
+    return "", False
+
+
+def _table_caption_above(rect: "fitz.Rect", tcaps: list["fitz.Rect"]) -> bool:
+    """A 'Table N' block directly above the region (the convention for tables)."""
+    for t in tcaps:
+        if _h_overlap(rect, t) <= 0:
+            continue
+        if -CAPTION_TEXT_TOL_PT <= rect.y0 - t.y1 <= TABLE_CAPTION_ABOVE_PT:
+            return True
+    return False
+
+
+def _geom_key(c: "fitz.Rect") -> tuple[int, int, int, int]:
+    """Repeat-detection key for a vector cluster: SIZE AND POSITION. Running
+    heads/footers repeat at the same place on every page; a series of
+    same-size auto-exported plots does not."""
+    q = CLUSTER_GEOM_ROUND_PT
+    return (int(round(c.x0 / q)), int(round(c.y0 / q)),
+            int(round(c.width / q)), int(round(c.height / q)))
 
 
 def _frac_covered(inner: "fitz.Rect", outer: "fitz.Rect") -> float:
@@ -357,9 +449,7 @@ def harvest_figures(
                 img_pages.setdefault(digest, set()).add(pno)
             try:
                 for c in page.cluster_drawings():
-                    key = (int(round(c.width / CLUSTER_GEOM_ROUND_PT)),
-                           int(round(c.height / CLUSTER_GEOM_ROUND_PT)))
-                    geom_pages.setdefault(key, set()).add(pno)
+                    geom_pages.setdefault(_geom_key(c), set()).add(pno)
             except Exception:
                 pass
 
@@ -370,6 +460,7 @@ def harvest_figures(
             prect = page.rect
             page_area = max(prect.width * prect.height, 1.0)
             caps = _caption_blocks(page)
+            tcaps = _table_caption_blocks(page)
             raster_rects: list[fitz.Rect] = []
 
             # raster route
@@ -402,19 +493,13 @@ def harvest_figures(
                         continue
                     raster_rects.append(r)
                     candidates.append(dict(page=pno, rect=r, route="raster",
-                                           caption=_pair_caption(r, caps)))
+                                           caption=_pair_caption(r, caps, prect.width)))
 
             # vector route
             try:
                 clusters = page.cluster_drawings()
             except Exception:
                 clusters = []
-            drawing_rects: list[fitz.Rect] = []
-            if clusters and VECTOR_TEXT_DENSITY_SKIP > 0:
-                try:
-                    drawing_rects = [fitz.Rect(d["rect"]) for d in page.get_drawings()]
-                except Exception:
-                    drawing_rects = []
             for c in clusters:
                 st.vector_candidates += 1
                 if c.width < MIN_CLUSTER_W_PT or c.height < MIN_CLUSTER_H_PT:
@@ -431,11 +516,17 @@ def harvest_figures(
                 if c.y1 <= prect.y0 + band or c.y0 >= prect.y1 - band:
                     st.skipped_header_footer += 1
                     continue
-                key = (int(round(c.width / CLUSTER_GEOM_ROUND_PT)),
-                       int(round(c.height / CLUSTER_GEOM_ROUND_PT)))
-                if len(geom_pages.get(key, ())) >= REPEATED_ON_PAGES:
-                    st.skipped_repeated += 1
-                    continue
+                caption, strong = _pair_caption_ex(c, caps, prect.width)
+                # A DIRECTLY paired 'Figure N' caption is the strongest figure
+                # signal: neither the repeat rule nor the text-table rule
+                # applies then (same-size auto-exported plots on 3+ pages used
+                # to be dropped as "header art"; a captioned bar chart with
+                # dense tick labels used to be dropped as a "table"). A weak
+                # (page's-only-caption) pairing exempts nothing.
+                if not strong:
+                    if len(geom_pages.get(_geom_key(c), ())) >= REPEATED_ON_PAGES:
+                        st.skipped_repeated += 1
+                        continue
                 if any(_frac_covered(c, rr) >= CLUSTER_OVERLAP_SKIP for rr in raster_rects):
                     st.skipped_overlap_raster += 1
                     continue
@@ -445,12 +536,12 @@ def harvest_figures(
                     except Exception:
                         n_chars = 0
                     density = n_chars / max(c.width * c.height / 1000.0, 1e-6)
-                    n_draw = sum(1 for dr in drawing_rects if dr.intersects(c))
-                    if density > VECTOR_TEXT_DENSITY_SKIP and n_draw <= VECTOR_TEXT_TABLE_MAX_DRAWINGS:
+                    is_table = (density > 1.0 and _table_caption_above(c, tcaps)) or (
+                        not strong and density > VECTOR_TEXT_DENSITY_SKIP)
+                    if is_table:
                         st.skipped_text_table += 1
                         continue
-                candidates.append(dict(page=pno, rect=c, route="vector",
-                                       caption=_pair_caption(c, caps)))
+                candidates.append(dict(page=pno, rect=c, route="vector", caption=caption))
 
         # ---- priority: captioned first (page order), then raster, then vector
         def prio(c: dict[str, Any]) -> tuple[int, int, int, float]:
@@ -461,7 +552,6 @@ def harvest_figures(
         # ---- render, dedup by PNG sha, cap
         figures: list[Figure] = []
         seen_sha: set[str] = set()
-        per_page_n: dict[int, int] = {}
         for c in candidates:
             if len(figures) >= max_figures:
                 st.capped += 1
@@ -469,7 +559,7 @@ def harvest_figures(
             page = doc[c["page"]]
             rect = c["rect"]
             try:
-                png, wpx, hpx = _pixmap_png(page, _expand(rect, page.rect))
+                png, wpx, hpx = _pixmap_png(page, _render_rect(rect, page))
             except Exception as exc:
                 log.debug("render failed p%d: %s", c["page"] + 1, exc)
                 st.skipped_render_error += 1
@@ -479,18 +569,24 @@ def harvest_figures(
                 st.skipped_dup_sha += 1
                 continue
             seen_sha.add(sha)
-            n = per_page_n.get(c["page"], 0) + 1
-            per_page_n[c["page"]] = n
+            # figure_id is scoped to the PDF (sha1 of the PDF + sha of the PNG):
+            # the same rendered figure in two different PDFs must not share a
+            # primary key (it overwrote the first PDF's provenance and made both
+            # re-spend vision calls on every run).
+            figure_id = hashlib.sha256(source_sha1.encode("utf-8") + sha.encode("ascii")).hexdigest()[:16]
             dest_dir = out_dir / source_sha1
             dest_dir.mkdir(parents=True, exist_ok=True)
-            dest = dest_dir / f"p{c['page'] + 1}_{n}.png"
+            # File name is an IDENTITY (page + PNG sha prefix), not a rank: a
+            # rank-named file (p3_2.png) got silently reassigned to a different
+            # figure whenever the candidate set changed between runs.
+            dest = dest_dir / f"p{c['page'] + 1}_{sha[:10]}.png"
             if dest.exists() and hashlib.sha256(dest.read_bytes()).hexdigest() == sha:
                 st.files_existing += 1
             else:
                 dest.write_bytes(png)
                 st.files_written += 1
             figures.append(Figure(
-                figure_id=sha[:16], source_pdf=source_pdf, source_sha1=source_sha1,
+                figure_id=figure_id, source_pdf=source_pdf, source_sha1=source_sha1,
                 page=c["page"] + 1,
                 bbox=(round(rect.x0, 2), round(rect.y0, 2), round(rect.x1, 2), round(rect.y1, 2)),
                 caption=c["caption"], image_path=str(dest), image_sha256=sha,
@@ -553,9 +649,58 @@ CLASSIFY_PROMPT = (
 )
 
 
-def _inline_png_part(png: bytes) -> dict[str, Any]:
-    return {"inlineData": {"mimeType": "image/png",
-                           "data": base64.b64encode(png).decode("ascii")}}
+# Vision payload. The lossless PNG on disk is 1-4 MB per figure at 1600 px;
+# 12 of them base64'd blew past Gemini's 20 MB inline-request limit on real
+# corpus PDFs (23.8 MB measured), so the request copy is a JPEG (q85, ~6x
+# smaller, plenty for classification / reading salient values) and a classify
+# call is split into batches when the payload would exceed CLASSIFY_MAX_BYTES.
+VISION_JPEG_QUALITY = 85
+CLASSIFY_MAX_BYTES = 12 * 1024 * 1024      # base64 payload budget per classify call
+MINE_MAX_BYTES = 12 * 1024 * 1024
+
+
+def _vision_bytes(fig: "Figure") -> tuple[bytes, str]:
+    """(bytes, mime) to send for a figure: JPEG re-encode of its PNG; falls back
+    to the PNG if the re-encode fails."""
+    if fig.jpeg_bytes:
+        return fig.jpeg_bytes, "image/jpeg"
+    try:
+        pix = fitz.Pixmap(fig.png_bytes)
+        if pix.alpha:
+            pix = fitz.Pixmap(pix, 0)
+        if pix.n - pix.alpha >= 4:
+            pix = fitz.Pixmap(fitz.csRGB, pix)
+        fig.jpeg_bytes = pix.tobytes("jpeg", jpg_quality=VISION_JPEG_QUALITY)
+        return fig.jpeg_bytes, "image/jpeg"
+    except Exception:
+        return fig.png_bytes, "image/png"
+
+
+def _inline_part(data: bytes, mime: str) -> dict[str, Any]:
+    return {"inlineData": {"mimeType": mime, "data": base64.b64encode(data).decode("ascii")}}
+
+
+def _b64_len(n_bytes: int) -> int:
+    return 4 * ((n_bytes + 2) // 3)
+
+
+def _batches_by_size(figures: list["Figure"], budget: int) -> list[list["Figure"]]:
+    """Split figures into consecutive batches whose base64 payload stays under
+    `budget` (a single oversized figure still goes alone)."""
+    out: list[list[Figure]] = []
+    cur: list[Figure] = []
+    cur_size = 0
+    for f in figures:
+        data, _ = _vision_bytes(f)
+        sz = _b64_len(len(data)) + 512
+        if cur and cur_size + sz > budget:
+            out.append(cur)
+            cur, cur_size = [], 0
+        cur.append(f)
+        cur_size += sz
+    if cur:
+        out.append(cur)
+    return out
 
 
 def _parse_json_response(resp) -> Optional[dict[str, Any]]:
@@ -579,6 +724,13 @@ def classify_figures(
     vs = stats if stats is not None else VisionStats()
     if not figures:
         return figures
+    for batch in _batches_by_size(figures, CLASSIFY_MAX_BYTES):
+        _classify_batch(batch, text_materials, api_key, model=model, vs=vs)
+    return figures
+
+
+def _classify_batch(figures: list[Figure], text_materials: list[str], api_key: str,
+                    *, model: str, vs: VisionStats) -> None:
     mats = ", ".join(f"'{m}'" for m in dict.fromkeys(text_materials) if m) or "(none)"
     parts: list[dict[str, Any]] = [
         {"text": CLASSIFY_PROMPT.format(n=len(figures), materials=mats)}
@@ -586,7 +738,7 @@ def classify_figures(
     for i, f in enumerate(figures):
         cap = f.caption or "(no caption)"
         parts.append({"text": f"[figure {i}] page {f.page} — caption: {cap}"})
-        parts.append(_inline_png_part(f.png_bytes))
+        parts.append(_inline_part(*_vision_bytes(f)))
     payload = {
         "contents": [{"parts": parts}],
         "generationConfig": {
@@ -608,21 +760,34 @@ def classify_figures(
         for f in figures:
             f.figure_kind = f.figure_kind or "other"
             f.mining_status = "classify_failed"
-        return figures
+        return
     by_index: dict[int, dict[str, Any]] = {}
     for e in raw.get("figures") or []:
         try:
-            by_index[int(e.get("index"))] = e
+            i = int(e.get("index"))
         except (TypeError, ValueError):
             continue
+        if i not in by_index:            # first entry per index wins; dupes are ignored
+            by_index[i] = e
+    missing = 0
     for i, f in enumerate(figures):
-        e = by_index.get(i, {})
+        e = by_index.get(i)
+        if e is None:
+            # The model skipped this index. NOT a terminal 'other'/'skipped_kind'
+            # (that was silently final): leave it pending so a rerun retries it.
+            f.figure_kind = f.figure_kind or ""
+            f.mining_status = "classify_failed"
+            missing += 1
+            continue
         kind = (e.get("figure_kind") or "other").strip()
         f.figure_kind = kind if kind in FIGURE_KINDS else "other"
         f.material_guess = (e.get("material_guess") or "").strip()
         f.model = model
         f.mining_status = "not_mined" if f.figure_kind in MINEABLE_KINDS else "skipped_kind"
-    return figures
+    if missing:
+        vs.incomplete_calls += 1
+        log.warning("figure classification returned %d/%d entries; %d left pending",
+                    len(figures) - missing, len(figures), missing)
 
 
 # ---------------------------------------------------------------------------
@@ -720,7 +885,7 @@ def mine_figure(
         kind=fig.figure_kind or "unknown", sections=", ".join(SECTION_ENUM),
     )
     payload = {
-        "contents": [{"parts": [{"text": prompt}, _inline_png_part(fig.png_bytes)]}],
+        "contents": [{"parts": [{"text": prompt}, _inline_part(*_vision_bytes(fig))]}],
         "generationConfig": {
             "temperature": 0,
             "responseMimeType": "application/json",
@@ -739,36 +904,62 @@ def mine_figure(
         vs.failed_calls += 1
         fig.mining_status = "mining_failed"
         return None
-    mined = MinedFigure(
-        figure=fig,
-        x_label=(raw.get("x_label") or "").strip(), x_unit=(raw.get("x_unit") or "").strip(),
-        y_label=(raw.get("y_label") or "").strip(), y_unit=(raw.get("y_unit") or "").strip(),
-    )
-    for s in raw.get("series") or []:
-        sname = (s.get("series_name") or "").strip()
-        mguess = (s.get("material_guess") or "").strip()
-        for pj in s.get("values") or []:
-            value_raw = (pj.get("value_raw") or "").strip()
-            prop = Property(
-                section=_norm_section(pj.get("section")),
-                property_name=(pj.get("property_name") or "").strip() or "Unknown property",
-                value_raw=value_raw,
-                unit=(pj.get("unit") or "").strip(),
-                value_num=extraction._as_float(pj.get("value_num")),
-                value_min=extraction._as_float(pj.get("value_min")),
-                value_max=extraction._as_float(pj.get("value_max")),
-                qualifier=(pj.get("qualifier") or "").strip(),
-                test_condition=(pj.get("test_condition") or "").strip(),
-                comments=(pj.get("comments") or "").strip(),
-                source_quote=fig.caption,
-                page=fig.page,
-            )
-            _fill_numeric(prop)
-            mined.values.append((mguess, sname, prop))
+    # Coercion is inside the same failure path as the request: a single
+    # schema-violating value (a number where a string is expected, a null
+    # series item) used to raise out of the whole stage AFTER earlier figures
+    # were already stamped 'mined', losing their readouts for good.
+    try:
+        mined = MinedFigure(
+            figure=fig,
+            x_label=_s(raw.get("x_label")), x_unit=_s(raw.get("x_unit")),
+            y_label=_s(raw.get("y_label")), y_unit=_s(raw.get("y_unit")),
+        )
+        for s in raw.get("series") or []:
+            if not isinstance(s, dict):
+                continue
+            sname = _s(s.get("series_name"))
+            mguess = _s(s.get("material_guess"))
+            for pj in s.get("values") or []:
+                if not isinstance(pj, dict):
+                    continue
+                prop = Property(
+                    section=_norm_section(_s(pj.get("section"))),
+                    property_name=_s(pj.get("property_name")) or "Unknown property",
+                    value_raw=_s(pj.get("value_raw")),
+                    unit=_s(pj.get("unit")),
+                    value_num=extraction._as_float(pj.get("value_num")),
+                    value_min=extraction._as_float(pj.get("value_min")),
+                    value_max=extraction._as_float(pj.get("value_max")),
+                    qualifier=_s(pj.get("qualifier")),
+                    test_condition=_s(pj.get("test_condition")),
+                    comments=_s(pj.get("comments")),
+                    source_quote=fig.caption,
+                    page=fig.page,
+                )
+                _fill_numeric(prop)
+                mined.values.append((mguess, sname, prop))
+    except Exception as exc:
+        log.warning("figure readout unusable for %s p%d: %s", fig.source_pdf, fig.page, exc)
+        vs.failed_calls += 1
+        fig.mining_status = "mining_failed"
+        return None
     fig.mining_status = "mined"
     fig.model = model
     fig.n_values = len(mined.values)
     return mined
+
+
+def _s(v: Any) -> str:
+    """Model scalar -> stripped string ('' for None); numbers become their repr."""
+    if v is None:
+        return ""
+    if isinstance(v, str):
+        return v.strip()
+    if isinstance(v, bool):
+        return ""
+    if isinstance(v, (int, float)):
+        return f"{v:g}"
+    return str(v).strip()
 
 
 # ---------------------------------------------------------------------------
@@ -800,20 +991,55 @@ def _figure_status(prop: Property, fig: Figure, series_name: str) -> None:
     prop.status, prop.flag_reason = "figure_estimate", origin
 
 
+_TOKEN_RE = re.compile(r"[a-z0-9]+(?:[./-][a-z0-9]+)*")
+
+
+def _tokens(s: str) -> list[str]:
+    return _TOKEN_RE.findall((s or "").lower())
+
+
 def _match_text_material(guess: str, text_materials: list[Material]) -> Optional[Material]:
+    """Pick the text-pass material a figure's material_guess names.
+
+    Scores EVERY candidate and returns the best (first wins ties) instead of
+    returning on the first substring hit — 'PEEK 450G' used to land on the
+    150G grade because 'peek' matched the first list entry, 'PA66' on 'PA6',
+    'PPSU laminate' on 'PPS', 'PEEK/PEI 80/20' on neat PEEK. Matching is on
+    whole tokens (no prefix collisions) and prefers: exact name/abbr/grade >
+    all name tokens present + grade token present > all name tokens present >
+    longest single-token match. Returns None if nothing scores."""
     g = re.sub(r"\s+", " ", (guess or "").strip().lower())
     if not g:
         return None
-    for m in text_materials:               # exact (case-insensitive) first
-        for cand in (m.material_name, m.material_abbreviation, m.trade_grade):
-            if cand and cand.strip().lower() == g:
-                return m
-    for m in text_materials:               # then containment either way
-        for cand in (m.material_name, m.material_abbreviation, m.trade_grade):
-            c = (cand or "").strip().lower()
-            if c and len(c) >= 3 and (c in g or g in c):
-                return m
-    return None
+    gtok = set(_tokens(g))
+    best: Optional[tuple[tuple[int, int, int], Material]] = None
+    for m in text_materials:
+        name = (m.material_name or "").strip().lower()
+        abbr = (m.material_abbreviation or "").strip().lower()
+        grade = (m.trade_grade or "").strip().lower()
+        score: tuple[int, int, int] = (0, 0, 0)
+        if g in (name, abbr) or (grade and g == grade) or (grade and g == f"{name} {grade}"):
+            score = (100, len(name), 0)
+        else:
+            ntok = set(_tokens(name))
+            atok = set(_tokens(abbr))
+            gr_tok = set(_tokens(grade))
+            grade_hit = bool(gr_tok) and gr_tok <= gtok
+            if ntok and ntok <= gtok:
+                score = (60 + (20 if grade_hit else 0), len(name), 0)
+            elif atok and atok <= gtok:
+                score = (50 + (20 if grade_hit else 0), len(abbr), 0)
+            elif gtok and (gtok <= ntok or gtok <= atok):
+                # the guess is a sub-name of the material ('PEEK' for 'PEEK 150G')
+                score = (30 + (20 if grade_hit else 0), -len(name), 0)
+            else:
+                # longest whole-token overlap on tokens of length >= 3
+                common = [t for t in gtok & (ntok | atok) if len(t) >= 3]
+                if common:
+                    score = (10 + (20 if grade_hit else 0), max(len(t) for t in common), 0)
+        if score[0] and (best is None or score > best[0]):
+            best = (score, m)
+    return best[1] if best else None
 
 
 def figure_properties_to_rows(
@@ -942,4 +1168,10 @@ def run_figure_stage(
     except Exception as exc:  # belt and braces: the caller must survive this
         log.exception("figure stage failed for %s", source_pdf)
         res.error = f"figure_stage_error:{type(exc).__name__}:{exc}"
+        # Nothing after the exception produced rows: any figure stamped 'mined'
+        # in this run must go back to pending or its readout is lost for good.
+        if not res.rows:
+            for f in res.figures:
+                if f.mining_status == "mined":
+                    f.mining_status = "mining_failed"
     return res

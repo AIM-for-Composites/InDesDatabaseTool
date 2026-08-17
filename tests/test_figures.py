@@ -193,7 +193,9 @@ def test_harvest_synthetic_pdf_routes_captions_and_junk(tmp_path):
     for f in figs:
         p = Path(f.image_path)
         assert p.exists() and p.parent.name == sha1 and p.name.startswith(f"p{f.page}_")
-        assert f.figure_id == f.image_sha256[:16] and len(f.figure_id) == 16
+        # figure_id is scoped to the PDF: sha256(source_sha1 + png_sha)[:16]
+        assert f.figure_id == hashlib.sha256((sha1 + f.image_sha256).encode()).hexdigest()[:16]
+        assert p.name == f"p{f.page}_{f.image_sha256[:10]}.png"          # identity-named
         assert f.width_px <= F.RENDER_MAX_SIDE_PX and f.height_px <= F.RENDER_MAX_SIDE_PX
     # re-run: 0 new files, same ids
     st2 = F.HarvestStats()
@@ -612,3 +614,227 @@ def test_partial_retry_spends_only_on_pending_figures(tmp_path, fake_gemini):
     assert r.vision_calls == 2
     st = dict(conn.execute("SELECT figure_id, mining_status FROM figures").fetchall())
     assert st[ids[-1]] == "mined" and st[ids[0]] in ("mined", "skipped_kind")
+
+
+# ---------------------------------------------------------------------------
+# Review round 2 (harvest): rotation, same-size plots, captioned bar charts,
+# Word captions, gridded tables, identity filenames, per-PDF figure_id
+# ---------------------------------------------------------------------------
+
+def _white_fraction(png: bytes) -> float:
+    pix = fitz.Pixmap(png)
+    s = pix.samples; step = 3 * 97
+    n = 0; white = 0
+    for i in range(0, len(s) - 2, step):
+        n += 1
+        if s[i] > 240 and s[i + 1] > 240 and s[i + 2] > 240:
+            white += 1
+    return white / max(n, 1)
+
+
+def test_rotated_page_renders_the_figure_not_blank(tmp_path):
+    doc = fitz.open(); p = doc.new_page(width=595, height=842)
+    pm = fitz.Pixmap(fitz.csRGB, fitz.IRect(0, 0, 450, 300), False); pm.clear_with(30)
+    p.insert_image(fitz.Rect(72, 100, 522, 400), stream=pm.tobytes("png"))
+    p.insert_text((72, 420), "Figure 1. dark plot", fontsize=10)
+    p.set_rotation(90)
+    b = doc.tobytes(); doc.close()
+    figs = F.harvest_figures(b, "rot.pdf", "rot", tmp_path / "f", 12)
+    assert len(figs) == 1 and figs[0].caption.startswith("Figure 1")
+    assert _white_fraction(figs[0].png_bytes) < 0.25          # was ~0.8 (blank)
+
+
+def _same_size_plots_pdf(n_pages=4, captioned=True) -> bytes:
+    doc = fitz.open()
+    for i in range(n_pages):
+        p = doc.new_page(); sh = p.new_shape()
+        for k in range(0, 300, 6):
+            sh.draw_rect(fitz.Rect(100 + k, 400 - (k * (i + 1)) % 150, 104 + k, 400))
+            sh.finish(color=(0, 0, 1), fill=(0.3, 0.3, 0.9))
+        sh.draw_line((100, 400), (400, 400)); sh.finish(color=(0, 0, 0))
+        sh.draw_line((100, 400), (100, 250)); sh.finish(color=(0, 0, 0)); sh.commit()
+        if captioned:
+            p.insert_text((100, 430), f"Figure {i + 1}. Stress-strain curve {i + 1}", fontsize=10)
+    b = doc.tobytes(); doc.close(); return b
+
+
+def test_same_size_captioned_vector_plots_are_kept(tmp_path):
+    st = F.HarvestStats()
+    figs = F.harvest_figures(_same_size_plots_pdf(), "same.pdf", "same", tmp_path / "f", 12, stats=st)
+    assert len(figs) == 4 and st.skipped_repeated == 0            # was: 0 kept, 4 repeated
+    assert sorted(f.caption[:9] for f in figs) == ["Figure 1.", "Figure 2.", "Figure 3.", "Figure 4."]
+
+
+def test_running_head_geometry_still_filtered(tmp_path):
+    """A same-size cluster at the SAME position on every page (a running head)
+    without a caption is still junk."""
+    doc = fitz.open()
+    for i in range(4):
+        p = doc.new_page(); sh = p.new_shape()
+        # one connected 200x100 pt decoration at the same spot on every page
+        sh.draw_rect(fitz.Rect(60, 300, 260, 400)); sh.finish(color=(0, 0, 0), fill=(0.85, 0.85, 0.85))
+        for k in range(0, 200, 10):
+            sh.draw_line((60 + k, 300), (60 + k, 400)); sh.finish(color=(0.3, 0.3, 0.3))
+        sh.commit()
+        p.insert_text((72, 700), "body text " * 20, fontsize=9)
+    b = doc.tobytes(); doc.close()
+    st = F.HarvestStats()
+    figs = F.harvest_figures(b, "rh.pdf", "rh", tmp_path / "f", 12, stats=st)
+    assert figs == [] and st.skipped_repeated == 4
+
+
+@pytest.mark.skipif(_corpus("semanticscholar_annealing*") is None, reason="corpus not present")
+def test_captioned_bar_chart_not_skipped_as_text_table(tmp_path):
+    pdf = _corpus("semanticscholar_annealing*")
+    b = pdf.read_bytes()
+    figs = F.harvest_figures(b, pdf.name, "ann", tmp_path / "f", 30)
+    fig8 = [f for f in figs if f.page == 7 and f.caption.startswith("Fig. 8")]
+    assert fig8, "Fig. 8 (degree of crystallinity bar chart) must be harvested"
+    # and the gridded live-text 'Table 1' on p2 must NOT be harvested as a figure
+    assert not any(f.page == 2 and f.route == "vector" for f in figs)
+
+
+@pytest.mark.skipif(_corpus("semanticscholar_terahertz*") is None, reason="corpus not present")
+def test_word_style_captions_pair_with_their_own_figure(tmp_path):
+    pdf = _corpus("semanticscholar_terahertz*")
+    figs = F.harvest_figures(pdf.read_bytes(), pdf.name, "thz", tmp_path / "f", 30)
+    p4 = sorted((f.bbox[1], f.caption[:8]) for f in figs if f.page == 4 and f.caption)
+    # top figure -> FIGURE 2, the one below it -> FIGURE 3 (they were swapped)
+    assert p4[0][1] == "FIGURE 2" and p4[1][1] == "FIGURE 3"
+
+
+def test_figure_id_is_scoped_per_pdf_and_files_are_identity_named(tmp_path):
+    a = _synthetic_pdf(tmp_path)
+    ba = a.read_bytes()
+    # same pages, different bytes (metadata) -> different sha1, identical renders
+    d = fitz.open(stream=ba, filetype="pdf"); d.set_metadata({"title": "copy B"})
+    bb = d.tobytes(); d.close()
+    sa, sb = hashlib.sha1(ba).hexdigest(), hashlib.sha1(bb).hexdigest()
+    assert sa != sb
+    fa = F.harvest_figures(ba, "a.pdf", sa, tmp_path / "f", 12)
+    fb = F.harvest_figures(bb, "b.pdf", sb, tmp_path / "f", 12)
+    assert [f.image_sha256 for f in fa] == [f.image_sha256 for f in fb]     # same renders
+    assert set(f.figure_id for f in fa).isdisjoint(f.figure_id for f in fb)  # distinct ids
+    for f in fa + fb:
+        assert Path(f.image_path).name == f"p{f.page}_{f.image_sha256[:10]}.png"
+
+
+def test_two_pdfs_sharing_a_figure_do_not_steal_provenance_or_respend(tmp_path, fake_gemini):
+    fg = fake_gemini()
+    a = _synthetic_pdf(tmp_path); ba = a.read_bytes()
+    d = fitz.open(stream=ba, filetype="pdf"); d.set_metadata({"title": "copy B"})
+    b = tmp_path / "copyB.pdf"; b.write_bytes(d.tobytes()); d.close()
+    conn = bi.init_db(tmp_path / "m.sqlite")
+    opts = bi.FigureOptions(out_dir=tmp_path / "figs", max_figures=12, mine=True)
+    bi.process_pdf(a, conn, "k", figure_opts=opts)
+    bi.process_pdf(b, conn, "k", figure_opts=opts)
+    owners = dict(conn.execute("SELECT source_pdf, count(*) FROM figures GROUP BY 1").fetchall())
+    assert set(owners) == {"synthetic.pdf", "copyB.pdf"} and min(owners.values()) >= 2
+    # rows join to a figures record with the SAME source_pdf
+    bad = conn.execute("SELECT count(*) FROM Composites_materials r JOIN figures f ON r.figure_id=f.figure_id "
+                       "WHERE r.origin='figure' AND r.source_pdf <> f.source_pdf").fetchone()[0]
+    assert bad == 0
+    fg.calls.clear()
+    bi.process_pdf(a, conn, "k", figure_opts=opts)
+    bi.process_pdf(b, conn, "k", figure_opts=opts)
+    assert fg.calls == []                                   # nothing re-spent
+
+
+# ---------------------------------------------------------------------------
+# Review round 2 (rows / wiring / eval)
+# ---------------------------------------------------------------------------
+
+def test_material_matching_prefers_specific_and_token_boundaries():
+    M = E.Material
+    m = F._match_text_material
+    assert m("PEEK 450G", [M("PEEK", trade_grade="150G"), M("PEEK", trade_grade="450G")]).trade_grade == "450G"
+    assert m("PA66", [M("PA6"), M("PA66 GF30")]).material_name == "PA66 GF30"
+    assert m("PPSU laminate", [M("PPS"), M("PPSU")]).material_name == "PPSU"
+    assert m("PEEK/PEI 80/20", [M("PEEK"), M("PEI"), M("PEEK/PEI blend")]).material_name == "PEEK/PEI blend"
+    assert m("PPS", [M("PPS composite", material_abbreviation="PPS"), M("PEKK composite")]).material_name == "PPS composite"
+    assert m("Aluminium", [M("PEEK")]) is None
+
+
+def test_scanned_pdf_is_never_backfilled(tmp_path, fake_gemini):
+    fg = fake_gemini()
+    # image-only PDF: page scans at ~78% of the page, no text
+    doc = fitz.open()
+    for _ in range(2):
+        p = doc.new_page()
+        pm = fitz.Pixmap(fitz.csRGB, fitz.IRect(0, 0, 900, 1200), False); pm.clear_with(200)
+        p.insert_image(fitz.Rect(30, 40, 565, 800), stream=pm.tobytes("png"))
+    pdf = tmp_path / "scan.pdf"; doc.save(str(pdf)); doc.close()
+    conn = bi.init_db(tmp_path / "m.sqlite")
+    opts = bi.FigureOptions(out_dir=tmp_path / "figs", max_figures=12, mine=True)
+    r1 = bi.process_pdf(pdf, conn, "k", figure_opts=opts)
+    assert r1.error == "scanned_no_text" and r1.vision_calls == 0
+    r2 = bi.process_pdf(pdf, conn, "k", figure_opts=opts)
+    assert r2.error == "skipped_seen_sha1" and r2.figures_found == 0 and r2.vision_calls == 0
+    assert fg.calls == []                                   # not even the text call
+
+
+def test_top_level_metrics_stay_text_only(tmp_path, fake_gemini):
+    fake_gemini()
+    conn, res = _run(tmp_path)
+    assert res.extracted == 2 and res.inserted == 2 and res.flagged == 0     # text only
+    assert res.figure_rows >= 1
+    s = bi.summarize([res])
+    assert s["insert_rate"] <= 1.0 and s["rows_inserted"] == 2 and s["figures"]["figure_rows"] == res.figure_rows
+
+
+def test_classify_missing_index_stays_pending(tmp_path, monkeypatch):
+    class Only0(FakeGemini):
+        def __call__(self, method, url, **kw):
+            payload = kw.get("json") or {}
+            props = payload.get("generationConfig", {}).get("responseSchema", {}).get("properties", {})
+            if "figures" in props:
+                self.calls.append("classify")
+                body = {"figures": [{"index": 0, "figure_kind": "property_plot", "material_guess": ""}]}
+                return _Resp(200, {"candidates": [{"content": {"parts": [{"text": json.dumps(body)}]}}]})
+            return super().__call__(method, url, **kw)
+    fg = Only0(TEXT_JSON, mining_json=MINING_JSON)
+    monkeypatch.setattr(E, "_request_with_retry", fg)
+    figs = _figs(tmp_path, 3)
+    vs = F.VisionStats()
+    F.classify_figures(figs, [], "k", stats=vs)
+    assert figs[0].mining_status == "not_mined"
+    assert all(f.mining_status == "classify_failed" for f in figs[1:])   # was: skipped_kind (terminal)
+    assert vs.incomplete_calls == 1
+
+
+def test_mining_bad_value_does_not_lose_other_figures(tmp_path, monkeypatch):
+    """Second figure's readout has null series items / a numeric value_raw:
+    coerced or skipped per item, no exception, first figure keeps its rows."""
+    bad = {"figure_kind": "property_plot",
+           "series": [None, {"series_name": "x", "material_guess": "",
+                             "values": [None, {"section": "Mechanical", "property_name": "Tensile strength",
+                                               "value_raw": 610, "unit": "MPa"}]}]}
+    class Alt(FakeGemini):
+        n = 0
+        def __call__(self, method, url, **kw):
+            payload = kw.get("json") or {}
+            props = payload.get("generationConfig", {}).get("responseSchema", {}).get("properties", {})
+            if "series" in props:
+                Alt.n += 1
+                body = bad if Alt.n == 2 else MINING_JSON
+                self.calls.append("mine")
+                return _Resp(200, {"candidates": [{"content": {"parts": [{"text": json.dumps(body)}]}}]})
+            return super().__call__(method, url, **kw)
+    fg = Alt(TEXT_JSON, kinds=["property_plot", "property_plot"])
+    monkeypatch.setattr(E, "_request_with_retry", fg)
+    res = F.run_figure_stage(_synthetic_pdf(tmp_path).read_bytes(), "s.pdf", "s",
+                             [E.Material(material_name="PPS composite", material_class="Composite")], "k",
+                             out_dir=tmp_path / "f2", max_figures=2)
+    assert res.error is None
+    assert len(res.rows) >= 1                       # readouts survived
+    assert all(f.mining_status == "mined" for f in res.figures)
+    vals = {r.value_raw for r in res.rows}
+    assert "610" in vals                            # numeric value_raw coerced to a string
+
+
+def test_scoring_recanonicalizes_under_gold_name():
+    from eval import scoring
+    gold = {"property_name": "Tensile strength", "aliases": ["peak stress"], "value_num": 608, "unit": "MPa", "tolerance_pct": 15}
+    pred = E.Property(section="", property_name="Peak stress", value_raw="~610", unit="MPa", value_num=610.0)
+    assert pred.value_si is None
+    assert scoring._value_within_tol(pred, gold) is True         # was False (610 vs 608e6)

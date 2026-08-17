@@ -8,7 +8,7 @@ figures, mirroring `extraction.py`'s role for text. Opt-in via
 pdf_bytes
   └─ figures.harvest_figures()      PyMuPDF: embedded rasters + vector clusters → PNGs
         ├─ junk filters (logos, header/footer art, tiny/full-page, text tables)
-        └─ caption pairing (below / beside / above)   → source_quote later
+        └─ caption pairing (below / beside strong; above / lone weak) → source_quote later
   └─ figures.classify_figures()     ONE Gemini vision call per PDF (0 if no figures)
         └─ figure_kind enum + material_guess (text-pass material names as context)
   └─ figures.mine_figure()          one vision call per property_plot / table_image
@@ -29,7 +29,7 @@ are visibly second-class:
 | `origin` | `text` | `figure` |
 | `status` | `ok` when grounded | **never `ok` at insert** — `figure_estimate` (or `empty_value` / `unit_review` / `out_of_range`) |
 | grounding | `verify_against_text` | PNG on disk + `source_quote` = caption + `page` = figure page |
-| `figure_id` | NULL | sha256(PNG)[:16] → row in `figures` |
+| `figure_id` | NULL | sha256(source_sha1 + PNG sha)[:16] → row in `figures` |
 | `prompt_version` | `extraction.PROMPT_VERSION` | `figures.FIGURE_PROMPT_VERSION` (`1.0`) |
 | reaches the app | if `status='ok'` | only after a human `--promote` |
 
@@ -55,13 +55,24 @@ Two routes:
 Every stored PNG is a **render of the figure's page region** (bbox expanded
 4 %, longest side ≤ 1600 px, ≤ 300 dpi) rather than the raw embedded bytes:
 axis labels and legends are often vector text drawn *over* a raster plot and
-the raw image would lose them. The render is deterministic for a given
-PyMuPDF, so `figure_id = sha256(PNG)[:16]` is stable across runs and the PNG
-doubles as the Gemini payload (no separate downscale, no Pillow).
+the raw image would lose them. Geometry from `get_image_rects` /
+`cluster_drawings` / `get_text` is in *unrotated* page coordinates while
+`get_pixmap`'s clip is in *rotated* display coordinates, so the region is
+mapped through `page.rotation_matrix` first (a `/Rotate 90` landscape page
+used to render 80 % blank). The render is deterministic for a given PyMuPDF,
+so `image_sha256 = sha256(PNG)` is stable across runs and
+`figure_id = sha256(source_sha1 + image_sha256)[:16]` — **scoped to the PDF**,
+so the same rendered figure in two different PDFs (a paper crawled twice with
+different metadata, a datasheet family sharing a plot) never shares a primary
+key. The Gemini payload is a JPEG (q 85) re-encode of the same pixmap, ~6×
+smaller (no Pillow); the PNG stays the lossless artifact on disk.
 
-Files: `<out_dir>/<source_sha1>/p<page>_<n>.png` (default
-`crawl_out/figures/`, gitignored). A file that already exists with the same
-sha is not rewritten — re-running harvests **0 new files**.
+Files: `<out_dir>/<source_sha1>/p<page>_<sha10>.png` (default
+`crawl_out/figures/`, gitignored) — the name is an *identity* (page + PNG sha
+prefix), not a rank, so a path can never be silently reassigned to a different
+figure when the candidate set changes between runs. A file that already
+exists with the same sha is not rewritten — re-running harvests **0 new
+files**.
 
 Junk filters, each counted in `HarvestStats` (surfaced in
 `run_report.json["figures"]["harvest_filters"]`):
@@ -71,33 +82,42 @@ Junk filters, each counted in `HarvestStats` (surfaced in
 | `skipped_small` | either side < 120 px or area < 15 kpx; vector cluster < 120×80 pt | icons, bullets, glyph clusters |
 | `skipped_placed_tiny` | placed area < 1.2 % of the page | publisher logos rendered small |
 | `skipped_fullpage` | placed area > 90 % of the page | backgrounds, whole-page scans |
-| `skipped_repeated` | same image bytes / same cluster geometry on ≥ 3 pages | header/footer art, watermarks |
+| `skipped_repeated` | same image bytes / same cluster **size and position** on ≥ 3 pages, and no direct Figure caption | header/footer art, watermarks (not a series of same-size auto-exported plots) |
 | `skipped_header_footer` | cluster entirely inside the top/bottom 7 % band | running heads |
 | `skipped_overlap_raster` | cluster ≥ 60 % covered by a harvested raster | the frame drawn around an image |
-| `skipped_text_table` | vector cluster > 4 chars/kpt² of **live text** with ≤ 20 drawing objects | datasheet property tables — already extracted, grounded, by the text pass; mining them only buys `figure_estimate` duplicates of `ok` rows |
+| `skipped_text_table` | vector cluster with a `Table N` caption directly above it, or **uncaptioned** and > 3.5 chars/kpt² of **live text** | datasheet property tables and gridded paper tables — already extracted, grounded, by the text pass; mining them only buys `figure_estimate` duplicates of `ok` rows |
 | `skipped_dup_sha` | same PNG bytes already kept | multi-placement of one image |
 | `capped` | over `max_figures` | — |
 
-The text-table rule was measured on the corpus: Toray/Avient tables run
-5–12 chars/kpt² with 1–5 ruled lines; vector plots run < 2 chars/kpt² with
-26–500+ path objects. Set `VECTOR_TEXT_DENSITY_SKIP = 0` to disable. Net
-effect on the 41-PDF corpus: 294 figures kept (97 % of paper figures carry
-their caption), every Toray datasheet yields **0** figures and therefore
-**0** vision calls.
+The text-table rule was measured on the corpus: every uncaptioned vector
+cluster above 3.5 chars/kpt² is a live-text table (Toray 4.9–12, Polystrand
+4.2, Avient 3.8); the only real uncaptioned vector figure sits at 0.4; a
+directly captioned bar chart with dense tick labels ran 4.2 and is exempt.
+Set `VECTOR_TEXT_DENSITY_SKIP = 0` to disable. Net effect on the 41-PDF
+corpus at the time of writing: **292** figures kept, **99 %** of the 264
+paper figures carry their caption, 85 text tables skipped; 9 of 11 Toray
+datasheets yield **0** figures (tc910_pa6: 1 raster, tc940_pet: 2 raster) and
+5 datasheets in total have figures.
 
-Caption pairing: text blocks matching `^(Fig(ure)?\.?|FIG\.?)\s*\d+` are
-attached to the nearest figure **below** (≤ 180 pt, horizontally
+Caption pairing: text blocks matching `^(Fig(ure)?\.?|FIG\.?)\s*\d+`
+(trimmed to their first non-blank line — Word-generated PDFs pad caption
+blocks with blank lines, which used to swap captions on real pages) are
+attached to the nearest figure **below** (≤ 180 pt, ≥ −15 pt, horizontally
 overlapping), else **beside** (margin captions, ≤ 110 pt gap, vertically
-overlapping — Springer style), else **above** (≤ 120 pt), else the page's
-only caption. Stored verbatim (whitespace-collapsed, ≤ 600 chars) — it
-becomes the row's `source_quote`. Priority when the cap bites: captioned
-figures first (page order), then uncaptioned rasters, then uncaptioned
-vectors.
+overlapping, block narrower than 32 % of the page — Springer style); those
+are *strong* pairings that exempt a vector cluster from the repeat and
+text-table rules. Else **above** (≤ 120 pt) or the page's only caption —
+*weak* pairings: attached as best-effort provenance but exempting nothing.
+Stored verbatim (whitespace-collapsed, ≤ 600 chars) — it becomes the row's
+`source_quote`. Priority when the cap bites: captioned figures first (page
+order), then uncaptioned rasters, then uncaptioned vectors.
 
 ## Classify (`classify_figures`)
 
-One call per PDF, all figures as inline PNG parts each preceded by
-`[figure i] page P — caption: …`, index-keyed `responseSchema`:
+One call per PDF (split into consecutive batches only if the base64 payload
+would exceed `CLASSIFY_MAX_BYTES` = 12 MB — with JPEG copies the worst corpus
+PDF is 4.2 MB, so in practice one), all figures as inline JPEG parts each
+preceded by `[figure i] page P — caption: …`, index-keyed `responseSchema`:
 
 ```jsonc
 {"figures": [{"index": 0, "figure_kind": "property_plot", "material_guess": "PPS composite"}, …]}
@@ -108,7 +128,10 @@ chemical_structure | other`. `material_guess` is asked to be one of the names
 the text pass already extracted (passed in the prompt), or `''`. Only
 `property_plot` and `table_image` proceed to mining (`mining_status`
 `not_mined` vs `skipped_kind`); a failed call marks every figure
-`classify_failed`, counts it, and never raises.
+`classify_failed`, counts it, and never raises. An index the model skipped
+(or duplicated) leaves that figure `classify_failed` — pending, retried on
+the next run — never a silent terminal `other`; the run report counts it as
+`classify_incomplete`.
 
 ## Mine (`mine_figure`)
 
@@ -134,10 +157,13 @@ so it drops straight into `extraction.Property` and through `_fill_numeric`,
 ## Rows and statuses
 
 `figure_properties_to_rows()` attaches each value to the text-pass material
-its `material_guess` names (exact match, then containment on name /
-abbreviation / trade grade) — so the row lands in the right table with the
-right `material_key` — or, if nothing matches, to a material named after the
-guess (class via the deterministic keyword fallback).
+its `material_guess` names — scoring every candidate on whole tokens (exact
+name/abbr/grade › all name tokens + the grade token › all name tokens › the
+guess is a sub-name › longest shared token; `PEEK 450G` goes to the 450G
+grade, `PA66` never to `PA6`, `PPSU` never to `PPS`) — so the row lands in
+the right table with the right `material_key` — or, if nothing scores, to a
+material named after the guess (class via the deterministic keyword
+fallback).
 
 Status precedence for figure rows: `empty_value` → `unit_review` →
 `out_of_range` → **`figure_estimate`**. `flag_reason` names the figure, e.g.
@@ -170,10 +196,14 @@ the PNG behind `figure_id`, and `python batch_ingest.py --promote review.csv`
 is how a reading gets blessed.
 
 **Postgres (`--pg`)**: `--figures --pg` exits with a clear "not yet supported"
-error. The Postgres mirror gains the two columns automatically on the next
-`pg_migrate.py --apply` (harmless), but it has no `figures` table and its
-partial unique dedup index does not include `origin`, so a figure row equal
-to a text row on the old grain would violate it. Tracked in FOLLOWUPS A5.
+error. **New gate on the live DB**: `origin` / `figure_id` are now in
+`migrate.EXTRA_COLUMNS`, and `pg_mirror.check_schema()` requires every
+column in that list — so *any* `batch_ingest --pg` (with or without
+`--figures`, and `--promote --pg`) refuses to run until `python pg_migrate.py`
+(dry-run) then `--apply` has added the two columns. Additive and idempotent.
+Postgres still has no `figures` table and its partial unique dedup index does
+not include `origin` (a figure row equal to a text row on the old grain would
+violate it) — hence the refusal. Tracked in FOLLOWUPS A5.
 
 ## Wiring (`batch_ingest.py`)
 
@@ -202,18 +232,26 @@ costs 0 calls (a PDF that genuinely has zero figures is re-harvested locally,
 
 `run_report.json["figures"]`: `figures_found`, `figures_mined`, `figure_rows`,
 `figure_rows_duplicate_skipped`, `vision_calls`, `figure_errors_by_kind`,
-`harvest_filters`.
+`harvest_filters`. The top-level `rows_*` metrics (`rows_inserted`,
+`insert_rate`, `flag_rate`) stay **text-only**; figure rows are counted only
+under `figures`.
+
+A `scanned_no_text` PDF is never backfilled either — the `sources` logbook
+records that status and the rerun branch honours it.
 
 ## Cost model
 
-Per PDF: **≤ 1 classify call** (0 when nothing was harvested — every Toray
-datasheet on the corpus) **+ ≤ 1 mining call per `property_plot` /
-`table_image`**, hard-capped by `--max-figures-per-pdf`. Every call goes
-through `extraction.gemini_request` (retry/backoff, `temperature=0`). Payload
-per classify call ≈ 12 × ~0.2 MB PNG. On the current corpus (27 papers) that
-is 27 classify calls plus roughly the number of plots — an order of magnitude
-below the text pass in tokens per PDF. `--no-figure-mining` bounds it at 1
-call per PDF with figures.
+Per PDF: **≤ 1 classify call** (0 when nothing was harvested — 9 of 11 Toray
+datasheets; more only if the JPEG payload would exceed 12 MB, which no
+corpus PDF does) **+ ≤ 1 mining call per `property_plot` / `table_image`**,
+hard-capped by `--max-figures-per-pdf`. Every call goes through
+`extraction.gemini_request` (retry/backoff, `temperature=0`). Payload per
+classify call: JPEG q85 copies, worst corpus PDF 4.2 MB base64 (the lossless
+PNGs would have been 23.8 MB — over Gemini's 20 MB inline limit). On the
+current corpus that is 32 classify calls (27 papers + 5 datasheets with
+figures) plus roughly the number of plots — an order of magnitude below the
+text pass in tokens per PDF. `--no-figure-mining` bounds it at the classify
+calls only.
 
 ## Eval
 
