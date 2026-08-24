@@ -43,3 +43,5 @@ pg_backup_*/
 cleanup_*.sh
 # filled-in credential templates stay out of git
 hf_agent_deploy/agent_local_env.txt
+# local repo-cleanup audit (documents live credential status)
+REPO_CLEANUP.md

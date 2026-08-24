@@ -5,6 +5,12 @@ Each gold case is a pair:
 - `<name>.pdf` — the source PDF (a real datasheet/paper)
 - `<name>.json` — the hand-labeled expected extraction
 
+> **The PDFs are not in this branch.** They are published papers and vendor
+> datasheets that we hold for internal evaluation but cannot redistribute.
+> The `.json` labels are ours and are included, so the harness runs as soon as
+> you drop the matching PDFs into this folder. Filenames are listed in each
+> `.json` under `source_pdf`. Ask Mathias for the internal copy of the set.
+
 Run the harness from the project root:
 
 ```bash

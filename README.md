@@ -1,5 +1,16 @@
 # AIM Composites Materials Database
 
+> **About this branch.** This is the AIM extraction/ingestion pipeline. It has
+> its own history and shares no commits with this repository's other branches —
+> it is a separate codebase kept here so the team has one place to look. The
+> autonomous agent that runs this pipeline on a schedule lives in the Hugging
+> Face Space `aim4composites/AutonomousAgent`; the materials site lives in
+> `aim4composites/MaterialsDatabase`.
+>
+> Two things are deliberately absent: the `eval/gold/*.pdf` source documents
+> (third-party papers and datasheets we cannot redistribute — the hand-written
+> `.json` labels are here) and the `paper/` manuscript drafts.
+
 Tooling for an autonomous materials-database pipeline: discover materials
 literature/datasheets on the web, extract structured property data from the
 PDFs with an LLM, validate and ground it, and mirror it into a queryable
