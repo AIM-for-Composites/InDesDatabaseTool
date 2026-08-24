@@ -1,0 +1,1030 @@
+From 0b4887d00d730d755d27e7b7810982f2ed375d63 Mon Sep 17 00:00:00 2001
+From: Mathias Heider <mathias.heider@gmail.com>
+Date: Mon, 24 Aug 2026 02:44:05 +0000
+Subject: [PATCH] Load a .env locally so the agent runs outside a Space
+
+The Space injects its secrets into the environment; a local checkout has
+nothing doing that, so a clone failed with a bare 'Postgres config
+incomplete' (or a psycopg traceback in the UI) even with a .env sitting next
+to app.py -- nothing ever read that file.
+
+- envfile.py: stdlib-only .env loader. Never overrides an existing
+  environment variable, so Space secrets stay authoritative. Handles the
+  ways a .env actually arrives on Windows: .env.txt, UTF-16 from PowerShell
+  redirects, BOMs, CRLF, 'export ' prefixes, quoted values, inline comments.
+  'python envfile.py' prints a masked self-check.
+- agent/config.py: loads it, and exposes missing_db_vars()/setup_hint().
+- agent/ui_common.py: unconfigured DB now shows what is missing and where it
+  goes, instead of a psycopg traceback.
+- pg_mirror.py: the same, for CLI use.
+- local_bootstrap.py: builds an empty schema on a local Postgres, so a dev
+  never needs the shared RDS credentials. Refuses a non-local host.
+- .env.example + LOCAL_SETUP.md; .gitignore covers .env.* but keeps the
+  example.
+
+Verified: full test_e2e.py cycle green against a local Postgres configured
+only by a .env; AppTest shows the actionable error with no config; and with
+no .env present and secrets in the environment the app boots exactly as it
+does on HF.
+---
+ .env.example       |  53 +++++++
+ .gitignore         |   7 +
+ LOCAL_SETUP.md     | 117 ++++++++++++++
+ README.md          |  20 +++
+ agent/__init__.py  |  11 ++
+ agent/config.py    |  49 +++++-
+ agent/ui_common.py |  14 +-
+ app.py             |  16 ++
+ envfile.py         | 381 +++++++++++++++++++++++++++++++++++++++++++++
+ local_bootstrap.py | 176 +++++++++++++++++++++
+ pg_mirror.py       |  18 ++-
+ 11 files changed, 858 insertions(+), 4 deletions(-)
+ create mode 100644 .env.example
+ create mode 100644 LOCAL_SETUP.md
+ create mode 100644 envfile.py
+ create mode 100644 local_bootstrap.py
+
+diff --git a/.env.example b/.env.example
+new file mode 100644
+index 0000000..73b5130
+--- /dev/null
++++ b/.env.example
+@@ -0,0 +1,53 @@
++# ---------------------------------------------------------------------------
++# AIM Autonomous Agent — local development environment
++#
++#   1. Copy this file to ".env" IN THIS FOLDER (same folder as app.py).
++#      The name is exactly ".env" — not "env", not ".env.txt".
++#   2. Fill in the <angle bracket> placeholders.
++#   3. Run:  python envfile.py    (masked self-check — no secrets printed)
++#
++# .env is git-ignored. Never commit it, never paste it into chat or email.
++# On Hugging Face these same names are set under
++# Space -> Settings -> Variables and secrets, and always win over this file.
++# ---------------------------------------------------------------------------
++
++# --- Database ---------------------------------------------------------------
++# Local Postgres is the recommended target for development: you get the real
++# schema and none of the risk of writing into the shared RDS instance.
++#
++#   createdb aim_agent            # or: psql -c "CREATE DATABASE aim_agent;"
++#   python migrate.py             # creates/updates the tables
++#
++DB_HOST=localhost
++DB_PORT=5432
++DB_NAME=aim_agent
++DB_USER=postgres
++DB_PASSWORD=<your local postgres password>
++DB_SSLMODE=prefer
++# 'prefer' for localhost. A managed server (RDS) needs 'require'.
++
++# Alternative to the five DB_* lines above — wins if set:
++# DATABASE_URL=postgresql://user:password@host:5432/dbname
++
++# --- Gemini -----------------------------------------------------------------
++# Mint your OWN key: https://aistudio.google.com/apikey  (free tier is enough)
++# API keys are per-person and billable. Do not reuse someone else's, and set a
++# budget cap on yours in the Google Cloud console.
++# Without a key: crawling and the UI work, extraction is disabled.
++GEMINI_API_KEY=<your own Gemini API key>
++# GEMINI_MODEL=gemini-2.5-flash
++
++# --- Agent controls ---------------------------------------------------------
++AGENT_ADMIN_PASSWORD=<pick anything for local use>
++AGENT_AUTOSTART=false      # keep false locally: don't start crawling on boot
++AGENT_INTERVAL_HOURS=6
++AGENT_MAX_PDFS=2           # small caps while testing (Space default: 5)
++AGENT_MAX_PER_QUERY=2
++AGENT_QUERIES_PER_CYCLE=1
++AGENT_WORK_DIR=./agent_work
++
++# --- Optional ---------------------------------------------------------------
++# S2_API_KEY=                      # Semantic Scholar; free tier 429s constantly
++# CONTACT_EMAIL=you@example.com    # polite User-Agent for the crawlers
++# BOOTSTRAP_CLONE_FROM=            # LEAVE EMPTY locally — this clones a schema
++#                                  # from another database on the same server
+diff --git a/.gitignore b/.gitignore
+index 274d358..2bd4167 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,6 +1,13 @@
+ __pycache__/
+ *.pyc
++
++# --- secrets: never commit a filled-in env file -----------------------------
+ .env
++.env.*
++!.env.example
++*.key
++*.pem
++
+ *.sqlite
+ *.sqlite.bak
+ crawl_out/
+diff --git a/LOCAL_SETUP.md b/LOCAL_SETUP.md
+new file mode 100644
+index 0000000..a28dd75
+--- /dev/null
++++ b/LOCAL_SETUP.md
+@@ -0,0 +1,117 @@
++# Running the agent on your own machine
++
++The Space gets its settings from **Space → Settings → Variables and secrets**,
++which Hugging Face injects into the container as environment variables. A
++laptop has nothing doing that injection, so the code now reads a `.env` file
++instead (`envfile.py`). Anything already in your environment still wins, so
++this changes nothing about how the Space behaves.
++
++You need: **Python 3.11+**, **PostgreSQL 14+**, and your **own** Gemini API key.
++
++---
++
++## 1. Get the code
++
++```bash
++git clone https://huggingface.co/spaces/aim4composites/AutonomousAgent
++cd AutonomousAgent
++pip install -r requirements.txt
++```
++
++## 2. Start a local Postgres
++
++Run your own database. Do not point a development checkout at the shared RDS
++instance: the agent writes to it, and a bad local run would land in the team's
++data.
++
++- **Windows / macOS**: install PostgreSQL from postgresql.org (or
++  `brew install postgresql@16`), start it, and remember the password you set
++  for the `postgres` user.
++- Everything else is created for you in step 5.
++
++## 3. Create your `.env`
++
++```bash
++cp .env.example .env      # Windows: copy .env.example .env
++```
++
++Then open `.env` and fill in the `<angle bracket>` placeholders — your local
++Postgres password, and a Gemini key you mint yourself at
++<https://aistudio.google.com/apikey> (the free tier is enough).
++
++> **The file must be named exactly `.env`.** Two Windows traps:
++> Notepad silently saves it as `.env.txt` unless you pick *All Files* in the
++> Save-as dialog, and File Explorer hides the extension so it still *looks*
++> right (turn on View → Show → File name extensions). If you write the file
++> with PowerShell's `>` redirect you get UTF-16, which most tools cannot read.
++> `envfile.py` detects all three and tells you.
++
++`.env` is git-ignored. Never commit it, and never send a filled-in one to
++anyone — including a teammate who asks. Each person fills in their own.
++
++## 4. Check what the code can actually see
++
++```bash
++python envfile.py
++```
++
++This prints which file was found, which keys came out of it, and what is still
++missing. Secrets are masked, so the output is safe to paste into a chat when
++you want help.
++
++## 5. Create the schema
++
++```bash
++python local_bootstrap.py
++```
++
++Creates the database, the three material tables, every hardening column, the
++dedup indexes and the `agent_*` bookkeeping tables — all empty. Re-running it
++is safe. `python local_bootstrap.py --check` reports without changing
++anything. It refuses to run against a non-local host unless you pass
++`--force`.
++
++## 6. Run it
++
++```bash
++streamlit run app.py
++```
++
++Then open <http://localhost:8501>. Unlock **Run Control** with the
++`AGENT_ADMIN_PASSWORD` you set in your own `.env` and trigger a cycle from
++there. `AGENT_AUTOSTART=false` keeps it from crawling on its own while you are
++developing.
++
++## 7. Prove the whole path works (optional)
++
++```bash
++python test_e2e.py
++```
++
++Runs two full agent cycles against your local database with network discovery
++and Gemini stubbed out — 16 checks, no API cost.
++
++---
++
++## Troubleshooting
++
++| What you see | What it means | Fix |
++|---|---|---|
++| `Postgres config incomplete — missing DB_HOST, …` | Nothing supplied the settings | `python envfile.py` — it says whether a `.env` was found and which keys it contains |
++| "Database not configured." in the app | Same, shown in the UI | Same |
++| `.env` found but keys missing | The file parsed, but does not define them | Compare against `.env.example`; every line is `KEY=value` |
++| `Found .env.txt … must be named exactly ".env"` | The Windows extension trap | Rename it; turn on file-name extensions in Explorer |
++| `is UTF-16 encoded` | Written by PowerShell `>` | Re-save as UTF-8 (VS Code: bottom-right encoding picker) |
++| `connection refused` | Postgres is not running, or a different port | Start the service; check `DB_PORT` |
++| `password authentication failed` | `DB_USER`/`DB_PASSWORD` do not match the server | Fix them in `.env` |
++| `database "aim_agent" does not exist` | Schema step not run yet | `python local_bootstrap.py` |
++| `SSL connection has been closed` on localhost | `DB_SSLMODE=require` against a local server | Set `DB_SSLMODE=prefer` |
++| App loads but extraction does nothing | No Gemini key | Add `GEMINI_API_KEY`; crawling works without it |
++
++## A note on credentials
++
++Nobody should send anybody a filled-in `.env`. API keys are per-person and
++billable, and a chat message gets forwarded, backed up and screenshotted. Mint
++your own Gemini key, use your own local Postgres password, and if you need
++access to shared data, ask for a read-only database role rather than the
++credentials the agent runs with.
+diff --git a/README.md b/README.md
+index 8a8c844..5657c7c 100644
+--- a/README.md
++++ b/README.md
+@@ -102,3 +102,23 @@ Vendored pipeline (single source of truth, unchanged from the project repo):
+ 
+ Agent layer (new): `agent/` (orchestrator, scheduler, DB, config),
+ `app.py` + `page_files/` (Streamlit UI).
++
++## Local development
++
++The Space reads its settings from environment variables that Hugging Face
++injects from **Settings → Variables and secrets**. Locally nothing injects
++them, so `envfile.py` loads a `.env` file from the repo root first — values
++already in the environment always win, so the Space is unaffected.
++
++```bash
++cp .env.example .env       # fill in the placeholders
++python envfile.py          # masked self-check: what can the process see?
++python local_bootstrap.py  # create an empty local schema
++streamlit run app.py
++```
++
++Full walkthrough, including the Windows `.env.txt` trap and a troubleshooting
++table: **[LOCAL_SETUP.md](LOCAL_SETUP.md)**.
++
++`.env` is git-ignored and must never be committed or shared — each developer
++fills in their own (own Gemini key, own local Postgres).
+diff --git a/agent/__init__.py b/agent/__init__.py
+index b692082..b01fa73 100644
+--- a/agent/__init__.py
++++ b/agent/__init__.py
+@@ -1 +1,12 @@
+ """AIM Composites autonomous ingestion agent package."""
++
++# A local checkout has no Hugging Face Space to inject secrets into the
++# process, so pull a .env into os.environ before any submodule reads it.
++# Values already present in the environment are never overwritten, which
++# keeps the real Space secrets authoritative in the cloud.
++try:
++    from envfile import load_env_file as _load_env_file
++except ImportError:  # a partial copy without envfile.py still imports fine
++    pass
++else:
++    _load_env_file()
+diff --git a/agent/config.py b/agent/config.py
+index 6b45678..2cef149 100644
+--- a/agent/config.py
++++ b/agent/config.py
+@@ -1,7 +1,9 @@
+ """Central configuration for the autonomous agent Space.
+ 
+ Everything is read from the environment (HF Space secrets/variables) with
+-safe defaults. Runtime-tunable knobs (interval, caps, autonomy on/off) live
++safe defaults. Locally there is no Space to set those, so a ``.env`` file
++next to ``app.py`` is loaded first (see envfile.py) — the environment always
++wins, so this changes nothing when running on HF. Runtime-tunable knobs (interval, caps, autonomy on/off) live
+ in the `agent_state` Postgres table so they survive restarts and are editable
+ from the Run Control page — the values here are only the first-boot defaults.
+ """
+@@ -10,6 +12,17 @@ from __future__ import annotations
+ import os
+ from pathlib import Path
+ 
++# Load a local .env (no-op on HF Spaces, where the secrets are already in the
++# environment and win regardless). Must happen before anything below reads
++# os.environ.
++try:
++    import envfile as _envfile
++except ImportError:  # pragma: no cover
++    _envfile = None
++    ENV_FILE_RESULT = None
++else:
++    ENV_FILE_RESULT = _envfile.load_env_file()
++
+ 
+ def _f(name: str, default: float) -> float:
+     try:
+@@ -63,5 +76,39 @@ HARD_MAX_PDFS_PER_CYCLE = _i("AGENT_HARD_MAX_PDFS", 25)
+ CYCLE_STALE_MINUTES = 90             # a 'running' flag older than this is considered crashed
+ 
+ 
++REQUIRED_DB_VARS = ("DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD")
++
++
++def missing_db_vars() -> list[str]:
++    """Which Postgres settings are absent. Empty list == configured."""
++    if os.environ.get("DATABASE_URL"):
++        return []
++    return [v for v in REQUIRED_DB_VARS if not os.environ.get(v)]
++
++
++def env_file_path() -> str:
++    """The .env this process loaded, or "" if none was found."""
++    if ENV_FILE_RESULT is None or ENV_FILE_RESULT.path is None:
++        return ""
++    return str(ENV_FILE_RESULT.path)
++
++
++def setup_hint() -> str:
++    """One actionable paragraph explaining how to supply what is missing."""
++    gaps = missing_db_vars()
++    if not gaps:
++        return ""
++    listed = ", ".join(gaps)
++    found = env_file_path()
++    where = f"loaded .env: {found}" if found else "no .env file was found"
++    return (
++        f"Missing configuration: {listed} ({where}).\n"
++        "  - On Hugging Face: Space -> Settings -> Variables and secrets.\n"
++        "  - Locally: copy .env.example to .env next to app.py, fill it in, "
++        "then run `python envfile.py` to verify.\n"
++        "  See LOCAL_SETUP.md for the full walkthrough."
++    )
++
++
+ def ensure_dirs() -> None:
+     PDF_DIR.mkdir(parents=True, exist_ok=True)
+diff --git a/agent/ui_common.py b/agent/ui_common.py
+index 8fc71bb..eb28ce7 100644
+--- a/agent/ui_common.py
++++ b/agent/ui_common.py
+@@ -62,7 +62,19 @@ def admin_gate() -> bool:
+ def status_banner() -> None:
+     info = boot()
+     if not info["db"]:
+-        st.error(f"Database not reachable — set the DB_* secrets. ({info['error']})")
++        hint = C.setup_hint()
++        if hint:
++            # Nothing is configured at all — say exactly what is missing and
++            # where it goes, instead of a bare psycopg traceback.
++            st.error("Database not configured.")
++            st.code(hint, language="text")
++        else:
++            st.error(
++                "Database is configured but not reachable — check the host, "
++                f"port and SSL mode, and that the server is running. ({info['error']})"
++            )
++            if C.env_file_path():
++                st.caption(f"Settings were read from {C.env_file_path()}")
+         st.stop()
+     if not C.GEMINI_API_KEY:
+         st.warning("GEMINI_API_KEY is not set — discovery/download will work, "
+diff --git a/app.py b/app.py
+index 4a1e72a..261bd02 100644
+--- a/app.py
++++ b/app.py
+@@ -6,11 +6,27 @@ whether or not anyone is viewing the app.
+ """
+ import logging
+ 
++# Before anything reads os.environ: on a laptop the secrets come from a .env,
++# on HF Spaces they are already in the environment and take precedence.
++try:
++    import envfile as _envfile
++    _ENV = _envfile.load_env_file()
++except ImportError:  # pragma: no cover
++    _envfile, _ENV = None, None
++
+ import streamlit as st
+ 
+ logging.basicConfig(level=logging.INFO,
+                     format="%(asctime)s %(levelname)s %(name)s %(message)s")
+ 
++if _ENV is not None:
++    _log = logging.getLogger("agent.env")
++    if _ENV.path:
++        _log.info("loaded .env from %s (%d keys: %s)",
++                  _ENV.path, len(_ENV.applied), ", ".join(_ENV.applied))
++    for _w in _ENV.warnings:
++        _log.warning("env: %s", _w)
++
+ st.set_page_config(
+     page_title="AIM Autonomous Agent",
+     page_icon="🤖",
+diff --git a/envfile.py b/envfile.py
+new file mode 100644
+index 0000000..549f6e2
+--- /dev/null
++++ b/envfile.py
+@@ -0,0 +1,381 @@
++"""Zero-dependency ``.env`` loader for the AIM autonomous agent.
++
++Why this module exists
++----------------------
++On Hugging Face, the Space injects its secrets directly into the process
++environment, so every module here has always just read ``os.environ``. On a
++laptop nothing injects them, which is why a fresh local checkout fails with
++"Postgres config incomplete" or "GEMINI_API_KEY is not set" *even when a
++``.env`` file is sitting right next to ``app.py``* — nothing was ever reading
++that file.
++
++This module reads it, and copies the values into ``os.environ`` **without
++overwriting anything already set**, so:
++
++  * on HF Spaces  -> the real Space secrets always win (a ``.env`` is normally
++    absent there anyway, and is git-ignored so it can never be pushed)
++  * on a laptop   -> the ``.env`` supplies everything the Space would have
++
++Stdlib only, on purpose: adding a dependency here would force a Space rebuild
++and could break a deploy over a convenience feature.
++
++Self-check
++----------
++    python envfile.py
++
++prints which file was found, which keys came out of it, and which required
++variables are still missing. Values are always masked — the output is safe to
++paste into a chat when asking for help.
++"""
++
++from __future__ import annotations
++
++import os
++import sys
++from pathlib import Path
++from typing import Iterable, NamedTuple
++
++__all__ = ["load_env_file", "find_env_file", "LoadResult", "report"]
++
++#: Variables the agent needs before it can talk to Postgres.
++REQUIRED_DB = ("DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD")
++#: Present-but-optional; the app runs degraded without them.
++RECOMMENDED = ("GEMINI_API_KEY", "AGENT_ADMIN_PASSWORD")
++#: Never printed, even masked, unless the value is empty.
++_SECRETISH = ("PASSWORD", "KEY", "TOKEN", "SECRET", "DATABASE_URL")
++
++_LOADED_FROM: Path | None = None
++_CACHED: "LoadResult | None" = None
++
++
++class LoadResult(NamedTuple):
++    path: Path | None          # the file that was read, if any
++    applied: tuple[str, ...]   # keys copied into os.environ
++    skipped: tuple[str, ...]   # keys already set in the environment (env wins)
++    warnings: tuple[str, ...]  # human-readable problems worth surfacing
++
++
++# ---------------------------------------------------------------------------
++# Finding the file
++# ---------------------------------------------------------------------------
++
++def find_env_file(start: str | os.PathLike | None = None) -> tuple[Path | None, list[str]]:
++    """Locate a ``.env``. Returns (path_or_None, warnings).
++
++    Search order:
++      1. ``$AGENT_ENV_FILE`` (explicit override; may be any filename)
++      2. ``.env`` in this repo's root
++      3. ``.env`` in the current working directory, then each parent, up to 4
++         levels — so ``python agent/foo.py`` from a subfolder still works.
++
++    Common near-misses (``.env.txt`` from Windows Notepad, a stray ``env``
++    without the dot, only ``.env.example`` present) are reported as warnings
++    rather than silently ignored: they are the usual cause of "it says it
++    can't find my .env".
++    """
++    warnings: list[str] = []
++
++    override = os.environ.get("AGENT_ENV_FILE", "").strip()
++    if override:
++        p = Path(override).expanduser()
++        if p.is_file():
++            return p, warnings
++        warnings.append(f"AGENT_ENV_FILE points at {p} but no such file exists.")
++
++    here = Path(__file__).resolve().parent
++    candidates: list[Path] = [here]
++    cwd = Path(start or Path.cwd()).resolve()
++    candidates.append(cwd)
++    candidates.extend(list(cwd.parents)[:4])
++
++    seen: set[Path] = set()
++    near_misses: list[Path] = []
++    for folder in candidates:
++        if folder in seen:
++            continue
++        seen.add(folder)
++        target = folder / ".env"
++        if target.is_file():
++            return target, warnings
++        for wrong in (".env.txt", ".env.local.txt", "env", "env.txt", ".ENV"):
++            candidate = folder / wrong
++            if candidate.is_file():
++                near_misses.append(candidate)
++
++    for miss in near_misses:
++        warnings.append(
++            f"Found {miss.name} in {miss.parent} but the file must be named "
++            f'exactly ".env". On Windows, Notepad appends ".txt" unless you '
++            'pick "All Files" in the Save-as dialog; File Explorer hides the '
++            "extension by default (View -> Show -> File name extensions)."
++        )
++    if not near_misses and not warnings:
++        example = here / ".env.example"
++        if example.is_file():
++            warnings.append(
++                f"No .env found. Copy {example} to {here / '.env'} and fill it in."
++            )
++    return None, warnings
++
++
++# ---------------------------------------------------------------------------
++# Reading the file
++# ---------------------------------------------------------------------------
++
++def _read_text(path: Path) -> tuple[str, list[str]]:
++    """Decode a .env written by any of the editors people actually use."""
++    warnings: list[str] = []
++    raw = path.read_bytes()
++    if raw[:2] in (b"\xff\xfe", b"\xfe\xff"):
++        # PowerShell 5's `>` redirect writes UTF-16LE. Perfectly readable in
++        # Notepad, complete gibberish to every .env parser on earth.
++        warnings.append(
++            f"{path.name} is UTF-16 encoded (usually from PowerShell's '>' "
++            "redirect). It was decoded, but re-save it as UTF-8 to avoid "
++            "trouble with other tools."
++        )
++        text = raw.decode("utf-16")
++    else:
++        text = raw.decode("utf-8-sig", errors="replace")  # utf-8-sig eats the BOM
++    return text.replace("\r\n", "\n").replace("\r", "\n"), warnings
++
++
++def _unquote(value: str) -> tuple[str, str | None]:
++    """Strip quotes/comments from a raw value. Returns (value, warning)."""
++    value = value.strip()
++    if not value:
++        return "", None
++
++    if value[0] in ("'", '"'):
++        quote = value[0]
++        end = value.find(quote, 1)
++        # In double quotes a backslash escapes the quote; keep looking.
++        while end > 0 and quote == '"' and value[end - 1] == "\\":
++            end = value.find(quote, end + 1)
++        if end == -1:
++            return value, ("value starts with %s but never closes it; "
++                           "taken literally" % quote)
++        inner = value[1:end]
++        if quote == '"':
++            inner = (inner.replace("\\n", "\n")
++                          .replace("\\t", "\t")
++                          .replace('\\"', '"'))
++        trailing = value[end + 1:].strip()
++        if trailing and not trailing.startswith("#"):
++            return inner, ("ignored %r after the closing quote" % trailing[:20])
++        return inner, None
++
++    # Unquoted: honour a trailing ' # comment', but only when whitespace
++    # precedes the '#' — passwords legitimately contain '#'.
++    for i in range(1, len(value)):
++        if value[i] == "#" and value[i - 1] in " \t":
++            return value[:i].rstrip(), None
++    return value, None
++
++
++def parse_env(text: str) -> tuple[dict[str, str], list[str]]:
++    """Parse .env text into a dict. Returns (values, warnings)."""
++    values: dict[str, str] = {}
++    warnings: list[str] = []
++    for lineno, line in enumerate(text.split("\n"), start=1):
++        stripped = line.strip()
++        if not stripped or stripped.startswith("#"):
++            continue
++        if stripped.lower().startswith("export "):
++            stripped = stripped[7:].lstrip()
++        if "=" not in stripped:
++            if ":" in stripped:
++                warnings.append(
++                    f"line {lineno}: looks like YAML ('{stripped[:40]}'). "
++                    "A .env uses KEY=value, one per line."
++                )
++            else:
++                warnings.append(f"line {lineno}: no '=' found, ignored.")
++            continue
++        key, _, value = stripped.partition("=")
++        key = key.strip()
++        if not key:
++            warnings.append(f"line {lineno}: empty key, ignored.")
++            continue
++        if not all(c.isalnum() or c == "_" for c in key):
++            warnings.append(
++                f"line {lineno}: key {key!r} has characters other than "
++                "letters/digits/underscore; it will not be readable as an "
++                "environment variable."
++            )
++            continue
++        parsed, warning = _unquote(value)
++        if warning:
++            warnings.append(f"line {lineno} ({key}): {warning}")
++        values[key] = parsed
++    return values, warnings
++
++
++# ---------------------------------------------------------------------------
++# Public entry point
++# ---------------------------------------------------------------------------
++
++def load_env_file(path: str | os.PathLike | None = None,
++                  override: bool = False,
++                  reload: bool = False) -> LoadResult:
++    """Load a ``.env`` into ``os.environ``. Idempotent and never raises.
++
++    ``override=False`` (the default) means a variable already present in the
++    environment is left alone — that is what keeps HF Space secrets
++    authoritative in the cloud while a laptop still gets its values from file.
++
++    The first call in a process wins and its result is cached: several modules
++    call this defensively, and re-running it would report every key as
++    "already in the environment" (true, but only because of the first call).
++    Pass ``reload=True`` to genuinely re-read the file.
++    """
++    global _LOADED_FROM, _CACHED
++
++    if _CACHED is not None and not reload and path is None:
++        return _CACHED
++
++    warnings: list[str] = []
++    if path is not None:
++        target = Path(path).expanduser()
++        if not target.is_file():
++            return LoadResult(None, (), (), (f"{target} does not exist.",))
++    else:
++        target, warnings = find_env_file()
++        if target is None:
++            _CACHED = LoadResult(None, (), (), tuple(warnings))
++            return _CACHED
++
++    try:
++        text, decode_warnings = _read_text(target)
++    except OSError as exc:
++        return LoadResult(None, (), (), tuple(warnings) + (f"could not read {target}: {exc}",))
++    warnings.extend(decode_warnings)
++
++    values, parse_warnings = parse_env(text)
++    warnings.extend(parse_warnings)
++
++    applied, skipped = [], []
++    for key, value in values.items():
++        if not override and os.environ.get(key):
++            skipped.append(key)
++            continue
++        os.environ[key] = value
++        applied.append(key)
++
++    placeholders = [k for k, v in values.items() if is_placeholder(v)]
++    if placeholders:
++        warnings.append(
++            "still on placeholder values (edit them): " + ", ".join(sorted(placeholders))
++        )
++
++    _LOADED_FROM = target
++    result = LoadResult(target, tuple(applied), tuple(skipped), tuple(warnings))
++    if path is None:
++        _CACHED = result
++    return result
++
++
++def loaded_from() -> Path | None:
++    """The .env this process loaded, if any (for diagnostics/logging)."""
++    return _LOADED_FROM
++
++
++# ---------------------------------------------------------------------------
++# Diagnostics
++# ---------------------------------------------------------------------------
++
++_PLACEHOLDER_PREFIXES = ("fill in", "fillin", "your ", "your-", "your_",
++                         "changeme", "change me", "todo", "tbd", "xxx",
++                         "paste ", "insert ", "replace ")
++
++
++def is_placeholder(value: str) -> bool:
++    """True if a value is obviously still the template text, not a real one."""
++    v = value.strip()
++    if not v:
++        return False
++    if v.startswith("<") and v.endswith(">"):
++        return True
++    return v.lower().startswith(_PLACEHOLDER_PREFIXES)
++
++
++def _mask(key: str, value: str) -> str:
++    """Never reveal a secret. Keys show a 4-char tail so you can tell two keys
++    apart; passwords and connection strings show nothing but a length."""
++    if not value:
++        return "(empty)"
++    upper = key.upper()
++    if "PASSWORD" in upper or "DATABASE_URL" in upper or "SECRET" in upper:
++        return f"set ({len(value)} chars)"
++    if any(token in upper for token in ("KEY", "TOKEN")):
++        return f"set ({len(value)} chars, ...{value[-4:]})" if len(value) > 8 else "set (short)"
++    return value
++
++
++def missing(names: Iterable[str]) -> list[str]:
++    return [n for n in names if not os.environ.get(n)]
++
++
++def report() -> str:
++    """Human-readable config check. Safe to paste into a chat — no secrets."""
++    result = load_env_file(reload=True)
++    lines = ["AIM agent — environment self-check", "=" * 42]
++
++    if result.path:
++        lines.append(f".env file:      {result.path}")
++        lines.append(f"keys applied:   {', '.join(result.applied) or '(none)'}")
++        if result.skipped:
++            lines.append(f"already in env: {', '.join(result.skipped)} (environment wins)")
++    else:
++        lines.append(".env file:      NOT FOUND")
++
++    lines.append("")
++    lines.append("Database:")
++    if os.environ.get("DATABASE_URL"):
++        lines.append("  DATABASE_URL  set (overrides the DB_* variables)")
++        db_missing: list[str] = []
++    else:
++        db_missing = missing(REQUIRED_DB)
++        for name in REQUIRED_DB + ("DB_PORT", "DB_SSLMODE"):
++            value = os.environ.get(name, "")
++            if is_placeholder(value):
++                lines.append(f"!! {name:<14} still template text — fill it in")
++            else:
++                flag = "  " if value else "!!"
++                lines.append(f"{flag} {name:<14} {_mask(name, value)}")
++
++    lines.append("")
++    lines.append("Agent:")
++    for name in RECOMMENDED + ("AGENT_WORK_DIR", "AGENT_AUTOSTART"):
++        value = os.environ.get(name, "")
++        if is_placeholder(value):
++            lines.append(f"!! {name:<22} still template text — fill it in")
++        else:
++            lines.append(f"   {name:<22} {_mask(name, value)}")
++
++    if result.warnings:
++        lines.append("")
++        lines.append("Warnings:")
++        lines.extend(f"  - {w}" for w in result.warnings)
++
++    unfilled = sorted(k for k in set(REQUIRED_DB + RECOMMENDED + ("DATABASE_URL",))
++                      if is_placeholder(os.environ.get(k, "")))
++
++    lines.append("")
++    if db_missing:
++        lines.append("RESULT: not ready — missing " + ", ".join(db_missing))
++    elif unfilled:
++        lines.append("RESULT: not ready — still on template text: "
++                     + ", ".join(unfilled)
++                     + "\n        Edit those lines in the .env, then re-run this check.")
++    elif not os.environ.get("GEMINI_API_KEY") and not os.environ.get("GOOGLE_API_KEY"):
++        lines.append("RESULT: database configured; extraction disabled "
++                     "(no GEMINI_API_KEY) — crawling still works.")
++    else:
++        lines.append("RESULT: configuration looks complete.")
++    return "\n".join(lines)
++
++
++if __name__ == "__main__":
++    print(report())
++    sys.exit(0)
+diff --git a/local_bootstrap.py b/local_bootstrap.py
+new file mode 100644
+index 0000000..cadc249
+--- /dev/null
++++ b/local_bootstrap.py
+@@ -0,0 +1,176 @@
++r"""
++local_bootstrap.py — create an empty local Postgres schema for development.
++
++The Space gets its schema from bootstrap_db.py, which clones the team's live
++database. That needs credentials for the shared RDS instance, which is exactly
++what a laptop should not have. This script builds the same empty schema from
++scratch instead, so a developer can run the whole agent against their own
++Postgres with nothing shared.
++
++What it creates (all IF NOT EXISTS — safe to re-run):
++  1. the target database itself, if missing
++  2. Polymers / Fibers / Composites_materials with the legacy columns the
++     Space's data_loader.py SELECTs
++  3. every hardening column, the dedup indexes and the `sources` table, by
++     calling pg_mirror.ensure_schema() — the same code path pg_migrate.py uses
++  4. the agent_* bookkeeping tables, via agent.agdb.ensure_agent_schema()
++
++Refuses to touch a non-local host unless --force is passed, so a stray
++DB_HOST pointing at RDS cannot be migrated by accident.
++
++Usage:
++    python local_bootstrap.py            # uses .env / environment
++    python local_bootstrap.py --check    # report only, change nothing
++"""
++
++from __future__ import annotations
++
++import argparse
++import os
++import sys
++
++try:
++    import envfile
++    envfile.load_env_file()
++except ImportError:  # pragma: no cover
++    envfile = None
++
++import psycopg
++from psycopg import sql
++
++import pg_mirror
++
++LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1", ""}
++
++BASE_TABLES = ("Polymers", "Fibers", "Composites_materials")
++
++BASE_DDL = """
++CREATE TABLE IF NOT EXISTS {table} (
++    id bigint GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
++    material_name text,
++    material_abbreviation text,
++    section text,
++    property_name text,
++    value text,
++    unit text,
++    english text,
++    test_condition text,
++    comments text
++)
++"""
++
++
++def _cfg() -> dict[str, str]:
++    return {
++        "host": os.environ.get("DB_HOST", ""),
++        "port": os.environ.get("DB_PORT", "5432"),
++        "dbname": os.environ.get("DB_NAME", ""),
++        "user": os.environ.get("DB_USER", ""),
++        "password": os.environ.get("DB_PASSWORD", ""),
++        "sslmode": os.environ.get("DB_SSLMODE", "prefer"),
++    }
++
++
++def _connect(dbname: str) -> psycopg.Connection:
++    c = _cfg()
++    return psycopg.connect(host=c["host"] or None, port=int(c["port"]),
++                           dbname=dbname, user=c["user"] or None,
++                           password=c["password"] or None,
++                           sslmode=c["sslmode"], connect_timeout=15)
++
++
++def ensure_database(name: str) -> bool:
++    """CREATE DATABASE if absent. Returns True if it created one."""
++    with _connect("postgres") as conn:
++        conn.autocommit = True
++        with conn.cursor() as cur:
++            cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (name,))
++            if cur.fetchone():
++                return False
++            cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
++            return True
++
++
++def main() -> int:
++    ap = argparse.ArgumentParser(description=__doc__,
++                                 formatter_class=argparse.RawDescriptionHelpFormatter)
++    ap.add_argument("--check", action="store_true",
++                    help="report what exists; make no changes")
++    ap.add_argument("--force", action="store_true",
++                    help="allow a non-local DB_HOST (you almost never want this)")
++    args = ap.parse_args()
++
++    cfg = _cfg()
++    missing = [k for k in ("DB_NAME", "DB_USER") if not os.environ.get(k)]
++    if missing and not os.environ.get("DATABASE_URL"):
++        print("Missing " + ", ".join(missing) +
++              ". Copy .env.example to .env and fill it in, then run "
++              "`python envfile.py` to check.", file=sys.stderr)
++        return 2
++
++    host = cfg["host"].lower()
++    if host not in LOCAL_HOSTS and not args.force:
++        print(f"DB_HOST is {cfg['host']!r}, which is not a local server.\n"
++              "This script is for a development database on your own machine. "
++              "Re-run with --force only if you are certain.", file=sys.stderr)
++        return 2
++
++    print(f"Target: {cfg['user']}@{cfg['host'] or 'local socket'}:{cfg['port']}/{cfg['dbname']}")
++
++    if args.check:
++        try:
++            conn_ctx = _connect(cfg["dbname"])
++        except psycopg.OperationalError as exc:
++            first = str(exc).strip().splitlines()[-1]
++            print(f"  cannot connect: {first}")
++            if "does not exist" in str(exc):
++                print("  -> run `python local_bootstrap.py` (no --check) to create it")
++            elif "Connection refused" in str(exc):
++                print("  -> is Postgres running on that host and port?")
++            elif "password" in str(exc).lower():
++                print("  -> DB_USER / DB_PASSWORD in your .env do not match the server")
++            return 1
++        with conn_ctx as conn:
++            for table in BASE_TABLES + ("sources",):
++                cols = pg_mirror.existing_columns(conn, table)
++                print(f"  {table:<24} {'%d columns' % len(cols) if cols else 'MISSING'}")
++            try:
++                pg_mirror.check_schema(conn)
++                print("check_schema: OK")
++            except Exception as exc:
++                print(f"check_schema: {exc}")
++        return 0
++
++    created = ensure_database(cfg["dbname"])
++    print(f"  database {cfg['dbname']}: {'created' if created else 'already exists'}")
++
++    with _connect(cfg["dbname"]) as conn:
++        with conn.cursor() as cur:
++            for table in BASE_TABLES:
++                cur.execute(sql.SQL(BASE_DDL.format(table='{}')).format(sql.Identifier(table)))
++        conn.commit()
++        print("  base tables: ok")
++
++        added = pg_mirror.ensure_schema(conn)
++        for table, cols in added.items():
++            print(f"  {table}: +{len(cols)} hardening columns")
++        pg_mirror.check_schema(conn)
++        print("  check_schema: OK")
++
++    try:
++        from agent import agdb
++        conn = agdb.connect()
++        try:
++            agdb.ensure_agent_schema(conn)
++            print("  agent_* tables: ok")
++        finally:
++            conn.close()
++    except Exception as exc:
++        print(f"  agent_* tables: skipped ({exc})")
++
++    print("\nSchema ready. Next: `streamlit run app.py`")
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/pg_mirror.py b/pg_mirror.py
+index 8f19bd8..c93c20d 100644
+--- a/pg_mirror.py
++++ b/pg_mirror.py
+@@ -44,6 +44,12 @@ except ImportError as exc:  # pragma: no cover
+         "psycopg is required for the Postgres mirror: pip install 'psycopg[binary]'"
+     ) from exc
+ 
++try:  # local runs: fill os.environ from a .env before reading config
++    import envfile as _envfile
++    _envfile.load_env_file()
++except ImportError:  # pragma: no cover - fine without it (HF sets real secrets)
++    _envfile = None
++
+ import batch_ingest as _bi  # single source of truth: columns, row mapping, tables
+ from extraction import PropertyRow
+ from migrate import EXTRA_COLUMNS
+@@ -96,9 +102,17 @@ def connect_from_env() -> "psycopg.Connection":
+     missing = [k for k in ("DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD")
+                if not os.environ.get(k)]
+     if missing:
++        loaded = getattr(_envfile, "loaded_from", lambda: None)() if _envfile else None
++        where = (f"a .env was loaded from {loaded}, but it does not define them"
++                 if loaded else
++                 "no .env file was found, and nothing set them in the environment")
+         raise RuntimeError(
+-            "Postgres config incomplete — set DATABASE_URL or the missing env "
+-            f"vars: {', '.join(missing)}"
++            "Postgres config incomplete — missing "
++            f"{', '.join(missing)}; {where}. "
++            "Set DATABASE_URL or those DB_* variables: on Hugging Face in "
++            "Space -> Settings -> Variables and secrets; locally by copying "
++            ".env.example to .env next to app.py. Run `python envfile.py` for "
++            "a masked self-check of what the process can actually see."
+         )
+     return psycopg.connect(
+         host=os.environ["DB_HOST"],
+-- 
+2.43.0
+

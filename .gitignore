@@ -37,3 +37,9 @@ run_report.json
 review_queue.csv
 # regenerable CSV dumps written by pg_migrate.py --apply
 pg_backup_*/
+
+# --- key-bearing scrub scripts for the OTHER repos: never commit -----------
+# (these contain the raw leaked Gemini keys as filter-repo replacement maps)
+cleanup_*.sh
+# filled-in credential templates stay out of git
+hf_agent_deploy/agent_local_env.txt
